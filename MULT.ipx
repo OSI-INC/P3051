@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DiamondModule name="MULT" module="Multiplier" VendorName="Lattice Semiconductor Corporation" generator="IPexpress" date="2022 07 15 12:47:02.080" version="4.9" type="Module" synthesis="synplify" source_format="VHDL">
+  <Package>
+		<File name="MULT.lpc" type="lpc" modified="2022 07 15 12:47:01.162"/>
+		<File name="MULT.vhd" type="top_level_vhdl" modified="2022 07 15 12:47:01.185"/>
+		<File name="MULT_tmpl.vhd" type="template_vhdl" modified="2022 07 15 12:47:01.185"/>
+		<File name="tb_MULT_tmpl.vhd" type="testbench_vhdl" modified="2022 07 15 12:47:01.185"/>
+  </Package>
+</DiamondModule>

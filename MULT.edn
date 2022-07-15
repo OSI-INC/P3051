@@ -1,0 +1,1298 @@
+(edif MULT
+  (edifVersion 2 0 0)
+  (edifLevel 0)
+  (keywordMap (keywordLevel 0))
+  (status
+    (written
+      (timestamp 2022 7 15 12 47 1)
+      (program "SCUBA" (version "Diamond (64-bit) 3.12.1.454"))))
+      (comment "C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n MULT -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type dspmult -simple_portname -pfu_mult -widtha 8 -widthb 8 -widthp 16 -PL_stages 1 -clk0 -ce0 -rst0 ")
+  (library ORCLIB
+    (edifLevel 0)
+    (technology
+      (numberDefinition))
+    (cell AND2
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port A
+            (direction INPUT))
+          (port B
+            (direction INPUT))
+          (port Z
+            (direction OUTPUT)))))
+    (cell FADD2B
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port A0
+            (direction INPUT))
+          (port A1
+            (direction INPUT))
+          (port B0
+            (direction INPUT))
+          (port B1
+            (direction INPUT))
+          (port CI
+            (direction INPUT))
+          (port COUT
+            (direction OUTPUT))
+          (port S0
+            (direction OUTPUT))
+          (port S1
+            (direction OUTPUT)))))
+    (cell FD1P3DX
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port D
+            (direction INPUT))
+          (port SP
+            (direction INPUT))
+          (port CK
+            (direction INPUT))
+          (port CD
+            (direction INPUT))
+          (port Q
+            (direction OUTPUT)))))
+    (cell VHI
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Z
+            (direction OUTPUT)))))
+    (cell VLO
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Z
+            (direction OUTPUT)))))
+    (cell MULT2
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port A0
+            (direction INPUT))
+          (port A1
+            (direction INPUT))
+          (port A2
+            (direction INPUT))
+          (port A3
+            (direction INPUT))
+          (port B0
+            (direction INPUT))
+          (port B1
+            (direction INPUT))
+          (port B2
+            (direction INPUT))
+          (port B3
+            (direction INPUT))
+          (port CI
+            (direction INPUT))
+          (port P0
+            (direction OUTPUT))
+          (port P1
+            (direction OUTPUT))
+          (port CO
+            (direction OUTPUT)))))
+    (cell MULT
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Clock
+            (direction INPUT))
+          (port ClkEn
+            (direction INPUT))
+          (port Aclr
+            (direction INPUT))
+          (port (array (rename DataA "DataA(7:0)") 8)
+            (direction INPUT))
+          (port (array (rename DataB "DataB(7:0)") 8)
+            (direction INPUT))
+          (port (array (rename Result "Result(15:0)") 16)
+            (direction OUTPUT)))
+        (property NGD_DRC_MASK (integer 1))
+        (contents
+          (instance scuba_vhi_inst
+            (viewRef view1 
+              (cellRef VHI)))
+          (instance AND2_t3
+            (viewRef view1 
+              (cellRef AND2)))
+          (instance AND2_t2
+            (viewRef view1 
+              (cellRef AND2)))
+          (instance AND2_t1
+            (viewRef view1 
+              (cellRef AND2)))
+          (instance AND2_t0
+            (viewRef view1 
+              (cellRef AND2)))
+          (instance FF_25
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_24
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_23
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_22
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_21
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_20
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_19
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_18
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_17
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_16
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_15
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_14
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_13
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_12
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_11
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_10
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_9
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_8
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_7
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_6
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_5
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_4
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_3
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_2
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_1
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance FF_0
+            (viewRef view1 
+              (cellRef FD1P3DX))
+            (property GSR
+              (string "ENABLED")))
+          (instance MULT_0_cin_lr_add_0
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_Cadd_0_4
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_cin_lr_add_2
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_Cadd_2_4
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_cin_lr_add_4
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_Cadd_4_4
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_cin_lr_add_6
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_Cadd_6_4
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance Cadd_MULT_0_0_1
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_0_2
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_0_3
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_0_4
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_0_5
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_0_6
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance Cadd_MULT_0_0_7
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance Cadd_MULT_0_1_1
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_1_2
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_1_3
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_1_4
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_1_5
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_add_1_6
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance Cadd_t_MULT_0_2_1
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance t_MULT_0_add_2_2
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance t_MULT_0_add_2_3
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance t_MULT_0_add_2_4
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance t_MULT_0_add_2_5
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance t_MULT_0_add_2_6
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance t_MULT_0_add_2_7
+            (viewRef view1 
+              (cellRef FADD2B)))
+          (instance MULT_0_mult_0_0
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_0_1
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_0_2
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_0_3
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_2_0
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_2_1
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_2_2
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_2_3
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_4_0
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_4_1
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_4_2
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_4_3
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_6_0
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_6_1
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance MULT_0_mult_6_2
+            (viewRef view1 
+              (cellRef MULT2)))
+          (instance scuba_vlo_inst
+            (viewRef view1 
+              (cellRef VLO)))
+          (instance MULT_0_mult_6_3
+            (viewRef view1 
+              (cellRef MULT2)))
+          (net scuba_vhi
+            (joined
+              (portRef Z (instanceRef scuba_vhi_inst))))
+          (net MULT_0_pp_0_0
+            (joined
+              (portRef D (instanceRef FF_25))
+              (portRef Z (instanceRef AND2_t3))))
+          (net MULT_0_pp_2_4
+            (joined
+              (portRef D (instanceRef FF_11))
+              (portRef Z (instanceRef AND2_t1))))
+          (net s_MULT_0_0_2
+            (joined
+              (portRef S1 (instanceRef Cadd_MULT_0_0_1))
+              (portRef D (instanceRef FF_23))))
+          (net MULT_0_pp_1_2
+            (joined
+              (portRef B1 (instanceRef Cadd_MULT_0_0_1))
+              (portRef Z (instanceRef AND2_t2))))
+          (net s_MULT_0_0_3
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_0_2))
+              (portRef D (instanceRef FF_22))))
+          (net s_MULT_0_0_4
+            (joined
+              (portRef S1 (instanceRef MULT_0_add_0_2))
+              (portRef D (instanceRef FF_21))))
+          (net co_MULT_0_0_1
+            (joined
+              (portRef CI (instanceRef MULT_0_add_0_2))
+              (portRef COUT (instanceRef Cadd_MULT_0_0_1))))
+          (net s_MULT_0_0_5
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_0_3))
+              (portRef D (instanceRef FF_20))))
+          (net s_MULT_0_0_6
+            (joined
+              (portRef S1 (instanceRef MULT_0_add_0_3))
+              (portRef D (instanceRef FF_19))))
+          (net co_MULT_0_0_2
+            (joined
+              (portRef CI (instanceRef MULT_0_add_0_3))
+              (portRef COUT (instanceRef MULT_0_add_0_2))))
+          (net s_MULT_0_0_7
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_0_4))
+              (portRef D (instanceRef FF_18))))
+          (net s_MULT_0_0_8
+            (joined
+              (portRef S1 (instanceRef MULT_0_add_0_4))
+              (portRef D (instanceRef FF_17))))
+          (net co_MULT_0_0_3
+            (joined
+              (portRef CI (instanceRef MULT_0_add_0_4))
+              (portRef COUT (instanceRef MULT_0_add_0_3))))
+          (net s_MULT_0_0_9
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_0_5))
+              (portRef D (instanceRef FF_16))))
+          (net s_MULT_0_0_10
+            (joined
+              (portRef S1 (instanceRef MULT_0_add_0_5))
+              (portRef D (instanceRef FF_15))))
+          (net co_MULT_0_0_4
+            (joined
+              (portRef CI (instanceRef MULT_0_add_0_5))
+              (portRef COUT (instanceRef MULT_0_add_0_4))))
+          (net MULT_0_pp_0_9
+            (joined
+              (portRef A0 (instanceRef MULT_0_add_0_5))
+              (portRef S0 (instanceRef MULT_0_Cadd_0_4))))
+          (net s_MULT_0_0_11
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_0_6))
+              (portRef D (instanceRef FF_14))))
+          (net s_MULT_0_0_12
+            (joined
+              (portRef S1 (instanceRef MULT_0_add_0_6))
+              (portRef D (instanceRef FF_13))))
+          (net co_MULT_0_0_5
+            (joined
+              (portRef CI (instanceRef MULT_0_add_0_6))
+              (portRef COUT (instanceRef MULT_0_add_0_5))))
+          (net MULT_0_pp_1_11
+            (joined
+              (portRef B0 (instanceRef MULT_0_add_0_6))
+              (portRef S0 (instanceRef MULT_0_Cadd_2_4))))
+          (net s_MULT_0_0_13
+            (joined
+              (portRef S0 (instanceRef Cadd_MULT_0_0_7))
+              (portRef D (instanceRef FF_12))))
+          (net co_MULT_0_0_6
+            (joined
+              (portRef CI (instanceRef Cadd_MULT_0_0_7))
+              (portRef COUT (instanceRef MULT_0_add_0_6))))
+          (net s_MULT_0_1_6
+            (joined
+              (portRef S1 (instanceRef Cadd_MULT_0_1_1))
+              (portRef D (instanceRef FF_9))))
+          (net MULT_0_pp_3_6
+            (joined
+              (portRef B1 (instanceRef Cadd_MULT_0_1_1))
+              (portRef Z (instanceRef AND2_t0))))
+          (net s_MULT_0_1_7
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_1_2))
+              (portRef D (instanceRef FF_8))))
+          (net s_MULT_0_1_8
+            (joined
+              (portRef S1 (instanceRef MULT_0_add_1_2))
+              (portRef D (instanceRef FF_7))))
+          (net co_MULT_0_1_1
+            (joined
+              (portRef CI (instanceRef MULT_0_add_1_2))
+              (portRef COUT (instanceRef Cadd_MULT_0_1_1))))
+          (net s_MULT_0_1_9
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_1_3))
+              (portRef D (instanceRef FF_6))))
+          (net s_MULT_0_1_10
+            (joined
+              (portRef S1 (instanceRef MULT_0_add_1_3))
+              (portRef D (instanceRef FF_5))))
+          (net co_MULT_0_1_2
+            (joined
+              (portRef CI (instanceRef MULT_0_add_1_3))
+              (portRef COUT (instanceRef MULT_0_add_1_2))))
+          (net s_MULT_0_1_11
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_1_4))
+              (portRef D (instanceRef FF_4))))
+          (net s_MULT_0_1_12
+            (joined
+              (portRef S1 (instanceRef MULT_0_add_1_4))
+              (portRef D (instanceRef FF_3))))
+          (net co_MULT_0_1_3
+            (joined
+              (portRef CI (instanceRef MULT_0_add_1_4))
+              (portRef COUT (instanceRef MULT_0_add_1_3))))
+          (net s_MULT_0_1_13
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_1_5))
+              (portRef D (instanceRef FF_2))))
+          (net s_MULT_0_1_14
+            (joined
+              (portRef S1 (instanceRef MULT_0_add_1_5))
+              (portRef D (instanceRef FF_1))))
+          (net co_MULT_0_1_4
+            (joined
+              (portRef CI (instanceRef MULT_0_add_1_5))
+              (portRef COUT (instanceRef MULT_0_add_1_4))))
+          (net MULT_0_pp_2_13
+            (joined
+              (portRef A0 (instanceRef MULT_0_add_1_5))
+              (portRef S0 (instanceRef MULT_0_Cadd_4_4))))
+          (net s_MULT_0_1_15
+            (joined
+              (portRef S0 (instanceRef MULT_0_add_1_6))
+              (portRef D (instanceRef FF_0))))
+          (net co_MULT_0_1_6
+            (joined
+              (portRef COUT (instanceRef MULT_0_add_1_6))))
+          (net co_MULT_0_1_5
+            (joined
+              (portRef CI (instanceRef MULT_0_add_1_6))
+              (portRef COUT (instanceRef MULT_0_add_1_5))))
+          (net MULT_0_pp_3_15
+            (joined
+              (portRef B0 (instanceRef MULT_0_add_1_6))
+              (portRef S0 (instanceRef MULT_0_Cadd_6_4))))
+          (net f_MULT_0_pp_2_4
+            (joined
+              (portRef B1 (instanceRef Cadd_t_MULT_0_2_1))
+              (portRef Q (instanceRef FF_11))))
+          (net f_s_MULT_0_0_4
+            (joined
+              (portRef A1 (instanceRef Cadd_t_MULT_0_2_1))
+              (portRef Q (instanceRef FF_21))))
+          (net co_t_MULT_0_2_1
+            (joined
+              (portRef CI (instanceRef t_MULT_0_add_2_2))
+              (portRef COUT (instanceRef Cadd_t_MULT_0_2_1))))
+          (net f_MULT_0_pp_2_5
+            (joined
+              (portRef B0 (instanceRef t_MULT_0_add_2_2))
+              (portRef Q (instanceRef FF_10))))
+          (net f_s_MULT_0_1_6
+            (joined
+              (portRef B1 (instanceRef t_MULT_0_add_2_2))
+              (portRef Q (instanceRef FF_9))))
+          (net f_s_MULT_0_0_5
+            (joined
+              (portRef A0 (instanceRef t_MULT_0_add_2_2))
+              (portRef Q (instanceRef FF_20))))
+          (net f_s_MULT_0_0_6
+            (joined
+              (portRef A1 (instanceRef t_MULT_0_add_2_2))
+              (portRef Q (instanceRef FF_19))))
+          (net co_t_MULT_0_2_2
+            (joined
+              (portRef CI (instanceRef t_MULT_0_add_2_3))
+              (portRef COUT (instanceRef t_MULT_0_add_2_2))))
+          (net f_s_MULT_0_1_7
+            (joined
+              (portRef B0 (instanceRef t_MULT_0_add_2_3))
+              (portRef Q (instanceRef FF_8))))
+          (net f_s_MULT_0_1_8
+            (joined
+              (portRef B1 (instanceRef t_MULT_0_add_2_3))
+              (portRef Q (instanceRef FF_7))))
+          (net f_s_MULT_0_0_7
+            (joined
+              (portRef A0 (instanceRef t_MULT_0_add_2_3))
+              (portRef Q (instanceRef FF_18))))
+          (net f_s_MULT_0_0_8
+            (joined
+              (portRef A1 (instanceRef t_MULT_0_add_2_3))
+              (portRef Q (instanceRef FF_17))))
+          (net co_t_MULT_0_2_3
+            (joined
+              (portRef CI (instanceRef t_MULT_0_add_2_4))
+              (portRef COUT (instanceRef t_MULT_0_add_2_3))))
+          (net f_s_MULT_0_1_9
+            (joined
+              (portRef B0 (instanceRef t_MULT_0_add_2_4))
+              (portRef Q (instanceRef FF_6))))
+          (net f_s_MULT_0_1_10
+            (joined
+              (portRef B1 (instanceRef t_MULT_0_add_2_4))
+              (portRef Q (instanceRef FF_5))))
+          (net f_s_MULT_0_0_9
+            (joined
+              (portRef A0 (instanceRef t_MULT_0_add_2_4))
+              (portRef Q (instanceRef FF_16))))
+          (net f_s_MULT_0_0_10
+            (joined
+              (portRef A1 (instanceRef t_MULT_0_add_2_4))
+              (portRef Q (instanceRef FF_15))))
+          (net co_t_MULT_0_2_4
+            (joined
+              (portRef CI (instanceRef t_MULT_0_add_2_5))
+              (portRef COUT (instanceRef t_MULT_0_add_2_4))))
+          (net f_s_MULT_0_1_11
+            (joined
+              (portRef B0 (instanceRef t_MULT_0_add_2_5))
+              (portRef Q (instanceRef FF_4))))
+          (net f_s_MULT_0_1_12
+            (joined
+              (portRef B1 (instanceRef t_MULT_0_add_2_5))
+              (portRef Q (instanceRef FF_3))))
+          (net f_s_MULT_0_0_11
+            (joined
+              (portRef A0 (instanceRef t_MULT_0_add_2_5))
+              (portRef Q (instanceRef FF_14))))
+          (net f_s_MULT_0_0_12
+            (joined
+              (portRef A1 (instanceRef t_MULT_0_add_2_5))
+              (portRef Q (instanceRef FF_13))))
+          (net co_t_MULT_0_2_5
+            (joined
+              (portRef CI (instanceRef t_MULT_0_add_2_6))
+              (portRef COUT (instanceRef t_MULT_0_add_2_5))))
+          (net f_s_MULT_0_1_13
+            (joined
+              (portRef B0 (instanceRef t_MULT_0_add_2_6))
+              (portRef Q (instanceRef FF_2))))
+          (net f_s_MULT_0_1_14
+            (joined
+              (portRef B1 (instanceRef t_MULT_0_add_2_6))
+              (portRef Q (instanceRef FF_1))))
+          (net f_s_MULT_0_0_13
+            (joined
+              (portRef A0 (instanceRef t_MULT_0_add_2_6))
+              (portRef Q (instanceRef FF_12))))
+          (net co_t_MULT_0_2_7
+            (joined
+              (portRef COUT (instanceRef t_MULT_0_add_2_7))))
+          (net co_t_MULT_0_2_6
+            (joined
+              (portRef CI (instanceRef t_MULT_0_add_2_7))
+              (portRef COUT (instanceRef t_MULT_0_add_2_6))))
+          (net f_s_MULT_0_1_15
+            (joined
+              (portRef B0 (instanceRef t_MULT_0_add_2_7))
+              (portRef Q (instanceRef FF_0))))
+          (net MULT_0_pp_0_2
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_0_0))
+              (portRef A1 (instanceRef Cadd_MULT_0_0_1))))
+          (net MULT_0_pp_0_1
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_0_0))
+              (portRef D (instanceRef FF_24))))
+          (net MULT_0_cin_lr_0
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_0_0))
+              (portRef COUT (instanceRef MULT_0_cin_lr_add_0))))
+          (net MULT_0_pp_0_4
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_0_1))
+              (portRef A1 (instanceRef MULT_0_add_0_2))))
+          (net MULT_0_pp_0_3
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_0_1))
+              (portRef A0 (instanceRef MULT_0_add_0_2))))
+          (net mco
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_0_1))
+              (portRef CO (instanceRef MULT_0_mult_0_0))))
+          (net MULT_0_pp_0_6
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_0_2))
+              (portRef A1 (instanceRef MULT_0_add_0_3))))
+          (net MULT_0_pp_0_5
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_0_2))
+              (portRef A0 (instanceRef MULT_0_add_0_3))))
+          (net mco_1
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_0_2))
+              (portRef CO (instanceRef MULT_0_mult_0_1))))
+          (net mfco
+            (joined
+              (portRef CO (instanceRef MULT_0_mult_0_3))
+              (portRef CI (instanceRef MULT_0_Cadd_0_4))))
+          (net MULT_0_pp_0_8
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_0_3))
+              (portRef A1 (instanceRef MULT_0_add_0_4))))
+          (net MULT_0_pp_0_7
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_0_3))
+              (portRef A0 (instanceRef MULT_0_add_0_4))))
+          (net mco_2
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_0_3))
+              (portRef CO (instanceRef MULT_0_mult_0_2))))
+          (net MULT_0_pp_1_4
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_2_0))
+              (portRef B1 (instanceRef MULT_0_add_0_2))))
+          (net MULT_0_pp_1_3
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_2_0))
+              (portRef B0 (instanceRef MULT_0_add_0_2))))
+          (net MULT_0_cin_lr_2
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_2_0))
+              (portRef COUT (instanceRef MULT_0_cin_lr_add_2))))
+          (net MULT_0_pp_1_6
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_2_1))
+              (portRef B1 (instanceRef MULT_0_add_0_3))))
+          (net MULT_0_pp_1_5
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_2_1))
+              (portRef B0 (instanceRef MULT_0_add_0_3))))
+          (net mco_3
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_2_1))
+              (portRef CO (instanceRef MULT_0_mult_2_0))))
+          (net MULT_0_pp_1_8
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_2_2))
+              (portRef B1 (instanceRef MULT_0_add_0_4))))
+          (net MULT_0_pp_1_7
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_2_2))
+              (portRef B0 (instanceRef MULT_0_add_0_4))))
+          (net mco_4
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_2_2))
+              (portRef CO (instanceRef MULT_0_mult_2_1))))
+          (net mfco_1
+            (joined
+              (portRef CO (instanceRef MULT_0_mult_2_3))
+              (portRef CI (instanceRef MULT_0_Cadd_2_4))))
+          (net MULT_0_pp_1_10
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_2_3))
+              (portRef B1 (instanceRef MULT_0_add_0_5))))
+          (net MULT_0_pp_1_9
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_2_3))
+              (portRef B0 (instanceRef MULT_0_add_0_5))))
+          (net mco_5
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_2_3))
+              (portRef CO (instanceRef MULT_0_mult_2_2))))
+          (net MULT_0_pp_2_6
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_4_0))
+              (portRef A1 (instanceRef Cadd_MULT_0_1_1))))
+          (net MULT_0_pp_2_5
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_4_0))
+              (portRef D (instanceRef FF_10))))
+          (net MULT_0_cin_lr_4
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_4_0))
+              (portRef COUT (instanceRef MULT_0_cin_lr_add_4))))
+          (net MULT_0_pp_2_8
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_4_1))
+              (portRef A1 (instanceRef MULT_0_add_1_2))))
+          (net MULT_0_pp_2_7
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_4_1))
+              (portRef A0 (instanceRef MULT_0_add_1_2))))
+          (net mco_6
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_4_1))
+              (portRef CO (instanceRef MULT_0_mult_4_0))))
+          (net MULT_0_pp_2_10
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_4_2))
+              (portRef A1 (instanceRef MULT_0_add_1_3))))
+          (net MULT_0_pp_2_9
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_4_2))
+              (portRef A0 (instanceRef MULT_0_add_1_3))))
+          (net mco_7
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_4_2))
+              (portRef CO (instanceRef MULT_0_mult_4_1))))
+          (net mfco_2
+            (joined
+              (portRef CO (instanceRef MULT_0_mult_4_3))
+              (portRef CI (instanceRef MULT_0_Cadd_4_4))))
+          (net MULT_0_pp_2_12
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_4_3))
+              (portRef A1 (instanceRef MULT_0_add_1_4))))
+          (net MULT_0_pp_2_11
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_4_3))
+              (portRef A0 (instanceRef MULT_0_add_1_4))))
+          (net mco_8
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_4_3))
+              (portRef CO (instanceRef MULT_0_mult_4_2))))
+          (net MULT_0_pp_3_8
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_6_0))
+              (portRef B1 (instanceRef MULT_0_add_1_2))))
+          (net MULT_0_pp_3_7
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_6_0))
+              (portRef B0 (instanceRef MULT_0_add_1_2))))
+          (net MULT_0_cin_lr_6
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_6_0))
+              (portRef COUT (instanceRef MULT_0_cin_lr_add_6))))
+          (net MULT_0_pp_3_10
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_6_1))
+              (portRef B1 (instanceRef MULT_0_add_1_3))))
+          (net MULT_0_pp_3_9
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_6_1))
+              (portRef B0 (instanceRef MULT_0_add_1_3))))
+          (net mco_9
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_6_1))
+              (portRef CO (instanceRef MULT_0_mult_6_0))))
+          (net MULT_0_pp_3_12
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_6_2))
+              (portRef B1 (instanceRef MULT_0_add_1_4))))
+          (net MULT_0_pp_3_11
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_6_2))
+              (portRef B0 (instanceRef MULT_0_add_1_4))))
+          (net mco_10
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_6_2))
+              (portRef CO (instanceRef MULT_0_mult_6_1))))
+          (net mfco_3
+            (joined
+              (portRef CO (instanceRef MULT_0_mult_6_3))
+              (portRef CI (instanceRef MULT_0_Cadd_6_4))))
+          (net MULT_0_pp_3_14
+            (joined
+              (portRef P1 (instanceRef MULT_0_mult_6_3))
+              (portRef B1 (instanceRef MULT_0_add_1_5))))
+          (net MULT_0_pp_3_13
+            (joined
+              (portRef P0 (instanceRef MULT_0_mult_6_3))
+              (portRef B0 (instanceRef MULT_0_add_1_5))))
+          (net mco_11
+            (joined
+              (portRef CI (instanceRef MULT_0_mult_6_3))
+              (portRef CO (instanceRef MULT_0_mult_6_2))))
+          (net scuba_vlo
+            (joined
+              (portRef Z (instanceRef scuba_vlo_inst))
+              (portRef CI (instanceRef MULT_0_cin_lr_add_0))
+              (portRef B0 (instanceRef MULT_0_cin_lr_add_0))
+              (portRef B1 (instanceRef MULT_0_cin_lr_add_0))
+              (portRef A0 (instanceRef MULT_0_cin_lr_add_0))
+              (portRef A1 (instanceRef MULT_0_cin_lr_add_0))
+              (portRef B0 (instanceRef MULT_0_Cadd_0_4))
+              (portRef B1 (instanceRef MULT_0_Cadd_0_4))
+              (portRef A0 (instanceRef MULT_0_Cadd_0_4))
+              (portRef A1 (instanceRef MULT_0_Cadd_0_4))
+              (portRef CI (instanceRef MULT_0_cin_lr_add_2))
+              (portRef B0 (instanceRef MULT_0_cin_lr_add_2))
+              (portRef B1 (instanceRef MULT_0_cin_lr_add_2))
+              (portRef A0 (instanceRef MULT_0_cin_lr_add_2))
+              (portRef A1 (instanceRef MULT_0_cin_lr_add_2))
+              (portRef B0 (instanceRef MULT_0_Cadd_2_4))
+              (portRef B1 (instanceRef MULT_0_Cadd_2_4))
+              (portRef A0 (instanceRef MULT_0_Cadd_2_4))
+              (portRef A1 (instanceRef MULT_0_Cadd_2_4))
+              (portRef CI (instanceRef MULT_0_cin_lr_add_4))
+              (portRef B0 (instanceRef MULT_0_cin_lr_add_4))
+              (portRef B1 (instanceRef MULT_0_cin_lr_add_4))
+              (portRef A0 (instanceRef MULT_0_cin_lr_add_4))
+              (portRef A1 (instanceRef MULT_0_cin_lr_add_4))
+              (portRef B0 (instanceRef MULT_0_Cadd_4_4))
+              (portRef B1 (instanceRef MULT_0_Cadd_4_4))
+              (portRef A0 (instanceRef MULT_0_Cadd_4_4))
+              (portRef A1 (instanceRef MULT_0_Cadd_4_4))
+              (portRef CI (instanceRef MULT_0_cin_lr_add_6))
+              (portRef B0 (instanceRef MULT_0_cin_lr_add_6))
+              (portRef B1 (instanceRef MULT_0_cin_lr_add_6))
+              (portRef A0 (instanceRef MULT_0_cin_lr_add_6))
+              (portRef A1 (instanceRef MULT_0_cin_lr_add_6))
+              (portRef B0 (instanceRef MULT_0_Cadd_6_4))
+              (portRef B1 (instanceRef MULT_0_Cadd_6_4))
+              (portRef A0 (instanceRef MULT_0_Cadd_6_4))
+              (portRef A1 (instanceRef MULT_0_Cadd_6_4))
+              (portRef CI (instanceRef Cadd_MULT_0_0_1))
+              (portRef B0 (instanceRef Cadd_MULT_0_0_1))
+              (portRef A0 (instanceRef Cadd_MULT_0_0_1))
+              (portRef A1 (instanceRef MULT_0_add_0_5))
+              (portRef B1 (instanceRef MULT_0_add_0_6))
+              (portRef A0 (instanceRef MULT_0_add_0_6))
+              (portRef A1 (instanceRef MULT_0_add_0_6))
+              (portRef B0 (instanceRef Cadd_MULT_0_0_7))
+              (portRef B1 (instanceRef Cadd_MULT_0_0_7))
+              (portRef A0 (instanceRef Cadd_MULT_0_0_7))
+              (portRef A1 (instanceRef Cadd_MULT_0_0_7))
+              (portRef CI (instanceRef Cadd_MULT_0_1_1))
+              (portRef B0 (instanceRef Cadd_MULT_0_1_1))
+              (portRef A0 (instanceRef Cadd_MULT_0_1_1))
+              (portRef A1 (instanceRef MULT_0_add_1_5))
+              (portRef B1 (instanceRef MULT_0_add_1_6))
+              (portRef A0 (instanceRef MULT_0_add_1_6))
+              (portRef A1 (instanceRef MULT_0_add_1_6))
+              (portRef CI (instanceRef Cadd_t_MULT_0_2_1))
+              (portRef B0 (instanceRef Cadd_t_MULT_0_2_1))
+              (portRef A0 (instanceRef Cadd_t_MULT_0_2_1))
+              (portRef A1 (instanceRef t_MULT_0_add_2_6))
+              (portRef B1 (instanceRef t_MULT_0_add_2_7))
+              (portRef A0 (instanceRef t_MULT_0_add_2_7))
+              (portRef A1 (instanceRef t_MULT_0_add_2_7))
+              (portRef A3 (instanceRef MULT_0_mult_0_3))
+              (portRef A3 (instanceRef MULT_0_mult_2_3))
+              (portRef A3 (instanceRef MULT_0_mult_4_3))
+              (portRef A3 (instanceRef MULT_0_mult_6_3))))
+          (net P15
+            (joined
+              (portRef (member Result 0))
+              (portRef S0 (instanceRef t_MULT_0_add_2_7))))
+          (net P14
+            (joined
+              (portRef (member Result 1))
+              (portRef S1 (instanceRef t_MULT_0_add_2_6))))
+          (net P13
+            (joined
+              (portRef (member Result 2))
+              (portRef S0 (instanceRef t_MULT_0_add_2_6))))
+          (net P12
+            (joined
+              (portRef (member Result 3))
+              (portRef S1 (instanceRef t_MULT_0_add_2_5))))
+          (net P11
+            (joined
+              (portRef (member Result 4))
+              (portRef S0 (instanceRef t_MULT_0_add_2_5))))
+          (net P10
+            (joined
+              (portRef (member Result 5))
+              (portRef S1 (instanceRef t_MULT_0_add_2_4))))
+          (net P9
+            (joined
+              (portRef (member Result 6))
+              (portRef S0 (instanceRef t_MULT_0_add_2_4))))
+          (net P8
+            (joined
+              (portRef (member Result 7))
+              (portRef S1 (instanceRef t_MULT_0_add_2_3))))
+          (net P7
+            (joined
+              (portRef (member Result 8))
+              (portRef S0 (instanceRef t_MULT_0_add_2_3))))
+          (net P6
+            (joined
+              (portRef (member Result 9))
+              (portRef S1 (instanceRef t_MULT_0_add_2_2))))
+          (net P5
+            (joined
+              (portRef (member Result 10))
+              (portRef S0 (instanceRef t_MULT_0_add_2_2))))
+          (net P4
+            (joined
+              (portRef (member Result 11))
+              (portRef S1 (instanceRef Cadd_t_MULT_0_2_1))))
+          (net P3
+            (joined
+              (portRef (member Result 12))
+              (portRef Q (instanceRef FF_22))))
+          (net P2
+            (joined
+              (portRef (member Result 13))
+              (portRef Q (instanceRef FF_23))))
+          (net P1
+            (joined
+              (portRef (member Result 14))
+              (portRef Q (instanceRef FF_24))))
+          (net P0
+            (joined
+              (portRef (member Result 15))
+              (portRef Q (instanceRef FF_25))))
+          (net B_7
+            (joined
+              (portRef (member DataB 0))
+              (portRef B2 (instanceRef MULT_0_mult_6_0))
+              (portRef B0 (instanceRef MULT_0_mult_6_0))
+              (portRef B2 (instanceRef MULT_0_mult_6_1))
+              (portRef B0 (instanceRef MULT_0_mult_6_1))
+              (portRef B2 (instanceRef MULT_0_mult_6_2))
+              (portRef B0 (instanceRef MULT_0_mult_6_2))
+              (portRef B2 (instanceRef MULT_0_mult_6_3))
+              (portRef B0 (instanceRef MULT_0_mult_6_3))))
+          (net B_6
+            (joined
+              (portRef (member DataB 1))
+              (portRef B (instanceRef AND2_t0))
+              (portRef B3 (instanceRef MULT_0_mult_6_0))
+              (portRef B1 (instanceRef MULT_0_mult_6_0))
+              (portRef B3 (instanceRef MULT_0_mult_6_1))
+              (portRef B1 (instanceRef MULT_0_mult_6_1))
+              (portRef B3 (instanceRef MULT_0_mult_6_2))
+              (portRef B1 (instanceRef MULT_0_mult_6_2))
+              (portRef B3 (instanceRef MULT_0_mult_6_3))
+              (portRef B1 (instanceRef MULT_0_mult_6_3))))
+          (net B_5
+            (joined
+              (portRef (member DataB 2))
+              (portRef B2 (instanceRef MULT_0_mult_4_0))
+              (portRef B0 (instanceRef MULT_0_mult_4_0))
+              (portRef B2 (instanceRef MULT_0_mult_4_1))
+              (portRef B0 (instanceRef MULT_0_mult_4_1))
+              (portRef B2 (instanceRef MULT_0_mult_4_2))
+              (portRef B0 (instanceRef MULT_0_mult_4_2))
+              (portRef B2 (instanceRef MULT_0_mult_4_3))
+              (portRef B0 (instanceRef MULT_0_mult_4_3))))
+          (net B_4
+            (joined
+              (portRef (member DataB 3))
+              (portRef B (instanceRef AND2_t1))
+              (portRef B3 (instanceRef MULT_0_mult_4_0))
+              (portRef B1 (instanceRef MULT_0_mult_4_0))
+              (portRef B3 (instanceRef MULT_0_mult_4_1))
+              (portRef B1 (instanceRef MULT_0_mult_4_1))
+              (portRef B3 (instanceRef MULT_0_mult_4_2))
+              (portRef B1 (instanceRef MULT_0_mult_4_2))
+              (portRef B3 (instanceRef MULT_0_mult_4_3))
+              (portRef B1 (instanceRef MULT_0_mult_4_3))))
+          (net B_3
+            (joined
+              (portRef (member DataB 4))
+              (portRef B2 (instanceRef MULT_0_mult_2_0))
+              (portRef B0 (instanceRef MULT_0_mult_2_0))
+              (portRef B2 (instanceRef MULT_0_mult_2_1))
+              (portRef B0 (instanceRef MULT_0_mult_2_1))
+              (portRef B2 (instanceRef MULT_0_mult_2_2))
+              (portRef B0 (instanceRef MULT_0_mult_2_2))
+              (portRef B2 (instanceRef MULT_0_mult_2_3))
+              (portRef B0 (instanceRef MULT_0_mult_2_3))))
+          (net B_2
+            (joined
+              (portRef (member DataB 5))
+              (portRef B (instanceRef AND2_t2))
+              (portRef B3 (instanceRef MULT_0_mult_2_0))
+              (portRef B1 (instanceRef MULT_0_mult_2_0))
+              (portRef B3 (instanceRef MULT_0_mult_2_1))
+              (portRef B1 (instanceRef MULT_0_mult_2_1))
+              (portRef B3 (instanceRef MULT_0_mult_2_2))
+              (portRef B1 (instanceRef MULT_0_mult_2_2))
+              (portRef B3 (instanceRef MULT_0_mult_2_3))
+              (portRef B1 (instanceRef MULT_0_mult_2_3))))
+          (net B_1
+            (joined
+              (portRef (member DataB 6))
+              (portRef B2 (instanceRef MULT_0_mult_0_0))
+              (portRef B0 (instanceRef MULT_0_mult_0_0))
+              (portRef B2 (instanceRef MULT_0_mult_0_1))
+              (portRef B0 (instanceRef MULT_0_mult_0_1))
+              (portRef B2 (instanceRef MULT_0_mult_0_2))
+              (portRef B0 (instanceRef MULT_0_mult_0_2))
+              (portRef B2 (instanceRef MULT_0_mult_0_3))
+              (portRef B0 (instanceRef MULT_0_mult_0_3))))
+          (net B
+            (joined
+              (portRef (member DataB 7))
+              (portRef B (instanceRef AND2_t3))
+              (portRef B3 (instanceRef MULT_0_mult_0_0))
+              (portRef B1 (instanceRef MULT_0_mult_0_0))
+              (portRef B3 (instanceRef MULT_0_mult_0_1))
+              (portRef B1 (instanceRef MULT_0_mult_0_1))
+              (portRef B3 (instanceRef MULT_0_mult_0_2))
+              (portRef B1 (instanceRef MULT_0_mult_0_2))
+              (portRef B3 (instanceRef MULT_0_mult_0_3))
+              (portRef B1 (instanceRef MULT_0_mult_0_3))))
+          (net A_7
+            (joined
+              (portRef (member DataA 0))
+              (portRef A2 (instanceRef MULT_0_mult_0_3))
+              (portRef A1 (instanceRef MULT_0_mult_0_3))
+              (portRef A2 (instanceRef MULT_0_mult_2_3))
+              (portRef A1 (instanceRef MULT_0_mult_2_3))
+              (portRef A2 (instanceRef MULT_0_mult_4_3))
+              (portRef A1 (instanceRef MULT_0_mult_4_3))
+              (portRef A2 (instanceRef MULT_0_mult_6_3))
+              (portRef A1 (instanceRef MULT_0_mult_6_3))))
+          (net A_6
+            (joined
+              (portRef (member DataA 1))
+              (portRef A3 (instanceRef MULT_0_mult_0_2))
+              (portRef A0 (instanceRef MULT_0_mult_0_3))
+              (portRef A3 (instanceRef MULT_0_mult_2_2))
+              (portRef A0 (instanceRef MULT_0_mult_2_3))
+              (portRef A3 (instanceRef MULT_0_mult_4_2))
+              (portRef A0 (instanceRef MULT_0_mult_4_3))
+              (portRef A3 (instanceRef MULT_0_mult_6_2))
+              (portRef A0 (instanceRef MULT_0_mult_6_3))))
+          (net A_5
+            (joined
+              (portRef (member DataA 2))
+              (portRef A2 (instanceRef MULT_0_mult_0_2))
+              (portRef A1 (instanceRef MULT_0_mult_0_2))
+              (portRef A2 (instanceRef MULT_0_mult_2_2))
+              (portRef A1 (instanceRef MULT_0_mult_2_2))
+              (portRef A2 (instanceRef MULT_0_mult_4_2))
+              (portRef A1 (instanceRef MULT_0_mult_4_2))
+              (portRef A2 (instanceRef MULT_0_mult_6_2))
+              (portRef A1 (instanceRef MULT_0_mult_6_2))))
+          (net A_4
+            (joined
+              (portRef (member DataA 3))
+              (portRef A3 (instanceRef MULT_0_mult_0_1))
+              (portRef A0 (instanceRef MULT_0_mult_0_2))
+              (portRef A3 (instanceRef MULT_0_mult_2_1))
+              (portRef A0 (instanceRef MULT_0_mult_2_2))
+              (portRef A3 (instanceRef MULT_0_mult_4_1))
+              (portRef A0 (instanceRef MULT_0_mult_4_2))
+              (portRef A3 (instanceRef MULT_0_mult_6_1))
+              (portRef A0 (instanceRef MULT_0_mult_6_2))))
+          (net A_3
+            (joined
+              (portRef (member DataA 4))
+              (portRef A2 (instanceRef MULT_0_mult_0_1))
+              (portRef A1 (instanceRef MULT_0_mult_0_1))
+              (portRef A2 (instanceRef MULT_0_mult_2_1))
+              (portRef A1 (instanceRef MULT_0_mult_2_1))
+              (portRef A2 (instanceRef MULT_0_mult_4_1))
+              (portRef A1 (instanceRef MULT_0_mult_4_1))
+              (portRef A2 (instanceRef MULT_0_mult_6_1))
+              (portRef A1 (instanceRef MULT_0_mult_6_1))))
+          (net A_2
+            (joined
+              (portRef (member DataA 5))
+              (portRef A3 (instanceRef MULT_0_mult_0_0))
+              (portRef A0 (instanceRef MULT_0_mult_0_1))
+              (portRef A3 (instanceRef MULT_0_mult_2_0))
+              (portRef A0 (instanceRef MULT_0_mult_2_1))
+              (portRef A3 (instanceRef MULT_0_mult_4_0))
+              (portRef A0 (instanceRef MULT_0_mult_4_1))
+              (portRef A3 (instanceRef MULT_0_mult_6_0))
+              (portRef A0 (instanceRef MULT_0_mult_6_1))))
+          (net A_1
+            (joined
+              (portRef (member DataA 6))
+              (portRef A2 (instanceRef MULT_0_mult_0_0))
+              (portRef A1 (instanceRef MULT_0_mult_0_0))
+              (portRef A2 (instanceRef MULT_0_mult_2_0))
+              (portRef A1 (instanceRef MULT_0_mult_2_0))
+              (portRef A2 (instanceRef MULT_0_mult_4_0))
+              (portRef A1 (instanceRef MULT_0_mult_4_0))
+              (portRef A2 (instanceRef MULT_0_mult_6_0))
+              (portRef A1 (instanceRef MULT_0_mult_6_0))))
+          (net A
+            (joined
+              (portRef (member DataA 7))
+              (portRef A (instanceRef AND2_t3))
+              (portRef A (instanceRef AND2_t2))
+              (portRef A (instanceRef AND2_t1))
+              (portRef A (instanceRef AND2_t0))
+              (portRef A0 (instanceRef MULT_0_mult_0_0))
+              (portRef A0 (instanceRef MULT_0_mult_2_0))
+              (portRef A0 (instanceRef MULT_0_mult_4_0))
+              (portRef A0 (instanceRef MULT_0_mult_6_0))))
+          (net Aclr
+            (joined
+              (portRef Aclr)
+              (portRef CD (instanceRef FF_25))
+              (portRef CD (instanceRef FF_24))
+              (portRef CD (instanceRef FF_23))
+              (portRef CD (instanceRef FF_22))
+              (portRef CD (instanceRef FF_21))
+              (portRef CD (instanceRef FF_20))
+              (portRef CD (instanceRef FF_19))
+              (portRef CD (instanceRef FF_18))
+              (portRef CD (instanceRef FF_17))
+              (portRef CD (instanceRef FF_16))
+              (portRef CD (instanceRef FF_15))
+              (portRef CD (instanceRef FF_14))
+              (portRef CD (instanceRef FF_13))
+              (portRef CD (instanceRef FF_12))
+              (portRef CD (instanceRef FF_11))
+              (portRef CD (instanceRef FF_10))
+              (portRef CD (instanceRef FF_9))
+              (portRef CD (instanceRef FF_8))
+              (portRef CD (instanceRef FF_7))
+              (portRef CD (instanceRef FF_6))
+              (portRef CD (instanceRef FF_5))
+              (portRef CD (instanceRef FF_4))
+              (portRef CD (instanceRef FF_3))
+              (portRef CD (instanceRef FF_2))
+              (portRef CD (instanceRef FF_1))
+              (portRef CD (instanceRef FF_0))))
+          (net ClockEn
+            (joined
+              (portRef ClkEn)
+              (portRef SP (instanceRef FF_25))
+              (portRef SP (instanceRef FF_24))
+              (portRef SP (instanceRef FF_23))
+              (portRef SP (instanceRef FF_22))
+              (portRef SP (instanceRef FF_21))
+              (portRef SP (instanceRef FF_20))
+              (portRef SP (instanceRef FF_19))
+              (portRef SP (instanceRef FF_18))
+              (portRef SP (instanceRef FF_17))
+              (portRef SP (instanceRef FF_16))
+              (portRef SP (instanceRef FF_15))
+              (portRef SP (instanceRef FF_14))
+              (portRef SP (instanceRef FF_13))
+              (portRef SP (instanceRef FF_12))
+              (portRef SP (instanceRef FF_11))
+              (portRef SP (instanceRef FF_10))
+              (portRef SP (instanceRef FF_9))
+              (portRef SP (instanceRef FF_8))
+              (portRef SP (instanceRef FF_7))
+              (portRef SP (instanceRef FF_6))
+              (portRef SP (instanceRef FF_5))
+              (portRef SP (instanceRef FF_4))
+              (portRef SP (instanceRef FF_3))
+              (portRef SP (instanceRef FF_2))
+              (portRef SP (instanceRef FF_1))
+              (portRef SP (instanceRef FF_0))))
+          (net Clock
+            (joined
+              (portRef Clock)
+              (portRef CK (instanceRef FF_25))
+              (portRef CK (instanceRef FF_24))
+              (portRef CK (instanceRef FF_23))
+              (portRef CK (instanceRef FF_22))
+              (portRef CK (instanceRef FF_21))
+              (portRef CK (instanceRef FF_20))
+              (portRef CK (instanceRef FF_19))
+              (portRef CK (instanceRef FF_18))
+              (portRef CK (instanceRef FF_17))
+              (portRef CK (instanceRef FF_16))
+              (portRef CK (instanceRef FF_15))
+              (portRef CK (instanceRef FF_14))
+              (portRef CK (instanceRef FF_13))
+              (portRef CK (instanceRef FF_12))
+              (portRef CK (instanceRef FF_11))
+              (portRef CK (instanceRef FF_10))
+              (portRef CK (instanceRef FF_9))
+              (portRef CK (instanceRef FF_8))
+              (portRef CK (instanceRef FF_7))
+              (portRef CK (instanceRef FF_6))
+              (portRef CK (instanceRef FF_5))
+              (portRef CK (instanceRef FF_4))
+              (portRef CK (instanceRef FF_3))
+              (portRef CK (instanceRef FF_2))
+              (portRef CK (instanceRef FF_1))
+              (portRef CK (instanceRef FF_0))))))))
+  (design MULT
+    (cellRef MULT
+      (libraryRef ORCLIB)))
+)
