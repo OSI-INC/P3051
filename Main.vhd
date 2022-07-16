@@ -1,51 +1,10 @@
 -- <pre> Implantable Inertial Sensor (IIS, A3035) Firmware, Toplevel Unit
 
--- Version A01, 23-OCT-20: Based upon P3037A03.vhd. Remove all command reception code and stimulus control code, as well
--- as acknowledgement transmission. Device is always on, but in standby power mode. Transmission is always on. We have
--- the serial communication working: transmit an address, read sixteen bits while transmitting each as it comes out of 
--- the sensor. Behavior of SCK, !CS, SDO, and SDI modified to suit these sensors, while earlier code communicated with
--- the LTC1864L.
-
--- Version A02, 28-OCT-20: Change file structure, now have main file and entity file. We start to make use of the VHDL 
--- presumption that a signal will not change unless our code tell it to, which means we eliminate statements like 
--- byte := byte. We add reading from a sensor specified by GYSEL, address by sensor_addr, and store the one-byte result 
--- in sensor_byte. Add progrm read-only memory of 256 bytes, which we fill with a sin wave. Add second channel 
--- transmission for the sin wave, which we read from memory.
-
--- Version A03, 04-NOV-20: Expand microprocessor implementaton within the Sample_Controller to include reading from
--- both sensors by address, loading an accumulator with data values, and using sixteen-bit addressing to locate
--- registers in the sensors. We assigne Z80 instruction codes and duplicate Z80 behavior for those codes. We expand
--- program memory to 4 kBytes and add 1 kByte of RAM.
-
--- Version A04, 17-NOV-20: We complete a Z80 subset microprocessor with interrupt controller. The logic takes up
--- about 1150 LUTs. The code is untested, merely being the result of study and compilation without errors.
-
--- Version A05, 18-NOV-20: We abandon Z80 instructions, remove sixteen-bit memory access with the exception of pushing
--- address registers onto the stack, and eliminate uneccessary inter-register instructions in favor of using single-
--- register push and pop instrucctions to move bytes between registers. We add instructions that move index and stack
--- pointers to and from register pair HL so we can better switch between concurrent tasks. We convert to big-endian byte
--- ordering.
-
--- Version A06, 30-NOV-20: Add Clock Calibrator and Boost Controller. We separate the CPU from our main behavior, and
--- define the Open-Source Reconfiguratble 8-Bit CPU in its own VHDL file. Add Interrupt Handler and Memory Map. We add
--- ENTCK register to enable TCK continuously under CPU control, and then the Boost Controller that allows the CPU to 
--- increase its clock speed from RCK to TCK. 
-
--- Version A07, 07-DEC-20: Add CPU-writeable test points. Condense memory map so all registers are in the top 512
--- bytes. 
-
--- Version A08, 11-DEC-20: Add Stack Overflow (CPUSTOF) interrupt. Add eight-bit multiplier in memory map for CPU's use. 
--- Move condifuration of device ID and calibration of RF frequency into software. Check timer interrupt works. Add 
--- software reset signal to control registers.
-
--- Version A10, 19-JAN-21: Add support for sensor access and sample transmission while CPU is running off TCK. 
-
--- Version A11, 30-APR-21: Make interrupt set and reset bits registered. Add edge-detection for interrupt counter
--- interrupt so we don't assert the counter interrupt twice while it is zero.
-
--- Version A12, 08-APR-22: Move to the OSR8V3. Add a flag to disable the multiplier so we can be sure variants of the-- OSR8 fit in the device. The initial stack pointer is now available at mmu_sph and mmu_spl locations, HI and LO 
+-- V2.1, 15-JUL-22: Move to the OSR8V3. Add a flag to disable the multiplier so we can be sure variants of the-- OSR8 fit in the device. The initial stack pointer is now available at mmu_sph and mmu_spl locations, HI and LO 
 -- bytes respectively, so the CPU process can read the correct stack location from memory and set the stack pointer
--- after a jump to the initialization routine. 
+-- after a jump to the initialization routine. This OSR8V3 is behind in modification from the one in P3041. Program
+-- a new IIS and test: seems to be working. We create P3035 Git repository and replace old version A13 with new
+-- version V2.1 and tag.
 
 library ieee;  
 use ieee.std_logic_1164.all;
