@@ -8,7 +8,7 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        87  ; Will be used as the first channel number.
+const device_id         7  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Constants
@@ -110,7 +110,8 @@ jp interrupt
 ; Configure the gyroscope.
 
 configure_gyroscope:
-push A             ; Push A onto the stack to save it
+push F
+push A             
 ld A,gyr_startup   ; Load A with normal startup configuration register
 ld (mmu_sar),A     ; write startup location to sensor adress register
 ld A, gyr_susp     ; load A with gyr_susp mode 
@@ -127,13 +128,15 @@ ld A,gyr_rng_hi    ; load A with least sensitive gyr_rng setting
 ld (mmu_slb),A     ; load sensor low byte with A
 ld A,gy_wr8        ; load 8 bite write command to A
 ld (mmu_scr),A     ; load sensor control register with write command
-pop A              ; Restore A
-ret                ; Return from subroutine.
+pop A
+pop F   
+ret  
 
 ; ------------------------------------------------------------
 
 acc_startup_configuration:
-push A             ; Push A onto the stack to save it
+push F
+push A  
 ld A,acc_pwr_conf  ; load A with power settings register adress
 ld (mmu_sar),A     ; load sensor address register with power settings register
 ld A,acc_pwr_sv    ; load A with self start fifo and adv power save setting
@@ -160,14 +163,16 @@ ld A,acc_rng_hi    ; load A with acc range
 ld (mmu_slb),A 	   ; load low byte with acc range setting
 ld A,acc_wr8       ; load A with write command
 ld (mmu_scr),A 	   ; word command written
-pop A              ; Restore A
-ret                ; Return from subroutine.
+pop A            
+pop F 
+ret               
 
 ; ------------------------------------------------------------
 ; Gyroscope sample transmit routines.
 
 xmit_gy_x:
-push A           ; Push A onto the stack to save it
+push F
+push A     
 ld (mmu_xcn),A   ; Write the channel offset
 ld A,gyr_x	     ; Load A with timer byte one address
 ld (mmu_sar),A   ; Write address to sensor address register
@@ -183,11 +188,13 @@ ld (mmu_xlb),A   ; Write sensor LO byte to transmit LO byte
 ld (mmu_xcr),A   ; Any write to transmit control register
 ld A,tx_delay    ; Load A with the sample transmission delay
 dly A            ; and wait for sample transmission to complete.
-pop A            ; Restore A
-ret              ; Return from subroutine.
+pop A   
+pop F
+ret 
 
 xmit_gy_y:
-push A           ; Push A onto the stack to save it
+push F
+push A          
 ld (mmu_xcn),A   ; Write the channel offset
 ld A,gyr_y	     ; Load A with timer byte one address
 ld (mmu_sar),A   ; Write address to sensor address register
@@ -203,11 +210,13 @@ ld (mmu_xlb),A   ; Write sensor LO byte to transmit LO byte
 ld (mmu_xcr),A   ; Any write to transmit control register
 ld A,tx_delay    ; Load A with the sample transmission delay
 dly A            ; and wait for sample transmission to complete.
-pop A            ; Restore A
-ret              ; Return from subroutine.
+pop A 
+pop F          
+ret     
 
 xmit_gy_z:
-push A           ; Push A onto the stack to save it
+push F
+push A           
 ld (mmu_xcn),A   ; Write the channel offset
 ld A,gyr_z	     ; Load A with timer byte one address
 ld (mmu_sar),A   ; Write address to sensor address register
@@ -223,41 +232,41 @@ ld (mmu_xlb),A   ; Write sensor LO byte to transmit LO byte
 ld (mmu_xcr),A   ; Any write to transmit control register
 ld A,tx_delay    ; Load A with the sample transmission delay
 dly A            ; and wait for sample transmission to complete.
-pop A            ; Restore A
-ret              ; Return from subroutine.
+pop A           
+pop F
+ret              
 
 
 ; ------------------------------------------------------------
 ; Accelerometer sample transmit routines.
 
 xmit_acc_x:
-push A           ; Push A onto the stack to save it
+push F
+push A          
 ld (mmu_xcn),A   ; Write the channel offset
-ld A,acc_x	      ; Load A with acc_x byte one address
+ld A,acc_x	     ; Load A with acc_x byte one address
 ld (mmu_sar),A   ; Write address to sensor address register
 ld A,acc_rd16    ; Load A with accelerometer sixteen-bit read command
 ld (mmu_scr),A   ; Send command to sensor controller
 ld A,sa_delay    ; Load A with the sensor access delay
 dly A            ; and wait for sensor access to complete.
-ld A,(mmu_shb)   ; Read sensor HI byte into A
-add A,off_16bs   ; Add offset to negative values
-push A           ; Push offset HI byte onto the stack to save it
-pop B            ; Pop offset HI byte into B
-ld A, 0x00       ; Load A with 0x00
-sub A,B          ; Subtract offset HI byte from 0 to invert it to align the Acc and Gyro Axes
+ld A,(mmu_shb)   ; Read sensor HI byte into A.
+add A,off_16bs   ; Add offset to bring most negative value to zero.
 ld (mmu_xhb),A   ; Write sensor HI byte to transmit HI byte
 ld A,(mmu_slb)   ; Read sensor LO byte into A
 ld (mmu_xlb),A   ; Write sensor LO byte to transmit LO byte
 ld (mmu_xcr),A   ; Any write to transmit control register
 ld A,tx_delay    ; Load A with the sample transmission delay
 dly A            ; and wait for sample transmission to complete.
-pop A            ; Restore A
-ret              ; Return from subroutine.
+pop A           
+pop F
+ret              
 
 xmit_acc_y:
-push A           ; Push A onto the stack to save it
+push F
+push A           
 ld (mmu_xcn),A   ; Write the channel offset
-ld A,acc_y	      ; Load A with acc_y byte one address
+ld A,acc_y	     ; Load A with acc_y byte one address
 ld (mmu_sar),A   ; Write address to sensor address register
 ld A,acc_rd16    ; Load A with accelerometer sixteen-bit read command
 ld (mmu_scr),A   ; Send command to sensor controller
@@ -265,23 +274,21 @@ ld A,sa_delay    ; Load A with the sensor access delay
 dly A            ; and wait for sensor access to complete.
 ld A,(mmu_shb)   ; Read sensor HI byte into A
 add A,off_16bs   ; Add offset to negative values
-push A           ; Push offset HI byte onto the stack to save it
-pop B            ; Pop offset HI byte into B
-ld A, 0x00       ; Load A with 0x00
-sub A,B          ; Subtract offset HI byte from 0 to invert it to align the Acc and Gyro Axes
 ld (mmu_xhb),A   ; Write sensor HI byte to transmit HI byte
 ld A,(mmu_slb)   ; Read sensor LO byte into A
 ld (mmu_xlb),A   ; Write sensor LO byte to transmit LO byte
 ld (mmu_xcr),A   ; Any write to transmit control register
 ld A,tx_delay    ; Load A with the sample transmission delay
 dly A            ; and wait for sample transmission to complete.
-pop A            ; Restore A
-ret              ; Return from subroutine.
+pop A            
+pop F
+ret              
 
 xmit_acc_z:
-push A           ; Push A onto the stack to save it
+push F
+push A           
 ld (mmu_xcn),A   ; Write the channel offset
-ld A,acc_z	      ; Load A with acc_z byte one address
+ld A,acc_z	     ; Load A with acc_z byte one address
 ld (mmu_sar),A   ; Write address to sensor address register
 ld A,acc_rd16    ; Load A with accelerometer sixteen-bit read command
 ld (mmu_scr),A   ; Send command to sensor controller
@@ -289,21 +296,27 @@ ld A,sa_delay    ; Load A with the sensor access delay
 dly A            ; and wait for sensor access to complete.
 ld A,(mmu_shb)   ; Read sensor HI byte into A
 add A,off_16bs   ; Add offset to negative values
-ld (mmu_xhb),A   ; Write sensor HI byte to transmit HI byte
-ld A,(mmu_slb)   ; Read sensor LO byte into A
-ld (mmu_xlb),A   ; Write sensor LO byte to transmit LO byte
-ld (mmu_xcr),A   ; Any write to transmit control register
-ld A,tx_delay    ; Load A with the sample transmission delay
+push A           ; Move to 
+pop B            ; B and negate
+ld A,0xFF        ; by subtracting from
+sub A,B          ; 255.
+ld (mmu_xhb),A   ; Write to transmit HI byte.
+ld A,(mmu_slb)   ; Read sensor LO byte.
+ld (mmu_xlb),A   ; Write to transmit LO byte
+ld (mmu_xcr),A   ; Initiate transmission.
+ld A,tx_delay    ; Load sample transmission delay
 dly A            ; and wait for sample transmission to complete.
-pop A            ; Restore A
-ret              ; Return from subroutine.
+pop A            
+pop F            
+ret              
 
 ; ------------------------------------------------------------
 ; Calibrate the transmit clock frequency. Will leave the
 ; transmit clock disabled and cpu boost turned off.
 calibrate_tck:
-push A           ; Push A onto the stack to save it
-push B           ; Push B onto the stack to save it
+push F
+push A           
+push B   
 ld A,0x00        ; Clear bit zero of A
 ld (mmu_bcc),A   ; Disable CPU Clock Boost
 ld (mmu_etc),A   ; Disable Transmit Clock
@@ -322,9 +335,10 @@ sub A,min_tcf    ; Subtract the minimum frequency
 ld A,0x00        ; Clear bit zero of A
 ld (mmu_etc),A   ; Disable Transmit Clock
 jp np,cal_tck_1  ; Try smaller divisor
-pop B            ; Restore B
-pop A            ; Restore A
-ret              ; Return from subroutine
+pop B            
+pop A          
+pop F
+ret              
 
 ; ------------------------------------------------------------
 ; The interrupt routine. Transmits all six measurements, gyrsoscop
@@ -433,7 +447,7 @@ or A,0x02           ; Set bit one and
 ld (mmu_tpr),A      ; write to test point register.
 and A,0xFD          ; Clear bit one and
 ld (mmu_tpr),A      ; write to test point register.
-ld A,0xFF           ; Delay for 255 clock cycles.
+ld A,255            ; Delay for 255 clock cycles.
 dly A               ; so as to make the test pulse rare.
 jp main             ; Repeat the main loop.
 

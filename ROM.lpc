@@ -16,8 +16,8 @@ CoreRevision=5.4
 ModuleName=ROM
 SourceFormat=VHDL
 ParameterFileVersion=1.0
-Date=07/15/2022
-Time=12:55:19
+Date=07/25/2022
+Time=15:44:35
 
 [Parameters]
 Verilog=0
@@ -49,4 +49,4 @@ no_init=0
 c:/kevan/a3035/p3035/rom.mem=mem
 
 [Command]
-cmd_line= -w -n ROM -lang vhdl -synth lse -bus_exp 7 -bb -arch xo2c00 -type romblk -device LCMXO2-1200ZE -addr_width 12 -data_width 8 -num_words 4096 -cascade 11 -memfile "c:/kevan/a3035/p3035/rom.mem" -memformat hex
+cmd_line= -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type romblk -device LCMXO2-1200ZE -addr_width 12 -data_width 8 -num_words 4096 -cascade 11 -memfile "c:/kevan/a3035/p3035/rom.mem" -memformat hex
