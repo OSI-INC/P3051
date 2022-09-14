@@ -20,8 +20,8 @@
 				<BScanVal>0</BScanVal>
 			</Bypass>
 			<File>C:/Kevan/A3035/P3035/impl1/P3035_impl1.jed</File>
-			<FileTime>07/15/22 13:10:02</FileTime>
-			<JedecChecksum>0x6324</JedecChecksum>
+			<FileTime>07/25/22 15:45:43</FileTime>
+			<JedecChecksum>0x7502</JedecChecksum>
 			<Operation>FLASH Erase,Program,Verify</Operation>
 			<Option>
 				<SVFVendor>JTAG STANDARD</SVFVendor>

@@ -11,6 +11,11 @@ const tx_frequency      5  ; Transmit frequency calibration
 const device_id         7  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
+; Address Map Boundary Constants
+const mmu_vmem 0x0000 ; Base of Variable Memory
+const mmu_ctrl 0x0600 ; Base of Control Space
+const mmu_sba  0x0300 ; Stack Base Address
+
 ; Address Map Constants
 const mmu_shb  0x0600 ; Sensor Data HI Byte 
 const mmu_slb  0x0601 ; Sensor Data LO Byte
@@ -383,21 +388,11 @@ pop F               ; Restore the flags.
 rti
 
 ; ------------------------------------------------------------
-; Initialize the device. We don't use the stack until after the
-; accelerometer has been configured for reasons that no longer
-; apply to this program: we thought we had to store a configuration
-; file in the stack space.
+; Initialize the device.
 initialize:
 
-; Initialize the stack pointer. We read the correct initial stack
-; pointer value from memory, where it is hard-coded into the 
-; firmware along with a maximum stack height.
-ld A,(mmu_sph)
-push A
-pop H
-ld A,(mmu_spl)
-push A
-pop L 
+; Initialize the stack pointer.
+ld HL,mmu_sba
 ld SP,HL
 
 ; Wait for a while. The power supplies must settle after entering

@@ -1,6 +1,6 @@
 -- Open-Source Reconfigurable Eight-Bit (OSR8) Central Processing Unit (CPU)
 --
--- Copyright (C) 2020 Kevan Hashemi, Open Source Instruments Inc.
+-- Copyright (C) 2020-2022 Kevan Hashemi, Open Source Instruments Inc.
 --
 -- This program is free software; you can redistribute it and/orpr
 -- modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 -- along with this program; if not, write to the Free Software
 -- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
--- Version 3: Developed for the A3041A Implantable Stimulator-Transponder
+-- Version 3: Developed for the A3041 Implantable Stimulator-Transponder
 
 -- [11-APR-22] Introduce constants that calculate correct vector sizes in
 -- the processor so as to adapt automatically to new program and cpu memory
@@ -53,21 +53,17 @@ use ieee.numeric_std.all;
 -- at location start_pc, where we expect a three-byte un-conditional jump instruction. 
 -- Interrupt execution begins at interrupt_pc, where we expect another jp_nn instruction. 
 
--- The stack pointer is upward-going, initialized to start_sp. The CPU asserts STOF when 
--- the stack pointer gets above limit_sp. Byte ordering for pointers is big-endian. The 
--- most significant, or HI byte is at the lower address and the lease significant, or LO 
--- byte, is at the higher address. The HI byte of the pointer will contain from one to 
--- eight neccessary bits, depending upon the memory available to the CPU. 
+-- The stack pointer is upward-going, initialized to zero. Byte ordering for pointers is 
+-- big-endian. The most significant, or HI byte is at the lower address and the lease 
+-- significant, or LO byte, is at the higher address. The HI byte of the pointer will 
+-- contain from one to eight neccessary bits, depending upon the memory available to the CPU. 
 
 entity OSR8_CPU is 
 	generic (
 		prog_addr_len : integer := 12;
 		cpu_addr_len : integer := 11;
 		start_pc : integer := 0;
-		interrupt_pc : integer := 3;
-		start_sp : integer := 768;
-		height_sp : integer := 240
-	);
+		interrupt_pc : integer := 3	);
 	port (
 		prog_data : in std_logic_vector(7 downto 0); -- Program Data
 		prog_addr : out std_logic_vector(prog_addr_len-1 downto 0); -- Program Address
@@ -78,14 +74,12 @@ entity OSR8_CPU is
 		DS : out boolean; -- Data Strobe
 		IRQ : in boolean; -- Interrupt Request
 		SIG : out std_logic_vector(2 downto 0); -- Signals for Debugging
-		STOF : out boolean; -- Stack Overflow
 		RESET : in std_logic; -- Hard Reset
 		CK : in std_logic); -- The clock, duty cycle 50%.
 
 -- Program location constants in bytes.
 	constant pa_top : integer := prog_addr_len-1;
 	constant ca_top : integer := cpu_addr_len-1;
-	constant limit_sp : integer := start_sp + height_sp;
 end;
 
 architecture behavior of OSR8_CPU is 
@@ -421,7 +415,7 @@ begin
 		if (RESET ='1') then 
 			state := read_opcode;
 			prog_cntr <= std_logic_vector(to_unsigned(start_pc,prog_addr_len)); 
-			reg_SP <= std_logic_vector(to_unsigned(start_sp,cpu_addr_len)); 
+			reg_SP <= (others => '0'); 
 			flag_Z <= false;
 			flag_C <= false;
 			flag_S <= false;
@@ -795,7 +789,7 @@ begin
 					next_state := read_opcode;
 					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
 
-				-- Clear interrupt flag, so as to enable interrupts.
+				-- Set interrupt flag, so as to disable interrupts.
 				when set_iflg =>
 					next_flag_I := true;
 					next_state := read_opcode;
@@ -1196,7 +1190,7 @@ begin
 				alu_cin <= false;
 				alu_ctrl <= alu_cmd_sub;
 			
-			-- Operations with A and B.
+			-- Mathematical operations with A and B.
 			when add_A_B | sub_A_B | adc_A_B | sbc_A_B =>
 				alu_in_x <= reg_A;
 				alu_in_y <= reg_B;
@@ -1291,20 +1285,6 @@ begin
 			when incr_pc => SIG(2 downto 0) <= "111";
 		end case;
 	end process;
-	
-	-- If the stack reaches its limit, we assert STOF until we get a RESET. The
-	-- intended use of STOF is to provoke a RESET in the main entity.
-	Software_Reset : process (RESET) is
-	begin
-		if (RESET = '1') then
-			STOF <= false;
-		elsif rising_edge(CK) then
-			if to_integer(unsigned(reg_SP)) = limit_sp then
-				STOF <= true;
-			end if;
-		end if;
-	end process;
-		
 end behavior;
 
 

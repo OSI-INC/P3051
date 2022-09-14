@@ -6,6 +6,9 @@
 -- a new IIS and test: seems to be working. We create P3035 Git repository and replace old version A13 with new
 -- version V2.1 and tag.
 
+-- V2.3, 14-SEP-22: Carry latest OSR8V3 modifications into this firmware. Eliminate mmu_sph and mmu_spl. No longer
+-- have Stack Overflow (STOF) interrupt. Stack pointer will be initialized by CPU from program on startup.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -36,8 +39,6 @@ entity main is
 	constant cpu_addr_len : integer := 11;
 	constant start_pc : integer := 0;
 	constant interrupt_pc : integer := 3;
-	constant start_sp : integer := 768;
-	constant height_sp : integer := 240;
 
 -- Configuration of peripherals.
 	constant enable_multiplier : boolean := true;
@@ -60,8 +61,6 @@ entity main is
 	constant mmu_iset : integer := 16#16#; -- Interrupt Set Bits
 	constant mmu_itp  : integer := 16#18#; -- Interrupt Timer Period 
 	constant mmu_rst  : integer := 16#19#; -- System Reset
-	constant mmu_sph  : integer := 16#1B#; -- Initial Stack Pointer HI Byte
-	constant mmu_spl  : integer := 16#1C#; -- Initial Stack Pointer LO Byte
 	constant mmu_xhb  : integer := 16#20#; -- Transmit HI Byte
 	constant mmu_xlb  : integer := 16#21#; -- Transmit LO Byte
 	constant mmu_xcn  : integer := 16#22#; -- Transmit Channel Number
@@ -176,8 +175,7 @@ architecture behavior of main is
 	attribute nomerge of cpu_addr : signal is "";  
 	signal CPUWR, -- Write (Not Read)
 		CPUDS, -- Data Strobe
-		CPUIRQ, -- Interrupt Request
-		CPUSTOF -- Stack Overflow
+		CPUIRQ -- Interrupt Request
 		: boolean; 
 	signal CPUSIG : std_logic_vector(2 downto 0); -- Signals for debugging.
 
@@ -217,7 +215,7 @@ begin
 		if rising_edge(RCK) then
 			CLRFLAG <= to_std_logic(state = 1);
 			USERSTDBY <= to_std_logic(state >= 3);
-			RESET <= to_std_logic((state < end_state) or SWRST or CPUSTOF);
+			RESET <= to_std_logic((state < end_state) or SWRST);
 
 			if (state = 0) then state := 1;
 			elsif (state = 1) then state := 2;
@@ -283,9 +281,7 @@ begin
 			prog_addr_len => prog_addr_len,
 			cpu_addr_len => cpu_addr_len,
 			start_pc => start_pc,
-			interrupt_pc => interrupt_pc,
-			start_sp => start_sp,
-			height_sp => height_sp
+			interrupt_pc => interrupt_pc
 		)
 		port map (
 			prog_data => prog_data,
@@ -297,7 +293,6 @@ begin
 			DS => CPUDS,
 			IRQ => CPUIRQ,
 			SIG => CPUSIG,
-			STOF => CPUSTOF,
 			RESET => RESET,
 			CK => CK
 		);
@@ -340,8 +335,6 @@ begin
 				when mmu_irqb => cpu_data_in <= int_bits;
 				when mmu_imsk => cpu_data_in <= int_mask;
 				when mmu_itp => cpu_data_in <= int_period;
-				when mmu_sph => cpu_data_in <= std_logic_vector(to_unsigned((start_sp / 256),8));
-				when mmu_spl => cpu_data_in <= std_logic_vector(to_unsigned((start_sp rem 256),8));
 				when mmu_tcf =>
 					cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
 				when mmu_moh => 
