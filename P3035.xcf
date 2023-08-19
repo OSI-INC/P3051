@@ -20,8 +20,8 @@
 				<BScanVal>0</BScanVal>
 			</Bypass>
 			<File>C:/Kevan/A3035/P3035/impl1/P3035_impl1.jed</File>
-			<FileTime>07/25/22 15:45:43</FileTime>
-			<JedecChecksum>0x7502</JedecChecksum>
+			<FileTime>08/03/23 15:04:03</FileTime>
+			<JedecChecksum>0x220C</JedecChecksum>
 			<Operation>FLASH Erase,Program,Verify</Operation>
 			<Option>
 				<SVFVendor>JTAG STANDARD</SVFVendor>
@@ -53,8 +53,8 @@
 			TCK	LOW;
 			TDI	LOW;
 			TDO	LOW;
-			TRST	HIGH;
+			ISPEN	HIGH;
 		</JTAGPinSetting>
-		<TRSTConnect value="TRUE"/>
+		<ISPENConnect value="TRUE"/>
 	</CableOptions>
 </ispXCF>
