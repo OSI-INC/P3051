@@ -433,7 +433,7 @@ ld A,0x01            ; Set bit zero of A to one and use
 ld (mmu_imsk),A      ; to enable the timer interrupt.
 ; ------------------------------------------------------------
 
-; The main program loops. The interrupt will be running 
+; The main program loops. The interrupts will be running 
 ; in the background, and they do all the work.
 main:
 

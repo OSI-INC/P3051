@@ -9,6 +9,8 @@
 -- V2.3, 14-SEP-22: Carry latest OSR8V3 modifications into this firmware. Eliminate mmu_sph and mmu_spl. No longer
 -- have Stack Overflow (STOF) interrupt. Stack pointer will be initialized by CPU from program on startup.
 
+-- V2.4, 31-MAY-24: Correct and expand comments.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -227,7 +229,12 @@ begin
 	end process;
 	
 	
--- Ring Oscillator. This oscillator runs only during message transmission.
+-- Ring Oscillator. This oscillator runs euring message transmission, sensor configuration,
+-- sensor readout, and when ordered to do so by the CPU using the ENTCK flag. The ring oscillator
+-- divisor divides the frequency of the ring oscillator so as to produce FCK close to 10 MHz. The
+-- divisor itself is initialized by the firmware to a sensible value on power-up, but will later
+-- be written by the CPU after the CPU uses the Clock_Calibrator process to obtain the divisor
+-- value that brings FCK closest to 10 MHz.
 	FCKEN <= to_std_logic(TXI or TXA or TXD or SAI or SAA or SAD or ENTCK);
 	Fast_CK : entity ring_oscillator port map (
 		ENABLE => FCKEN, 
@@ -266,7 +273,9 @@ begin
         Q => prog_data);
 
 -- The eight-bit multiplier takes two eight-bit numbers and produces their sixteen-
--- bit product.
+-- bit product. This multiplier may or may not be useful to our code. If it is not
+-- useful, and we are finding that the code does not fit in our logic chip, we can
+-- eliminate the multiplier and its registers.
 	Multiplier : entity MULT port map (
 		Clock => not CK,
 		ClkEn => '1',
@@ -275,7 +284,7 @@ begin
 		DataB => cpu_multiplier_b,
 		Result => cpu_multiplier_out);
 	
--- The processor itself.
+-- The processor itself. We instantiate the OSR8 microprocessor entity.
 	CPU : entity OSR8_CPU 
 		generic map (
 			prog_addr_len => prog_addr_len,
@@ -576,8 +585,25 @@ begin
 	-- The Sensor Controller receives instructions from the CPU through the signals
 	-- Sensor Access Write (SAWR), Sensor Access Initiate (SAI), and Sensor Access 
 	-- Sixteen Bits (SA16). When it is done with its task, it asserts Sensor Access 
-	-- Done (SAD). Ir runs off the Transmit Clock (TCK), which starts up with the 
-	-- assertion of SAI and continues until both SAI and SAD are un-asserted.
+	-- Done (SAD). The Sensor Controller runs off the Transmit Clock (TCK), which 
+	-- is guaranteed to start up with the assertion of SAI and continues until both 
+	-- SAI and SAD are un-asserted. The Sensor Controller uses the Sensor Interface to 
+	-- perform each exchange of eight serial bits with one of the sensors. A sixteen-
+	-- bit data read, for example, consists of an eight-bit register address write
+	-- followed by two byte reads. The Sensor Controller uses the Sensor Interface to 
+	-- perform byte writes and reads. The sensor selection is performed by the Sensor 
+	-- Interface using GYSEL. But the behavior of the Sensor Controller is affected 
+	-- slightly by which sensor we are reading out. In this code, we have GYSEL selecting 
+	-- either the gyroscope or the accelerometer. The CPU instructs the Sensor Controller
+	-- by writing to mmu_scr, the Sensor Control Register. Any write to this register 
+	-- sets SAI true for one CPU write cycle, which starts the Sensor Controller. The
+	-- CPU must write the address of the register it wishes to access to the mmu_sar
+	-- address. On single-byte accesses, it writes the byte to mmu_slb. On sixteen-bit
+	-- accesses, it write the most significant byte to mmu_shb and the other to mmu_slb.
+	-- If the byte ordering in the sensor is little-endian, the Sensor Controller will
+	-- write the mmu_slb byte first. When the CPU writes to mmu_scr, it also specifies
+	-- GYSEL, SAWR, and SA16. The SA16 flag selects sixteen-bit access, and SAWR selects
+	-- a write cycle.
 	Sensor_Controller : process (TCK,RESET) is
 		variable state, next_state : integer range 0 to 15 := 0;
 		constant idle : integer := 0;
@@ -601,10 +627,12 @@ begin
 			SBYC <= false;
 			
 		-- The Sensor Contoller proceeds through states so as to manage single and
-		-- double-bytes reads and writes from either sensor. Double-byte reads will
-		-- be performed with a single serial interface access, so we can take
-		-- advantage of the shadowing provided by sensors that keeps both bytes
-		-- of a measurement stable during a two-byte read.
+		-- double-bytes reads and writes to and from either sensor. Double-byte reads 
+		-- will be performed by an address write followed by two single-byte reads, with
+		-- the chip select line being asserted throughout the three cycles. The sensors
+		-- are designed so that reading one byte of a sixteen-bit data value causes the
+		-- other byte to remain fixed until it too is read, or until the chip select line
+		-- is unasserted.
 		elsif rising_edge(TCK) then
 			next_state := state;
 			
@@ -716,16 +744,17 @@ begin
 		end if;
 	end process;
 	
-	-- The Sensor Interface reads or writes eight bits at a time to the gyroscope 
+	-- The Sensor Interface reads or writes eight bits at a time to and from the gyroscope 
 	-- or the accelerometer. When Sensor Byte Write (SBYW) is asserted, the contents 
-	-- of sensor_bits_out are transmitted on the SDI signal, most significant byte 
-	-- first. Otherwise, the SDO signal is loaded into sensor_bits_in, most significant
-	-- bit first. When GYSEL is asserted, we access the gyroscope, otherwise the 
-	-- accelerometer. When SACNT is asserted, we continue to assert the sensor chip
-	-- select after the end of the access. The entire process is begun by Sensor Byte
-	-- Access Initiate (SBYI). The process asserts Sensor Byte Access Done (SBYD) when
-	-- all eight bits have been exchanged.
-	Sensor_Interface : process (TCK,FCK,SBYI) is
+	-- of sensor_bits_out are transmitted on SDI, most significant bit first. Otherwise, 
+	-- the SDO signal is loaded into sensor_bits_in, most significant bit first. When 
+	-- GYSEL is asserted, we access the gyroscope, otherwise we access the accelerometer. 
+	-- When SBYC is asserted, we continue to assert the sensor chip select after the end 
+	-- of the access, which permits us to continue a multi-byte access with another Sensor
+	-- interface read or write cycle. The access is begun by Sensor Byte Initiate (SBYI)
+	-- and terminated with Sensor Byte Done (SBYD). The Sensor Interface remains in its
+	-- done state until it sees SBYI unasserted.
+	Sensor_Interface : process (TCK,FCK) is
 		constant num_bits : integer := 8;
 		constant start_sck : integer := 3;
 		constant end_sck : integer := start_sck + num_bits - 1;
@@ -749,13 +778,13 @@ begin
 				state := all_done; 
 			end if;
 			
-			-- We assert the sensor chip select during any sensor access, just before
-			-- the first falling edge of SCK and until just after the last rising edge
-			-- of SCK. After this last rising edge, the chip select will be remain 
-			-- asserted only if Serial Byte Continue is asserted. If chip select happens
-			-- to be asserted when we start up our Sensor Interface, we leave it asserted,
-			-- because the current byte exchange is a continuation of an on-going 
-			-- exchange.
+			-- We assert the sensor chip select (CSG or CSA) just before the first 
+			-- falling edge of SCK. The Serial Byte Continue (SBYC) flag determines 
+			-- whether or not we unassert the chip select after the last rising edge 
+			-- of the byte transfer. If chip select happens to be asserted when we 
+			-- start up our Sensor Interface, we leave it asserted, because the 
+			-- current byte exchange is a continuation of an on-going exchange, as 
+			-- controlled by SBYC.
 			if (state = start_sck - 1) then
 				if GYSEL then 
 					CSG <= true;
@@ -808,7 +837,7 @@ begin
 		-- SCK is the serial clock that drives communication between the sensors and
 		-- the logic chip. We generate SCK by first creating Serial Clock Early (SCKE),
 		-- then delaying SCKE by one FCK period. The result is a 5-MHz clock that falls
-		-- on the rising edges of TCK and rises on the falling edges of TCK. Outside
+		-- on the rising edges of TCK and rises on the falling edges of TCK.
 		if falling_edge(FCK) then 			
 			if GYSEL then 
 				if (state >= start_sck-1) and (state <= end_sck-1) then
@@ -826,8 +855,7 @@ begin
 			end if;
 		end if;
 
-		-- CSA and CSG we unassert for now. They are negative-true, but we have not yet
-		-- figure out how to make outputs negative-true, so we set them HI.
+		-- NCSA and NCSG are our negative-true outputs.
 		NCSA <= to_std_logic(not CSA);
 		NCSG <= to_std_logic(not CSG);
 	end process;
