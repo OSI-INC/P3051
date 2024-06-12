@@ -2,7 +2,7 @@
 -- Module  Version: 7.5
 --C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n RAM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type bram -wp 10 -rp 1000 -addr_width 10 -data_width 8 -num_rows 1024 -cascade 11 -mem_init0 -writemode NORMAL 
 
--- Fri Jul 15 12:43:21 2022
+-- Wed Jun 12 11:04:29 2024
 
 library IEEE;
 use IEEE.std_logic_1164.all;

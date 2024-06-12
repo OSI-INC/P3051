@@ -1,5 +1,5 @@
 SCUBA, Version Diamond (64-bit) 3.12.1.454
-Fri May 31 14:50:34 2024
+Wed Jun 12 11:04:37 2024
   
 Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
 Copyright (c) 1995 AT&T Corp.   All rights reserved.
@@ -9,24 +9,24 @@ Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.
   
 BEGIN SCUBA Module Synthesis
   
-    Issued command   : C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type romblk -device LCMXO2-1200ZE -addr_width 12 -data_width 8 -num_words 4096 -cascade 11 -memfile c:/kevan/a3035/p3035/rom.mem -memformat hex 
-    Circuit name     : ROM
-    Module type      : EBR_ROM
-    Module Version   : 5.4
+    Issued command   : C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n MULT -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type dspmult -simple_portname -pfu_mult -widtha 8 -widthb 8 -widthp 16 -PL_stages 1 -clk0 -ce0 -rst0 
+    Circuit name     : MULT
+    Module type      : dspmult_a
+    Module Version   : 4.9
     Ports            : 
-    Inputs       : Address[11:0], OutClock, OutClockEn, Reset
-    Outputs      : Q[7:0]
+    Inputs       : Clock, ClkEn, Aclr, DataA[7:0], DataB[7:0]
+    Outputs      : Result[15:0]
     I/O buffer       : not inserted
-    Memory file      : c:/kevan/a3035/p3035/rom.mem
-    EDIF output      : ROM.edn
-    VHDL output      : ROM.vhd
-    VHDL template    : ROM_tmpl.vhd
-    VHDL testbench   : tb_ROM_tmpl.vhd
+    EDIF output      : MULT.edn
+    VHDL output      : MULT.vhd
+    VHDL template    : MULT_tmpl.vhd
+    VHDL testbench   : tb_MULT_tmpl.vhd
     VHDL purpose     : for synthesis and simulation
     Bus notation     : big endian
-    Report output    : ROM.srp
+    Report output    : MULT.srp
     Estimated Resource Usage:
-            EBR : 4
+            LUT : 92
+            Reg : 26
   
 END   SCUBA Module Synthesis
 

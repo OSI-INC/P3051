@@ -50,15 +50,15 @@ set Para(install_dir) $env(TOOLRTF)
 set Para(FPGAPath) "[file join $Para(install_dir) ispfpga bin $platformpath]"
 set Para(bin_dir) "[file join $Para(install_dir) bin $platformpath]"
 
-set Para(ModuleName) "ROM"
-set Para(Module) "ROM"
+set Para(ModuleName) "MULT"
+set Para(Module) "Multiplier"
 set Para(libname) machxo2
 set Para(arch_name) xo2c00
 set Para(PartType) "LCMXO2-1200ZE"
 
 set Para(tech_syn) machxo2
 set Para(tech_cae) machxo2
-set Para(Package) "WLCSP25"
+set Para(Package) "TQFP100"
 set Para(SpeedGrade) "1"
 set Para(FMax) "100"
 set fdcfile "$Para(sbp_path)/$Para(ModuleName).fdc"

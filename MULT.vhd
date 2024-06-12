@@ -2,7 +2,7 @@
 -- Module  Version: 4.9
 --C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n MULT -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type dspmult -simple_portname -pfu_mult -widtha 8 -widthb 8 -widthp 16 -PL_stages 1 -clk0 -ce0 -rst0 
 
--- Fri Jul 15 12:47:01 2022
+-- Wed Jun 12 11:04:37 2024
 
 library IEEE;
 use IEEE.std_logic_1164.all;
