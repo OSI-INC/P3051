@@ -1,0 +1,124 @@
+----------------------------------------------------------------------
+Report for cell main.behavior
+
+Register bits: 371 of 1280 (29%)
+Latch bits:      1
+PIC Latch:       0
+I/O cells:       13
+                                          Cell usage:
+                               cell       count    Res Usage(%)
+                               AND2        4       100.0
+                              BUFBA        4       100.0
+                              CCU2D       54       100.0
+                              DP8KC        5       100.0
+                             FADD2B       28       100.0
+                            FD1P3AX      176       100.0
+                            FD1P3AY        2       100.0
+                            FD1P3BX        3       100.0
+                            FD1P3DX       88       100.0
+                             FD1S1D        1       100.0
+                            FD1S3AX       48       100.0
+                            FD1S3BX        2       100.0
+                            FD1S3DX       43       100.0
+                            FD1S3IX        1       100.0
+                            FD1S3JX        2       100.0
+                                GSR        1       100.0
+                                 IB        3       100.0
+                           IFS1P3DX        1       100.0
+                                INV       10       100.0
+                            L6MUX21       12       100.0
+                              MULT2       16       100.0
+                                 OB        9       100.0
+                                OBZ        1       100.0
+                           OFS1P3IX        5       100.0
+                           ORCALUT4      902       100.0
+                              PCNTR        1       100.0
+                              PFUMX       58       100.0
+                                PUR        1       100.0
+                          ROM128X1A        6       100.0
+                                VHI        6       100.0
+                                VLO        7       100.0
+SUB MODULES 
+                               MULT        1       100.0
+                           OSR8_CPU        1       100.0
+                                PCU        1       100.0
+                                RAM        1       100.0
+                                ROM        1       100.0
+                    ring_oscillator        1       100.0
+                            
+                         TOTAL          1506           
+----------------------------------------------------------------------
+Report for cell OSR8_CPU.netlist
+     Instance path:  CPU
+                                          Cell usage:
+                               cell       count    Res Usage(%)
+                              CCU2D       38        70.4
+                            FD1P3AX       98        55.7
+                            FD1P3DX       27        30.7
+                             FD1S1D        1       100.0
+                            FD1S3AX       22        45.8
+                            FD1S3BX        1        50.0
+                            FD1S3DX       14        32.6
+                            L6MUX21       12       100.0
+                           ORCALUT4      860        95.3
+                              PFUMX       58       100.0
+                          ROM128X1A        6       100.0
+                                VHI        1        16.7
+                                VLO        1        14.3
+                            
+                         TOTAL          1139           
+----------------------------------------------------------------------
+Report for cell MULT.netlist
+     Instance path:  Multiplier
+                                          Cell usage:
+                               cell       count    Res Usage(%)
+                               AND2        4       100.0
+                             FADD2B       28       100.0
+                            FD1P3DX       26        29.5
+                              MULT2       16       100.0
+                                VHI        1        16.7
+                                VLO        1        14.3
+                            
+                         TOTAL            76           
+----------------------------------------------------------------------
+Report for cell ROM.netlist
+     Instance path:  Program_Memory
+                                          Cell usage:
+                               cell       count    Res Usage(%)
+                              DP8KC        4        80.0
+                                VHI        1        16.7
+                                VLO        1        14.3
+                            
+                         TOTAL             6           
+----------------------------------------------------------------------
+Report for cell RAM.netlist
+     Instance path:  Process_Memory
+                                          Cell usage:
+                               cell       count    Res Usage(%)
+                              DP8KC        1        20.0
+                                VHI        1        16.7
+                                VLO        1        14.3
+                            
+                         TOTAL             3           
+----------------------------------------------------------------------
+Report for cell ring_oscillator.netlist
+     Instance path:  Fast_CK
+                                          Cell usage:
+                               cell       count    Res Usage(%)
+                              BUFBA        4       100.0
+                              CCU2D        3         5.6
+                            FD1S3AX        5        10.4
+                           ORCALUT4        7         0.8
+                                VHI        1        16.7
+                                VLO        1        14.3
+                            
+                         TOTAL            21           
+----------------------------------------------------------------------
+Report for cell PCU.netlist
+     Instance path:  Power_Controller
+                                          Cell usage:
+                               cell       count    Res Usage(%)
+                              PCNTR        1       100.0
+                                VLO        1        14.3
+                            
+                         TOTAL             2           

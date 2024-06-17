@@ -1,0 +1,7 @@
+C:\lscc\diamond\3.12\synpbase\bin64\syn_nfilter.exe  -link  -top  main  -multisrs  C:\Firmware\P3051\P3051\impl1\synwork\P3051_impl1_comp.srs  -osyn  C:\Firmware\P3051\P3051\impl1\synwork\P3051_impl1_mult.srs  -log  C:\Firmware\P3051\P3051\impl1\synlog\P3051_impl1_multi_srs_gen.srr 
+relcom:..\..\..\..\..\lscc\diamond\3.12\synpbase\bin64\syn_nfilter.exe -link -top main -multisrs ..\synwork\P3051_impl1_comp.srs -osyn ..\synwork\P3051_impl1_mult.srs -log ..\synlog\P3051_impl1_multi_srs_gen.srr
+rc:0 success:1 runtime:1
+file:..\synwork\P3051_impl1_comp.srs|io:i|time:1718389113|size:59181|exec:0|csum:EDEA0B8408026442CE821F7F6F0DF240
+file:..\synwork\P3051_impl1_mult.srs|io:o|time:1718389114|size:19121|exec:0|csum:
+file:..\synlog\P3051_impl1_multi_srs_gen.srr|io:o|time:1718389114|size:1128|exec:0|csum:
+file:..\..\..\..\..\lscc\diamond\3.12\synpbase\bin64\syn_nfilter.exe|io:i|time:1603981122|size:8875008|exec:1|csum:43373AFF0ED6BCEB26CB4B4947B972DD

@@ -1,0 +1,1024 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BaliMessageLog>
+    <Task name="Map">
+        <Message>
+            <ID>1100441</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>C:/Firmware/P3051/P3051/P3051.lpf(22): Semantic error in &quot;USE DOUT TRUE CELL &quot;xdac_1_0io[1]&quot; ;&quot;: </Dynamic>
+            <Dynamic>xdac_1_0io[1]</Dynamic>
+            <Dynamic>xdac_1_0io[1]</Dynamic>
+            <Navigation>C:/Firmware/P3051/P3051/P3051.lpf</Navigation>
+            <Navigation>22</Navigation>
+        </Message>
+        <Message>
+            <ID>52101186</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MachXO2</Dynamic>
+        </Message>
+        <Message>
+            <ID>52101110</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MachXO2</Dynamic>
+            <Dynamic>MachXO2</Dynamic>
+        </Message>
+        <Message>
+            <ID>51001030</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>RESET_1</Dynamic>
+        </Message>
+        <Message>
+            <ID>52101147</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>Power_Controller/PCNTR_Inst0</Dynamic>
+        </Message>
+        <Message>
+            <ID>52101151</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>Power_Controller/PCNTR_Inst0</Dynamic>
+        </Message>
+    </Task>
+    <Task name="PAR">
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(33): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/GND&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/GND</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(38): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/VCC&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/VCC</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(44): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_0_0_S0&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_0_0_S0</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(45): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_0_0_S1&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_0_0_S1</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(46): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_1_0_S0&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_1_0_S0</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(47): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_1_0_S1&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_1_0_S1</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(49): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_3_0_COUT&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_3_0_COUT</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(50): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_3_0_S0&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_3_0_S0</Dynamic>
+        </Message>
+        <Message>
+            <ID>61061044</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MachXO2</Dynamic>
+        </Message>
+        <Message>
+            <ID>61061008</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>RCK_c</Dynamic>
+            <Dynamic>Primary</Dynamic>
+            <Dynamic>RCK</Dynamic>
+            <Dynamic>1</Dynamic>
+            <Dynamic>Primary</Dynamic>
+        </Message>
+        <Message>
+            <ID>66011008</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>
+   Signal=CPU/un1_state_20_i[0] loads=1 clock_loads=1
+   Signal=Fast_CK/RIN loads=5 clock_loads=4
+   Signal=Power_Controller/GND loads=1 clock_loads=1</Dynamic>
+        </Message>
+        <Message>
+            <ID>66011008</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>
+   Signal=CPU/un1_state_20_i[0] loads=1 clock_loads=1
+   Signal=Fast_CK/RIN loads=5 clock_loads=4
+   Signal=Power_Controller/GND loads=1 clock_loads=1</Dynamic>
+        </Message>
+    </Task>
+    <Task name="Jedecgen">
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(33): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/GND&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/GND</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(38): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/VCC&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/VCC</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(44): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_0_0_S0&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_0_0_S0</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(45): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_0_0_S1&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_0_0_S1</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(46): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_1_0_S0&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_1_0_S0</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(47): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_1_0_S1&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_1_0_S1</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(49): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_3_0_COUT&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_3_0_COUT</Dynamic>
+        </Message>
+        <Message>
+            <ID>1104271</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>P3051_impl1.prf(50): Semantic error in &quot;PRIORITIZE NET &quot;Fast_CK/un1_calib_cry_3_0_S0&quot; 100 ;&quot;: </Dynamic>
+            <Dynamic>Fast_CK/un1_calib_cry_3_0_S0</Dynamic>
+        </Message>
+        <Message>
+            <ID>1083784</ID>
+            <Severity>Warning</Severity>
+        </Message>
+    </Task>
+    <Task name="Synplify_Synthesis">
+        <Message>
+            <ID>2011000</ID>
+            <Severity>Info</Severity>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:325:4:325:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>325</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>325</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:316:2:316:5|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>316</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>316</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:370:5:370:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>370</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>370</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG296 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:297:7:297:13|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Dynamic>
+            <Navigation>CG296</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>297</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>297</Navigation>
+            <Navigation>13</Navigation>
+            <Navigation>Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:319:19:319:25|Referenced variable ram_out is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>319</Navigation>
+            <Navigation>19</Navigation>
+            <Navigation>319</Navigation>
+            <Navigation>25</Navigation>
+            <Navigation>Referenced variable ram_out is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:332:49:332:61|Referenced variable tck_frequency is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>332</Navigation>
+            <Navigation>49</Navigation>
+            <Navigation>332</Navigation>
+            <Navigation>61</Navigation>
+            <Navigation>Referenced variable tck_frequency is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:326:35:326:48|Referenced variable sensor_data_in is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>326</Navigation>
+            <Navigation>35</Navigation>
+            <Navigation>326</Navigation>
+            <Navigation>48</Navigation>
+            <Navigation>Referenced variable sensor_data_in is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:328:36:328:43|Referenced variable int_bits is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>328</Navigation>
+            <Navigation>36</Navigation>
+            <Navigation>328</Navigation>
+            <Navigation>43</Navigation>
+            <Navigation>Referenced variable int_bits is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:330:35:330:44|Referenced variable int_period is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>330</Navigation>
+            <Navigation>35</Navigation>
+            <Navigation>330</Navigation>
+            <Navigation>44</Navigation>
+            <Navigation>Referenced variable int_period is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:329:36:329:43|Referenced variable int_mask is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>329</Navigation>
+            <Navigation>36</Navigation>
+            <Navigation>329</Navigation>
+            <Navigation>43</Navigation>
+            <Navigation>Referenced variable int_mask is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:321:26:321:30|Referenced variable cpuds is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>321</Navigation>
+            <Navigation>26</Navigation>
+            <Navigation>321</Navigation>
+            <Navigation>30</Navigation>
+            <Navigation>Referenced variable cpuds is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:318:10:318:14|Referenced variable cpuwr is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>318</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>318</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Referenced variable cpuwr is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:303:34:303:41|Referenced variable cpu_addr is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>303</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>303</Navigation>
+            <Navigation>41</Navigation>
+            <Navigation>Referenced variable cpu_addr is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:309:12:309:23|Referenced variable cpu_data_out is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>309</Navigation>
+            <Navigation>12</Navigation>
+            <Navigation>309</Navigation>
+            <Navigation>23</Navigation>
+            <Navigation>Referenced variable cpu_data_out is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:335:21:335:38|Referenced variable cpu_multiplier_out is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>335</Navigation>
+            <Navigation>21</Navigation>
+            <Navigation>335</Navigation>
+            <Navigation>38</Navigation>
+            <Navigation>Referenced variable cpu_multiplier_out is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG296 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:477:24:477:30|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Dynamic>
+            <Navigation>CG296</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>477</Navigation>
+            <Navigation>24</Navigation>
+            <Navigation>477</Navigation>
+            <Navigation>30</Navigation>
+            <Navigation>Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:545:26:545:33|Referenced variable int_mask is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>545</Navigation>
+            <Navigation>26</Navigation>
+            <Navigation>545</Navigation>
+            <Navigation>33</Navigation>
+            <Navigation>Referenced variable int_mask is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG296 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:721:20:721:26|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Dynamic>
+            <Navigation>CG296</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>721</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>721</Navigation>
+            <Navigation>26</Navigation>
+            <Navigation>Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:732:10:732:13|Referenced variable sbyi is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>732</Navigation>
+            <Navigation>10</Navigation>
+            <Navigation>732</Navigation>
+            <Navigation>13</Navigation>
+            <Navigation>Referenced variable sbyi is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG296 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:829:22:829:28|Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Dynamic>
+            <Navigation>CG296</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>829</Navigation>
+            <Navigation>22</Navigation>
+            <Navigation>829</Navigation>
+            <Navigation>28</Navigation>
+            <Navigation>Incomplete sensitivity list; assuming completeness. Make sure all referenced variables in message CG290 are included in the sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CG290 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:853:17:853:26|Referenced variable tx_channel is not in sensitivity list.</Dynamic>
+            <Navigation>CG290</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>853</Navigation>
+            <Navigation>17</Navigation>
+            <Navigation>853</Navigation>
+            <Navigation>26</Navigation>
+            <Navigation>Referenced variable tx_channel is not in sensitivity list.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:284:2:284:5|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>284</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>284</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:583:5:583:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>583</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>583</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:609:5:609:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>609</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>609</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:934:5:934:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>934</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>934</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:864:4:864:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>864</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>864</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:975:5:975:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>975</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>975</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:999:5:999:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>999</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>999</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:960:4:960:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>960</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>960</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:1023:4:1023:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>1023</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>1023</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:1070:5:1070:8|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>1070</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>1070</Navigation>
+            <Navigation>8</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:1060:4:1060:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>1060</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>1060</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:1226:4:1226:7|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>1226</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>1226</Navigation>
+            <Navigation>7</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:1142:3:1142:6|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>1142</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>1142</Navigation>
+            <Navigation>6</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:1244:3:1244:6|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>1244</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>1244</Navigation>
+            <Navigation>6</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD274 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:1280:2:1280:5|Incomplete case statement - add more cases or a when others</Dynamic>
+            <Navigation>CD274</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>1280</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>1280</Navigation>
+            <Navigation>5</Navigation>
+            <Navigation>Incomplete case statement - add more cases or a when others</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD638 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:211:27:211:31|Signal alu_z is undriven. Either assign the signal a value or remove the signal declaration.</Dynamic>
+            <Navigation>CD638</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>211</Navigation>
+            <Navigation>27</Navigation>
+            <Navigation>211</Navigation>
+            <Navigation>31</Navigation>
+            <Navigation>Signal alu_z is undriven. Either assign the signal a value or remove the signal declaration.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD638 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:211:34:211:38|Signal alu_v is undriven. Either assign the signal a value or remove the signal declaration.</Dynamic>
+            <Navigation>CD638</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>211</Navigation>
+            <Navigation>34</Navigation>
+            <Navigation>211</Navigation>
+            <Navigation>38</Navigation>
+            <Navigation>Signal alu_v is undriven. Either assign the signal a value or remove the signal declaration.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL117 :&quot;C:\Firmware\P3051\P3051\OSR8V3.vhd&quot;:1141:2:1141:3|Latch generated from process for signal alu_cin; possible missing assignment in an if or case statement.</Dynamic>
+            <Navigation>CL117</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\OSR8V3.vhd</Navigation>
+            <Navigation>1141</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>1141</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Latch generated from process for signal alu_cin; possible missing assignment in an if or case statement.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL168 :&quot;C:\Firmware\P3051\P3051\MULT.vhd&quot;:215:4:215:17|Removing instance scuba_vhi_inst because it does not drive other instances. To preserve this instance, use the syn_noprune synthesis directive.</Dynamic>
+            <Navigation>CL168</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\MULT.vhd</Navigation>
+            <Navigation>215</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>215</Navigation>
+            <Navigation>17</Navigation>
+            <Navigation>Removing instance scuba_vhi_inst because it does not drive other instances. To preserve this instance, use the syn_noprune synthesis directive.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CD280 :&quot;C:\Firmware\P3051\P3051\Entities.vhd&quot;:37:11:37:15|Unbound component BUFBA mapped to black box</Dynamic>
+            <Navigation>CD280</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Entities.vhd</Navigation>
+            <Navigation>37</Navigation>
+            <Navigation>11</Navigation>
+            <Navigation>37</Navigation>
+            <Navigation>15</Navigation>
+            <Navigation>Unbound component BUFBA mapped to black box</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL240 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:14:2:14:4|Signal SA0 is floating; a simulation mismatch is possible.</Dynamic>
+            <Navigation>CL240</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>Signal SA0 is floating; a simulation mismatch is possible.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:91:2:91:4|Pruning unused register Frequency_Modulation.FHI. Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>91</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>91</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>Pruning unused register Frequency_Modulation.FHI. Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:805:2:805:3|Pruning unused register SCLE_4. Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>805</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>805</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused register SCLE_4. Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:108:15:108:20|Pruning unused register CSA_5. Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>108</Navigation>
+            <Navigation>15</Navigation>
+            <Navigation>108</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>Pruning unused register CSA_5. Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:108:15:108:20|Pruning unused register CSG_5. Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>108</Navigation>
+            <Navigation>15</Navigation>
+            <Navigation>108</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>Pruning unused register CSG_5. Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:572:57:572:57|Pruning unused register sensor_bits_out_6(7 downto 0). Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>572</Navigation>
+            <Navigation>57</Navigation>
+            <Navigation>572</Navigation>
+            <Navigation>57</Navigation>
+            <Navigation>Pruning unused register sensor_bits_out_6(7 downto 0). Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:572:57:572:57|Pruning unused register SBYC_3. Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>572</Navigation>
+            <Navigation>57</Navigation>
+            <Navigation>572</Navigation>
+            <Navigation>57</Navigation>
+            <Navigation>Pruning unused register SBYC_3. Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:494:2:494:3|Pruning unused register CPUIRQ_1. Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>494</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>494</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused register CPUIRQ_1. Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:349:2:349:3|Pruning unused register tp_reg_4(7 downto 0). Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused register tp_reg_4(7 downto 0). Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:349:2:349:3|Pruning unused register sensor_addr_4(7 downto 0). Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused register sensor_addr_4(7 downto 0). Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL169 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:349:2:349:3|Pruning unused register sensor_data_out_6(15 downto 0). Make sure that there are no unused intermediate registers.</Dynamic>
+            <Navigation>CL169</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused register sensor_data_out_6(15 downto 0). Make sure that there are no unused intermediate registers.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL271 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:349:2:349:3|Pruning unused bits 4 to 3 of int_set_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Dynamic>
+            <Navigation>CL271</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused bits 4 to 3 of int_set_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL271 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:349:2:349:3|Pruning unused bits 4 to 3 of int_rst_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Dynamic>
+            <Navigation>CL271</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning unused bits 4 to 3 of int_rst_4(7 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL254 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:201:2:201:3|A possible syn_keep on a reg that results in sequential logic - assuming that a tristate can be transmitted through : signal name could change</Dynamic>
+            <Navigation>CL254</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>201</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>201</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>A possible syn_keep on a reg that results in sequential logic - assuming that a tristate can be transmitted through : signal name could change</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL111 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:494:2:494:3|All reachable assignments to int_bits(3) are '0'; removing register. To preserve a constant register, use the syn_preserve attribute.</Dynamic>
+            <Navigation>CL111</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>494</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>494</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>All reachable assignments to int_bits(3) are '0'; removing register. To preserve a constant register, use the syn_preserve attribute.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL111 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:494:2:494:3|All reachable assignments to int_bits(4) are '0'; removing register. To preserve a constant register, use the syn_preserve attribute.</Dynamic>
+            <Navigation>CL111</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>494</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>494</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>All reachable assignments to int_bits(4) are '0'; removing register. To preserve a constant register, use the syn_preserve attribute.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL190 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:732:2:732:3|Optimizing register bit state(4) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.</Dynamic>
+            <Navigation>CL190</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>732</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>732</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Optimizing register bit state(4) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL190 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:732:2:732:3|Optimizing register bit state(5) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.</Dynamic>
+            <Navigation>CL190</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>732</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>732</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Optimizing register bit state(5) to a constant 0. To keep the instance, apply constraint syn_preserve=1 on the instance.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL279 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:732:2:732:3|Pruning register bits 5 to 4 of state(5 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Dynamic>
+            <Navigation>CL279</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>732</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>732</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Pruning register bits 5 to 4 of state(5 downto 0). If this is not the intended behavior, drive the inputs with valid values, or inputs from the top level.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>CL249 :&quot;C:\Firmware\P3051\P3051\Main.vhd&quot;:588:2:588:3|Initial value is not supported on state machine state</Dynamic>
+            <Navigation>CL249</Navigation>
+            <Navigation>C:\Firmware\P3051\P3051\Main.vhd</Navigation>
+            <Navigation>588</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>588</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Initial value is not supported on state machine state</Navigation>
+        </Message>
+        <Message>
+            <ID>2019993</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>FX474 |User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved.</Dynamic>
+            <Navigation>FX474</Navigation>
+            <Navigation>User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>BN287 :&quot;c:\firmware\p3051\p3051\main.vhd&quot;:349:2:349:3|Register tck_divisor[3:0] with reset has an initial value of 1. Ignoring initial value.</Dynamic>
+            <Navigation>BN287</Navigation>
+            <Navigation>c:\firmware\p3051\p3051\main.vhd</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Register tck_divisor[3:0] with reset has an initial value of 1. Ignoring initial value.  </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>BN287 :&quot;c:\firmware\p3051\p3051\main.vhd&quot;:349:2:349:3|Register tx_channel[7:0] with reset has an initial value of 1. Ignoring initial value.</Dynamic>
+            <Navigation>BN287</Navigation>
+            <Navigation>c:\firmware\p3051\p3051\main.vhd</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>349</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Register tx_channel[7:0] with reset has an initial value of 1. Ignoring initial value.  </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MO112 :&quot;c:\firmware\p3051\p3051\main.vhd&quot;:108:15:108:20|Deleting tristate instance SDA_4 (in view: work.main(behavior)) on net SDA (in view: work.main(behavior)) because its enable is connected to 0.</Dynamic>
+            <Navigation>MO112</Navigation>
+            <Navigation>c:\firmware\p3051\p3051\main.vhd</Navigation>
+            <Navigation>108</Navigation>
+            <Navigation>15</Navigation>
+            <Navigation>108</Navigation>
+            <Navigation>20</Navigation>
+            <Navigation>Deleting tristate instance SDA_4 (in view: work.main(behavior)) on net SDA (in view: work.main(behavior)) because its enable is connected to 0.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT531 :&quot;c:\firmware\p3051\p3051\osr8v3.vhd&quot;:1141:2:1141:3|Found signal identified as System clock which controls 1 sequential elements including CPU.alu_cin.  Using this clock, which has no specified timing constraint, can prevent conversion of gated or generated clocks and can adversely impact design performance.</Dynamic>
+            <Navigation>MT531</Navigation>
+            <Navigation>c:\firmware\p3051\p3051\osr8v3.vhd</Navigation>
+            <Navigation>1141</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>1141</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Found signal identified as System clock which controls 1 sequential elements including CPU.alu_cin.  Using this clock, which has no specified timing constraint, can prevent conversion of gated or generated clocks and can adversely impact design performance. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT529 :&quot;c:\firmware\p3051\p3051\ram.vhd&quot;:114:4:114:14|Found inferred clock main|RCK which controls 298 sequential elements including Process_Memory.RAM_0_0_0_0. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance.</Dynamic>
+            <Navigation>MT529</Navigation>
+            <Navigation>c:\firmware\p3051\p3051\ram.vhd</Navigation>
+            <Navigation>114</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>114</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Found inferred clock main|RCK which controls 298 sequential elements including Process_Memory.RAM_0_0_0_0. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT529 :&quot;c:\firmware\p3051\p3051\entities.vhd&quot;:65:2:65:3|Found inferred clock ring_oscillator|RIN which controls 5 sequential elements including Fast_CK.count[3:0]. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance.</Dynamic>
+            <Navigation>MT529</Navigation>
+            <Navigation>c:\firmware\p3051\p3051\entities.vhd</Navigation>
+            <Navigation>65</Navigation>
+            <Navigation>2</Navigation>
+            <Navigation>65</Navigation>
+            <Navigation>3</Navigation>
+            <Navigation>Found inferred clock ring_oscillator|RIN which controls 5 sequential elements including Fast_CK.count[3:0]. This clock has no specified timing constraint which may prevent conversion of gated or generated clocks and may adversely impact design performance. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019993</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>FX474 |User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved.</Dynamic>
+            <Navigation>FX474</Navigation>
+            <Navigation>User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved. </Navigation>
+        </Message>
+        <Message>
+            <ID>2019991</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT246 :&quot;c:\firmware\p3051\p3051\entities.vhd&quot;:140:4:140:14|Blackbox PCNTR is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)</Dynamic>
+            <Navigation>MT246</Navigation>
+            <Navigation>c:\firmware\p3051\p3051\entities.vhd</Navigation>
+            <Navigation>140</Navigation>
+            <Navigation>4</Navigation>
+            <Navigation>140</Navigation>
+            <Navigation>14</Navigation>
+            <Navigation>Blackbox PCNTR is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)</Navigation>
+        </Message>
+        <Message>
+            <ID>2019993</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT420 |Found inferred clock main|RCK with period 1000.00ns. Please declare a user-defined clock on port RCK.</Dynamic>
+            <Navigation>MT420</Navigation>
+            <Navigation>Found inferred clock main|RCK with period 1000.00ns. Please declare a user-defined clock on port RCK.</Navigation>
+        </Message>
+        <Message>
+            <ID>2019993</ID>
+            <Severity>Warning</Severity>
+            <Dynamic>MT646 |Found inferred clock ring_oscillator|RIN with period 1000.00ns. Please declare a clock for each of the following:</Dynamic>
+            <Navigation>MT646</Navigation>
+            <Navigation>Found inferred clock ring_oscillator|RIN with period 1000.00ns. Please declare a clock for each of the following:</Navigation>
+        </Message>
+    </Task>
+</BaliMessageLog>

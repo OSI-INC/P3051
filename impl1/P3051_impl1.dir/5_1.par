@@ -1,0 +1,357 @@
+
+Lattice Place and Route Report for Design "P3051_impl1_map.ncd"
+Mon Jun 17 10:55:59 2024
+
+PAR: Place And Route Diamond (64-bit) 3.12.0.240.2.
+Command Line: par -w -l 5 -i 6 -t 1 -c 0 -e 0 -gui -msgset C:/Firmware/P3051/P3051/promote.xml -exp parUseNBR=1:parCDP=0:parCDR=0:parPathBased=OFF:parASE=1 P3051_impl1_map.ncd P3051_impl1.dir/5_1.ncd P3051_impl1.prf
+Preference file: P3051_impl1.prf.
+Placement level-cost: 5-1.
+Routing Iterations: 6
+
+Loading design for application par from file P3051_impl1_map.ncd.
+Design name: main
+NCD version: 3.3
+Vendor:      LATTICE
+Device:      LCMXO2-1200ZE
+Package:     TQFP100
+Performance: 1
+Loading device for application par from file 'xo2c1200.nph' in environment: C:/lscc/diamond/3.12/ispfpga.
+Package Status:                     Final          Version 1.42.
+Performance Hardware Data Status:   Final          Version 34.4.
+License checked out.
+
+
+Ignore Preference Error(s):  True
+WARNING - par: P3051_impl1.prf(33): Semantic error in "PRIORITIZE NET "Fast_CK/GND" 100 ;": Net, Fast_CK/GND does not exist in the design. This preference has been disabled.
+WARNING - par: P3051_impl1.prf(38): Semantic error in "PRIORITIZE NET "Fast_CK/VCC" 100 ;": Net, Fast_CK/VCC does not exist in the design. This preference has been disabled.
+WARNING - par: P3051_impl1.prf(44): Semantic error in "PRIORITIZE NET "Fast_CK/un1_calib_cry_0_0_S0" 100 ;": Net, Fast_CK/un1_calib_cry_0_0_S0 does not exist in the design. This preference has been disabled.
+WARNING - par: P3051_impl1.prf(45): Semantic error in "PRIORITIZE NET "Fast_CK/un1_calib_cry_0_0_S1" 100 ;": Net, Fast_CK/un1_calib_cry_0_0_S1 does not exist in the design. This preference has been disabled.
+WARNING - par: P3051_impl1.prf(46): Semantic error in "PRIORITIZE NET "Fast_CK/un1_calib_cry_1_0_S0" 100 ;": Net, Fast_CK/un1_calib_cry_1_0_S0 does not exist in the design. This preference has been disabled.
+WARNING - par: P3051_impl1.prf(47): Semantic error in "PRIORITIZE NET "Fast_CK/un1_calib_cry_1_0_S1" 100 ;": Net, Fast_CK/un1_calib_cry_1_0_S1 does not exist in the design. This preference has been disabled.
+WARNING - par: P3051_impl1.prf(49): Semantic error in "PRIORITIZE NET "Fast_CK/un1_calib_cry_3_0_COUT" 100 ;": Net, Fast_CK/un1_calib_cry_3_0_COUT does not exist in the design. This preference has been disabled.
+WARNING - par: P3051_impl1.prf(50): Semantic error in "PRIORITIZE NET "Fast_CK/un1_calib_cry_3_0_S0" 100 ;": Net, Fast_CK/un1_calib_cry_3_0_S0 does not exist in the design. This preference has been disabled.
+Device utilization summary:
+
+   PIO (prelim)   13+1(JTAGENB)/108 13% used
+                  13+1(JTAGENB)/80  18% bonded
+   IOLOGIC            6/108           5% used
+
+   SLICE            577/640          90% used
+
+   GSR                1/1           100% used
+   EBR                5/7            71% used
+   PCNTR              1/1           100% used
+
+
+INFO: Design contains EBR with ASYNC Reset Mode that has a limitation: The use of the EBR block asynchronous reset requires that certain timing be met between the clock and the reset within the memory block. See the device specific data sheet for additional details.
+INFO: Design contains pre-loadable EBR during configuration that has a requirement: Since the GSR is disabled for the EBR, make sure write enable and chip enable are inactive during wake-up, so that the pre-loaded initialization values will not be corrupted during wake-up state.
+2 potential circuit loops found in timing analysis.
+Number of Signals: 1530
+Number of Connections: 4772
+WARNING - par: The JTAG Port has been disabled in this project, and JTAG pins will be configured as General Purpose IO. You must use JTAGENB pin in hardware to change the personality of the port from JTAG pins to general purpose IO. This mux control pin is dedicated to the selection of JTAG pins for GPIO use by the user design.  Refer to the MachXO2 Handbook for details on dual-function JTAG ports.
+
+Pin Constraint Summary:
+   13 out of 13 pins locked (100% locked).
+
+The following 3 signals are selected to use the primary clock routing resources:
+    CK (driver: SLICE_180, clk load #: 169)
+    TCK_1 (driver: SLICE_180, clk load #: 43)
+    RCK_c (driver: RCK, clk load #: 10)
+
+WARNING - par: Signal "RCK_c" is selected to use Primary clock resources. However, its driver comp "RCK" is located at "1", which is not a dedicated pin for connecting to Primary clock resources. General routing has to be used to route this signal, and it might suffer from excessive delay or skew.
+
+The following 2 signals are selected to use the secondary clock routing resources:
+    RESET_1 (driver: SLICE_169, clk load #: 0, sr load #: 5, ce load #: 10)
+    FCK (driver: Fast_CK/SLICE_83, clk load #: 6, sr load #: 0, ce load #: 0)
+
+Signal RESET_1 is selected as Global Set/Reset.
+Starting Placer Phase 0.
+..........
+Finished Placer Phase 0.  REAL time: 3 secs 
+
+Starting Placer Phase 1.
+....................
+Placer score = 310308.
+Finished Placer Phase 1.  REAL time: 9 secs 
+
+Starting Placer Phase 2.
+.
+Placer score =  308358
+Finished Placer Phase 2.  REAL time: 10 secs 
+
+
+------------------ Clock Report ------------------
+
+Global Clock Resources:
+  CLK_PIN    : 0 out of 8 (0%)
+  General PIO: 1 out of 108 (0%)
+  PLL        : 0 out of 1 (0%)
+  DCM        : 0 out of 2 (0%)
+  DCC        : 0 out of 8 (0%)
+
+Global Clocks:
+  PRIMARY "CK" from F1 on comp "SLICE_180" on site "R2C13D", clk load = 169
+  PRIMARY "TCK_1" from Q0 on comp "SLICE_180" on site "R2C13D", clk load = 43
+  PRIMARY "RCK_c" from comp "RCK" on PIO site "1 (PL2C)", clk load = 10
+  SECONDARY "RESET_1" from Q0 on comp "SLICE_169" on site "R7C14D", clk load = 0, ce load = 10, sr load = 5
+  SECONDARY "FCK" from Q1 on comp "Fast_CK/SLICE_83" on site "R4C21C", clk load = 6, ce load = 0, sr load = 0
+
+  PRIMARY  : 3 out of 8 (37%)
+  SECONDARY: 2 out of 8 (25%)
+
+Edge Clocks:
+  No edge clock selected.
+
+--------------- End of Clock Report ---------------
+
+
+I/O Usage Summary (final):
+   13 + 1(JTAGENB) out of 108 (13.0%) PIO sites used.
+   13 + 1(JTAGENB) out of 80 (17.5%) bonded PIO sites used.
+   Number of PIO comps: 13; differential: 0.
+   Number of Vref pins used: 0.
+
+I/O Bank Usage Summary:
++----------+---------------+------------+-----------+
+| I/O Bank | Usage         | Bank Vccio | Bank Vref |
++----------+---------------+------------+-----------+
+| 0        | 6 / 19 ( 31%) | 3.3V       | -         |
+| 1        | 4 / 21 ( 19%) | 3.3V       | -         |
+| 2        | 2 / 20 ( 10%) | 3.3V       | -         |
+| 3        | 1 / 20 (  5%) | 3.3V       | -         |
++----------+---------------+------------+-----------+
+
+Total placer CPU time: 8 secs 
+
+Dumping design to file P3051_impl1.dir/5_1.ncd.
+
+2 potential circuit loops found in timing analysis.
+0 connections routed; 4772 unrouted.
+Starting router resource preassignment
+
+WARNING - par: The following clock signals will be routed by using generic routing resource and may suffer from excessive delay and/or skew.
+   Signal=CPU/un1_state_20_i[0] loads=1 clock_loads=1
+   Signal=Fast_CK/RIN loads=5 clock_loads=4
+   Signal=Power_Controller/GND loads=1 clock_loads=1
+
+Completed router resource preassignment. Real time: 11 secs 
+
+Start NBR router at 10:56:10 06/17/24
+
+*****************************************************************
+Info: NBR allows conflicts(one node used by more than one signal)
+      in the earlier iterations. In each iteration, it tries to  
+      solve the conflicts while keeping the critical connections 
+      routed as short as possible. The routing process is said to
+      be completed when no conflicts exist and all connections   
+      are routed.                                                
+Note: NBR uses a different method to calculate timing slacks. The
+      worst slack and total negative slack may not be the same as
+      that in TRCE report. You should always run TRCE to verify  
+      your design.                                               
+*****************************************************************
+
+2 potential circuit loops found in timing analysis.
+Start NBR special constraint process at 10:56:10 06/17/24
+  -- Pref: PRIORITIZE NET "Fast_CK/ANB1" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/ANB2" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/ANB3" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/CO0" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/CO1" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/GND" 100 ;
+Warning: Cannot find net Fast_CK/GND specified in PRIORITIZE NET "Fast_CK/GND" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/R1" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/R2" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/R3" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/R4" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/VCC" 100 ;
+Warning: Cannot find net Fast_CK/VCC specified in PRIORITIZE NET "Fast_CK/VCC" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/next_count_3[0]" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/next_count_3[1]" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/next_count_3[2]" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/next_count_3[3]" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_calib_cry_0" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_calib_cry_0_0_S0" 100 ;
+Warning: Cannot find net Fast_CK/un1_calib_cry_0_0_S0 specified in PRIORITIZE NET "Fast_CK/un1_calib_cry_0_0_S0" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_calib_cry_0_0_S1" 100 ;
+Warning: Cannot find net Fast_CK/un1_calib_cry_0_0_S1 specified in PRIORITIZE NET "Fast_CK/un1_calib_cry_0_0_S1" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_calib_cry_1_0_S0" 100 ;
+Warning: Cannot find net Fast_CK/un1_calib_cry_1_0_S0 specified in PRIORITIZE NET "Fast_CK/un1_calib_cry_1_0_S0" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_calib_cry_1_0_S1" 100 ;
+Warning: Cannot find net Fast_CK/un1_calib_cry_1_0_S1 specified in PRIORITIZE NET "Fast_CK/un1_calib_cry_1_0_S1" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_calib_cry_2" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_calib_cry_3_0_COUT" 100 ;
+Warning: Cannot find net Fast_CK/un1_calib_cry_3_0_COUT specified in PRIORITIZE NET "Fast_CK/un1_calib_cry_3_0_COUT" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_calib_cry_3_0_S0" 100 ;
+Warning: Cannot find net Fast_CK/un1_calib_cry_3_0_S0 specified in PRIORITIZE NET "Fast_CK/un1_calib_cry_3_0_S0" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_calib_i" 100 ;
+  -- Pref: PRIORITIZE NET "Fast_CK/un1_count" 100 ;
+
+Start NBR section for initial routing at 10:56:11 06/17/24
+Level 1, iteration 1
+0(0.00%) conflict; 4124(86.42%) untouched conns; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.722ns/0.000ns; real time: 12 secs 
+Level 2, iteration 1
+0(0.00%) conflict; 4122(86.38%) untouched conns; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.875ns/0.000ns; real time: 12 secs 
+Level 3, iteration 1
+9(0.01%) conflicts; 4113(86.19%) untouched conns; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.875ns/0.000ns; real time: 12 secs 
+Level 4, iteration 1
+76(0.09%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.777ns/0.000ns; real time: 13 secs 
+
+Info: Initial congestion level at 75% usage is 0
+Info: Initial congestion area  at 75% usage is 0 (0.00%)
+
+Start NBR section for normal routing at 10:56:12 06/17/24
+Level 1, iteration 1
+12(0.01%) conflicts; 97(2.03%) untouched conns; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.263ns/0.000ns; real time: 13 secs 
+Level 4, iteration 1
+33(0.04%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.263ns/0.000ns; real time: 14 secs 
+Level 4, iteration 2
+20(0.02%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.263ns/0.000ns; real time: 14 secs 
+Level 4, iteration 3
+19(0.02%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.263ns/0.000ns; real time: 14 secs 
+Level 4, iteration 4
+15(0.02%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.263ns/0.000ns; real time: 14 secs 
+Level 4, iteration 5
+12(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 14 secs 
+Level 4, iteration 6
+10(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 14 secs 
+Level 4, iteration 7
+10(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 14 secs 
+Level 4, iteration 8
+8(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 14 secs 
+Level 4, iteration 9
+7(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 14 secs 
+Level 4, iteration 10
+6(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 14 secs 
+Level 4, iteration 11
+6(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 14 secs 
+Level 4, iteration 12
+6(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 14 secs 
+Level 4, iteration 13
+6(0.01%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 15 secs 
+Level 4, iteration 14
+4(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 15 secs 
+Level 4, iteration 15
+4(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 15 secs 
+Level 4, iteration 16
+4(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 15 secs 
+Level 4, iteration 17
+4(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 15 secs 
+Level 4, iteration 18
+4(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 3.252ns/0.000ns; real time: 15 secs 
+Level 4, iteration 19
+3(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.817ns/0.000ns; real time: 15 secs 
+Level 4, iteration 20
+2(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.817ns/0.000ns; real time: 15 secs 
+Level 4, iteration 21
+2(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.817ns/0.000ns; real time: 15 secs 
+Level 4, iteration 22
+2(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.817ns/0.000ns; real time: 15 secs 
+Level 4, iteration 23
+2(0.00%) conflicts; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.817ns/0.000ns; real time: 15 secs 
+Level 4, iteration 24
+1(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.817ns/0.000ns; real time: 15 secs 
+Level 4, iteration 25
+1(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.688ns/0.000ns; real time: 15 secs 
+Level 4, iteration 26
+0(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.688ns/0.000ns; real time: 15 secs 
+
+Start NBR section for setup/hold timing optimization with effort level 3 at 10:56:14 06/17/24
+2 potential circuit loops found in timing analysis.
+2 potential circuit loops found in timing analysis.
+
+Start NBR section for re-routing at 10:56:14 06/17/24
+Level 4, iteration 1
+0(0.00%) conflict; 0(0.00%) untouched conn; 0 (nbr) score; 
+Estimated worst slack/total negative slack<setup>: 2.688ns/0.000ns; real time: 15 secs 
+
+Start NBR section for post-routing at 10:56:14 06/17/24
+2 potential circuit loops found in timing analysis.
+
+End NBR router with 0 unrouted connection
+
+NBR Summary
+-----------
+  Number of unrouted connections : 0 (0.00%)
+  Number of connections with timing violations : 0 (0.00%)
+  Estimated worst slack<setup> : 2.688ns
+  Timing score<setup> : 0
+-----------
+Notes: The timing info is calculated for SETUP only and all PAR_ADJs are ignored.
+
+
+
+WARNING - par: The following clock signals will be routed by using generic routing resource and may suffer from excessive delay and/or skew.
+   Signal=CPU/un1_state_20_i[0] loads=1 clock_loads=1
+   Signal=Fast_CK/RIN loads=5 clock_loads=4
+   Signal=Power_Controller/GND loads=1 clock_loads=1
+
+2 potential circuit loops found in timing analysis.
+2 potential circuit loops found in timing analysis.
+2 potential circuit loops found in timing analysis.
+Total CPU time 15 secs 
+Total REAL time: 16 secs 
+Completely routed.
+End of route.  4772 routed (100.00%); 0 unrouted.
+
+Hold time timing score: 0, hold timing errors: 0
+
+Timing score: 0 
+
+Dumping design to file P3051_impl1.dir/5_1.ncd.
+
+
+All signals are completely routed.
+
+
+PAR_SUMMARY::Run status = Completed
+PAR_SUMMARY::Number of unrouted conns = 0
+PAR_SUMMARY::Worst  slack<setup/<ns>> = 2.688
+PAR_SUMMARY::Timing score<setup/<ns>> = 0.000
+PAR_SUMMARY::Worst  slack<hold /<ns>> = 1.179
+PAR_SUMMARY::Timing score<hold /<ns>> = 0.000
+PAR_SUMMARY::Number of errors = 0
+
+Total CPU  time to completion: 15 secs 
+Total REAL time to completion: 17 secs 
+
+par done!
+
+Note: user must run 'Trace' for timing closure signoff.
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights reserved.

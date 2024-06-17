@@ -1,0 +1,13 @@
+@E: CL219 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Multiple non-tristate drivers for net xdac(4) in main
+@E: CL219 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Multiple non-tristate drivers for net xdac(3) in main
+@E: CL219 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Multiple non-tristate drivers for net xdac(2) in main
+@E: CL219 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Multiple non-tristate drivers for net xdac(1) in main
+@E: CL219 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Multiple non-tristate drivers for net xdac(0) in main
+@E: CL229 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Unresolved tristate drivers for net xdac(0) in main
+@E: CL229 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Unresolved tristate drivers for net xdac(1) in main
+@E: CL229 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Unresolved tristate drivers for net xdac(2) in main
+@E: CL229 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Unresolved tristate drivers for net xdac(3) in main
+@E: CL229 :"C:\Firmware\P3051\P3051\Main.vhd":20:2:20:5|Unresolved tristate drivers for net xdac(4) in main
+@E: Could not find specified top level main (library: work, cell: main)
+@E::Error while linking, aborting.
+

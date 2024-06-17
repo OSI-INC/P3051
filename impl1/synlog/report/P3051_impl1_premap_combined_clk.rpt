@@ -1,0 +1,30 @@
+
+
+@S |Clock Optimization Summary
+
+
+
+#### START OF PREMAP CLOCK OPTIMIZATION REPORT #####[
+
+1 non-gated/non-generated clock tree(s) driving 14 clock pin(s) of sequential element(s)
+5 gated/generated clock tree(s) driving 357 clock pin(s) of sequential element(s)
+0 instances converted, 357 sequential instances remain driven by gated/generated clocks
+
+=========================== Non-Gated/Non-Generated Clocks ============================
+Clock Tree ID     Driving Element     Drive Element Type     Fanout     Sample Instance
+---------------------------------------------------------------------------------------
+@KP:ckid0_6       RCK                 port                   14         state_5[2:0]   
+=======================================================================================
+======================================================================== Gated/Generated Clocks ========================================================================
+Clock Tree ID     Driving Element                        Drive Element Type     Unconverted Fanout     Sample Instance        Explanation                               
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@KP:ckid0_1       uclk_Boost_Controller\.un12_ck.OUT     or                     280                    int_bits[7:2]          Derived clock on input (not legal for GCC)
+@KP:ckid0_2       CPU.un1_state_20[0].OUT[0]             mux                    1                      CPU.alu_cin            Clock source is invalid for GCC           
+@KP:ckid0_3       Fast_CK.un2_rin.OUT                    and                    5                      Fast_CK.count[3:0]     Clock source is invalid for GCC           
+@KP:ckid0_5       TCK.Q[0]                               dff                    65                     state[1]               Derived clock on input (not legal for GCC)
+@KP:ckid0_7       Fast_CK.CK.Q[0]                        dff                    6                      xdac[4:0]              Derived clock on input (not legal for GCC)
+========================================================================================================================================================================
+
+
+##### END OF CLOCK OPTIMIZATION REPORT ######
+

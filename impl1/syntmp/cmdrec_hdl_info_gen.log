@@ -1,0 +1,13 @@
+C:\lscc\diamond\3.12\synpbase\bin64\c_vhdl.exe  -osyn  C:\Firmware\P3051\P3051\impl1\synwork\P3051_impl1_hdl_.srs  -top  main  -prodtype  synplify_pro  -dspmac -fixsmult -infer_seqShift -nram -sdff_counter -divnmod -nostructver  -encrypt  -pro  -dmgen  C:\Firmware\P3051\P3051\impl1\dm  -lite -ui -fid2 -ram -sharing on -ll 2000 -autosm  -ignore_undefined_lib  -lib work C:\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd -lib work C:\Firmware\P3051\P3051\ROM.vhd -lib work C:\Firmware\P3051\P3051\RAM.vhd -lib work C:\Firmware\P3051\P3051\MULT.vhd -lib work C:\Firmware\P3051\P3051\Entities.vhd -lib work C:\Firmware\P3051\P3051\OSR8V3.vhd -lib work C:\Firmware\P3051\P3051\Main.vhd  -log  C:\Firmware\P3051\P3051\impl1\syntax.log  -fileorder  C:\Firmware\P3051\P3051\impl1\syntmp\hdlorder.tcl  -jobname  "hdl_info_gen" 
+relcom:..\..\..\..\..\lscc\diamond\3.12\synpbase\bin64\c_vhdl.exe -osyn ..\synwork\P3051_impl1_hdl_.srs -top main -prodtype synplify_pro -dspmac -fixsmult -infer_seqShift -nram -sdff_counter -divnmod -nostructver -encrypt -pro -dmgen ..\dm -lite -ui -fid2 -ram -sharing on -ll 2000 -autosm -ignore_undefined_lib -lib work ..\..\..\..\..\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd -lib work ..\..\ROM.vhd -lib work ..\..\RAM.vhd -lib work ..\..\MULT.vhd -lib work ..\..\Entities.vhd -lib work ..\..\OSR8V3.vhd -lib work ..\..\Main.vhd -log ..\syntax.log -fileorder hdlorder.tcl -jobname "hdl_info_gen"
+rc:0 success:1 runtime:1
+file:..\synwork\P3051_impl1_hdl_.srs|io:o|time:0|size:-1|exec:0|csum:
+file:..\..\..\..\..\lscc\diamond\3.12\cae_library\synthesis\vhdl\machxo2.vhd|io:i|time:1542256332|size:73964|exec:0|csum:CFF92E93E4FE354031DBB4E0E47DD4A6
+file:..\..\ROM.vhd|io:i|time:1718205731|size:27725|exec:0|csum:068370779054B7BCE780FA7878A4B92B
+file:..\..\RAM.vhd|io:i|time:1718205731|size:11047|exec:0|csum:D2064A80D04019ECD5181A6B92F1C99A
+file:..\..\MULT.vhd|io:i|time:1718205731|size:22914|exec:0|csum:2BBD9B2EF88C49D7F150016C21D7A328
+file:..\..\Entities.vhd|io:i|time:1718205731|size:5397|exec:0|csum:79E5673BF314183D36ABE33D18540E29
+file:..\..\OSR8V3.vhd|io:i|time:1718211831|size:56470|exec:0|csum:B2593DDCCE7DA1912DBCFAB561BCC0E1
+file:..\..\Main.vhd|io:i|time:1718389067|size:37498|exec:0|csum:E2011DBDD6C55F24B715E035F731E1E7
+file:..\syntax.log|io:o|time:1718389109|size:1101|exec:0|csum:
+file:..\..\..\..\..\lscc\diamond\3.12\synpbase\bin64\c_vhdl.exe|io:i|time:1603981122|size:6088192|exec:1|csum:65784030B81A37FDBF615E387BAB679B

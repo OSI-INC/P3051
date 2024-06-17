@@ -1,0 +1,1 @@
+project -fileorder "C:/lscc/diamond/3.12/cae_library/synthesis/vhdl/machxo2.vhd" "C:/Firmware/P3051/P3051/OSR8V3.vhd" "C:/Firmware/P3051/P3051/ROM.vhd" "C:/Firmware/P3051/P3051/RAM.vhd" "C:/Firmware/P3051/P3051/MULT.vhd" "C:/Firmware/P3051/P3051/Entities.vhd" "C:/Firmware/P3051/P3051/Main.vhd" 

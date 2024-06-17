@@ -1,0 +1,4 @@
+@W: FX474 |User-specified initial value defined for some sequential elements which can prevent optimum synthesis results from being achieved. 
+@W: MT246 :"c:\firmware\p3051\p3051\entities.vhd":140:4:140:14|Blackbox PCNTR is missing a user supplied timing model. This may have a negative effect on timing analysis and optimizations (Quality of Results)
+@W: MT420 |Found inferred clock main|RCK with period 1000.00ns. Please declare a user-defined clock on port RCK.
+@W: MT646 |Found inferred clock ring_oscillator|RIN with period 1000.00ns. Please declare a clock for each of the following:

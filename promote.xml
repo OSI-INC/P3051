@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<userSetting name="C:/Kevan/A3035/P3035/promote.xml" version="Diamond (64-bit) 3.12.1.454" date="Wed Jun 12 11:06:12 2024" vendor="Lattice Semiconductor Corporation" >
+<userSetting name="C:/Firmware/P3051/P3051/promote.xml" version="Diamond (64-bit) 3.12.0.240.2" date="Mon Jun 17 16:23:33 2024" vendor="Lattice Semiconductor Corporation" >
   <msg mid="35921504" type="Info" />
   <msg mid="35921033" type="Error" />
   <msg mid="35921288" type="Error" />
@@ -16,9 +16,9 @@
   <msg mid="35921205" type="Warning" />
   <msg mid="35921272" type="Error" />
   <msg mid="35921236" type="Error" />
-  <msg mid="35921549" type="Error" />
   <msg mid="35921077" type="Error" />
   <msg mid="35921406" type="Error" />
+  <msg mid="35921549" type="Error" />
   <msg mid="35921052" type="Error" />
   <msg mid="35921128" type="Error" />
   <msg mid="35921251" type="Warning" />

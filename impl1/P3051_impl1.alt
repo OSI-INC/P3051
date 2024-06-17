@@ -1,0 +1,21 @@
+NOTE Copyright (C), 1992-2010, Lattice Semiconductor Corporation *
+NOTE All Rights Reserved *
+NOTE DATE CREATED: Mon Jun 17 10:56:19 2024 *
+NOTE DESIGN NAME: main *
+NOTE DEVICE NAME: LCMXO2-1200ZE-1TQFP100 *
+NOTE PIN ASSIGNMENTS *
+NOTE PINS SCL : 87 : out *
+NOTE PINS XEN : 51 : out *
+NOTE PINS RCK : 1 : in *
+NOTE PINS xdac[4] : 95 : out *
+NOTE PINS xdac[3] : 94 : out *
+NOTE PINS xdac[2] : 61 : out *
+NOTE PINS xdac[1] : 60 : out *
+NOTE PINS xdac[0] : 59 : out *
+NOTE PINS IDY : 88 : in *
+NOTE PINS SDA : 85 : in *
+NOTE PINS SA0 : 86 : out *
+NOTE PINS TP2 : 37 : out *
+NOTE PINS TP1 : 36 : out *
+NOTE CONFIGURATION MODE: NONE *
+NOTE COMPRESSION: on *

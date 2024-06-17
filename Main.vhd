@@ -1,15 +1,4 @@
--- <pre> Implantable Inertial Sensor (IIS, A3035) Firmware, Toplevel Unit
-
--- V2.1, 15-JUL-22: Move to the OSR8V3. Add a flag to disable the multiplier so we can be sure variants of the-- OSR8 fit in the device. The initial stack pointer is now available at mmu_sph and mmu_spl locations, HI and LO 
--- bytes respectively, so the CPU process can read the correct stack location from memory and set the stack pointer
--- after a jump to the initialization routine. This OSR8V3 is behind in modification from the one in P3041. Program
--- a new IIS and test: seems to be working. We create P3035 Git repository and replace old version A13 with new
--- version V2.1 and tag.
-
--- V2.3, 14-SEP-22: Carry latest OSR8V3 modifications into this firmware. Eliminate mmu_sph and mmu_spl. No longer
--- have Stack Overflow (STOF) interrupt. Stack pointer will be initialized by CPU from program on startup.
-
--- V2.4, 31-MAY-24: Correct and expand comments.
+-- <pre> Blood Pressure Monitor (A3051B) Firmware, Toplevel Unit
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -17,21 +6,16 @@ use ieee.numeric_std.all;
 
 entity main is 
 	port (
-		RCK, -- Reference Clock
-		SDO,  -- Sensor Serial Data Out
-		INTA, -- Accelerometer Interrupt
-		INTG -- Gyroscope Interrupt
+		RCK -- Reference Clock
 		: in std_logic; 
 		XEN, -- Transmit Enable, for data transmission
 		TP1, -- Test Point One, available on P3-1
 		TP2, -- Test Point Two, available on P3-2
-		TP3, -- Test Point Three, available on P1-6
-		TP4, -- Test Point Four, available on P1-8
-		NCSA, -- Acceleromtere Chip Select, Negative-True
-		NCSG -- Gyroscope Chip Select, Negative-True
+		SA0 -- LSB of sensor address
 		: out std_logic;
-		SDI, -- Serial Data In, for Acceleromater and Gyroscope		
-		SCK -- Serial Clock, for Acceleromater and Gyroscope
+		SDA, -- Serial Data In, for Acceleromater and Gyroscope		
+		SCL, -- Serial Clock
+		IDY -- Interrupt/Data Ready
 		: inout std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
@@ -120,10 +104,10 @@ architecture behavior of main is
 		SBYW, -- Sensor Byte Access Write
 		GYSEL, -- Gyroscope Select
 		SBYC, -- Sensor Access Continue
-		SCKE -- Serial Clock Early
+		SCLE -- Serial Clock Early
 		: boolean := false;
-	attribute syn_keep of SBYI, SBYD, SCKE : signal is true;
-	attribute nomerge of SBYI, SBYD, SCKE : signal is "";  
+	attribute syn_keep of SBYI, SBYD, SCLE : signal is true;
+	attribute nomerge of SBYI, SBYD, SCLE : signal is "";  
 	signal sensor_bits_out, -- Eight bits that we will transmit to a sensor.
 		sensor_bits_in -- Eight bits that we will receive from a sensor.
 		: std_logic_vector(7 downto 0) := (others => '0');
@@ -184,7 +168,7 @@ architecture behavior of main is
 -- Interrupt Handler signals.
 	signal int_mask, int_period, int_bits, 
 		int_rst, int_set : std_logic_vector(7 downto 0);
-	signal TXDS, SADS, INTGS, INTAS : boolean;
+	signal TXDS, SADS : boolean;
 	signal INTCTRZ : boolean; -- Interrupt Counter Zero Flag
 	
 -- Functions and Procedures	
@@ -516,8 +500,6 @@ begin
 			-- Edge detecting signals.
 			TXDS <= TXD;
 			SADS <= SAD;
-			INTGS <= (INTG = '1');
-			INTAS <= (INTA = '1');
 			
 			-- The timer interrupt is set when the counter is zero
 			-- and reset when we write of 1 to int_rst(0).
@@ -545,24 +527,6 @@ begin
 			elsif ((not SADS) and SAD) 
 					or (int_set(2) = '1') then
 				int_bits(2) <= '1';
-			end if;
-			
-			-- The gyroscope interrupt is set on a rising edge
-			-- of INTG and reset by a write of 1 to to int_rst(3)
-			if (int_rst(3) = '1') then
-				int_bits(3) <= '0';
-			elsif ((not INTGS) and (INTG = '1')) 
-					or (int_set(3) = '1')  then
-				int_bits(3) <= '1';
-			end if;
-			
-			-- The accelerometer interrupt is set on a rising edge
-			-- of INTA and reset by a write of 1 to to int_rst(3)
-			if (int_rst(4) = '1') then
-				int_bits(4) <= '0';
-			elsif ((not INTAS) and (INTA = '1')) 
-					or (int_set(4) = '1') then
-				int_bits(4) <= '1';
 			end if;
 			
 			-- The CPU dedicated inputs INT1..INT3 the CPU sets and resets
@@ -746,8 +710,8 @@ begin
 	
 	-- The Sensor Interface reads or writes eight bits at a time to and from the gyroscope 
 	-- or the accelerometer. When Sensor Byte Write (SBYW) is asserted, the contents 
-	-- of sensor_bits_out are transmitted on SDI, most significant bit first. Otherwise, 
-	-- the SDO signal is loaded into sensor_bits_in, most significant bit first. When 
+	-- of sensor_bits_out are transmitted on SDA, most significant bit first. Otherwise, 
+	-- the SDA signal is loaded into sensor_bits_in, most significant bit first. When 
 	-- GYSEL is asserted, we access the gyroscope, otherwise we access the accelerometer. 
 	-- When SBYC is asserted, we continue to assert the sensor chip select after the end 
 	-- of the access, which permits us to continue a multi-byte access with another Sensor
@@ -756,9 +720,9 @@ begin
 	-- done state until it sees SBYI unasserted.
 	Sensor_Interface : process (TCK,FCK) is
 		constant num_bits : integer := 8;
-		constant start_sck : integer := 3;
-		constant end_sck : integer := start_sck + num_bits - 1;
-		constant all_done : integer := end_sck + 3;
+		constant start_SCL : integer := 3;
+		constant end_SCL : integer := start_SCL + num_bits - 1;
+		constant all_done : integer := end_SCL + 3;
 		variable state : integer range 0 to 63 := 0;
 				
 	begin
@@ -779,13 +743,13 @@ begin
 			end if;
 			
 			-- We assert the sensor chip select (CSG or CSA) just before the first 
-			-- falling edge of SCK. The Serial Byte Continue (SBYC) flag determines 
+			-- falling edge of SCL. The Serial Byte Continue (SBYC) flag determines 
 			-- whether or not we unassert the chip select after the last rising edge 
 			-- of the byte transfer. If chip select happens to be asserted when we 
 			-- start up our Sensor Interface, we leave it asserted, because the 
 			-- current byte exchange is a continuation of an on-going exchange, as 
 			-- controlled by SBYC.
-			if (state = start_sck - 1) then
+			if (state = start_SCL - 1) then
 				if GYSEL then 
 					CSG <= true;
 				else
@@ -804,60 +768,59 @@ begin
 			-- On a write cycle, we assert the sensor output bits one after another
 			-- on the rising edges of TCK.
 			if SBYW then
-				SDI <= to_std_logic(
-					((state = start_sck + 0) and (sensor_bits_out(7) = '1'))
-					or ((state = start_sck + 1) and (sensor_bits_out(6) = '1'))
-					or ((state = start_sck + 2) and (sensor_bits_out(5) = '1'))
-					or ((state = start_sck + 3) and (sensor_bits_out(4) = '1'))
-					or ((state = start_sck + 4) and (sensor_bits_out(3) = '1'))
-					or ((state = start_sck + 5) and (sensor_bits_out(2) = '1'))
-					or ((state = start_sck + 6) and (sensor_bits_out(1) = '1'))
-					or ((state = start_sck + 7) and (sensor_bits_out(0) = '1'))
+				SDA <= to_std_logic(
+					((state = start_SCL + 0) and (sensor_bits_out(7) = '1'))
+					or ((state = start_SCL + 1) and (sensor_bits_out(6) = '1'))
+					or ((state = start_SCL + 2) and (sensor_bits_out(5) = '1'))
+					or ((state = start_SCL + 3) and (sensor_bits_out(4) = '1'))
+					or ((state = start_SCL + 4) and (sensor_bits_out(3) = '1'))
+					or ((state = start_SCL + 5) and (sensor_bits_out(2) = '1'))
+					or ((state = start_SCL + 6) and (sensor_bits_out(1) = '1'))
+					or ((state = start_SCL + 7) and (sensor_bits_out(0) = '1'))
 				); 
 			end if;
-			
+				SDA <= 'Z';
 			-- SBYD indicates to other processes that the sensor access is complete.
 			SBYD <= (state = all_done);			
 		end if;
 		
-		-- On a read cycle, we detect the value of SDO on the faling edges of TCK.
+		-- On a read cycle, we detect the value of SDA on the faling edges of TCK.
 		if falling_edge(TCK) then
 			if (not SBYW) then 
-				if (state = start_sck + 0) then sensor_bits_in(7) <= SDO; end if;
-				if (state = start_sck + 1) then sensor_bits_in(6) <= SDO; end if;
-				if (state = start_sck + 2) then sensor_bits_in(5) <= SDO; end if;
-				if (state = start_sck + 3) then sensor_bits_in(4) <= SDO; end if;
-				if (state = start_sck + 4) then sensor_bits_in(3) <= SDO; end if;
-				if (state = start_sck + 5) then sensor_bits_in(2) <= SDO; end if;
-				if (state = start_sck + 6) then sensor_bits_in(1) <= SDO; end if;
-				if (state = start_sck + 7) then sensor_bits_in(0) <= SDO; end if;	
+				if (state = start_SCL + 0) then sensor_bits_in(7) <= SDA; end if;
+				if (state = start_SCL + 1) then sensor_bits_in(6) <= SDA; end if;
+				if (state = start_SCL + 2) then sensor_bits_in(5) <= SDA; end if;
+				if (state = start_SCL + 3) then sensor_bits_in(4) <= SDA; end if;
+				if (state = start_SCL + 4) then sensor_bits_in(3) <= SDA; end if;
+				if (state = start_SCL + 5) then sensor_bits_in(2) <= SDA; end if;
+				if (state = start_SCL + 6) then sensor_bits_in(1) <= SDA; end if;
+				if (state = start_SCL + 7) then sensor_bits_in(0) <= SDA; end if;	
 			end if;
 		end if;
 		
-		-- SCK is the serial clock that drives communication between the sensors and
-		-- the logic chip. We generate SCK by first creating Serial Clock Early (SCKE),
-		-- then delaying SCKE by one FCK period. The result is a 5-MHz clock that falls
+		-- SCL is the serial clock that drives communication between the sensors and
+		-- the logic chip. We generate SCL by first creating Serial Clock Early (SCLE),
+		-- then delaying SCLE by one FCK period. The result is a 5-MHz clock that falls
 		-- on the rising edges of TCK and rises on the falling edges of TCK.
 		if falling_edge(FCK) then 			
 			if GYSEL then 
-				if (state >= start_sck-1) and (state <= end_sck-1) then
-					SCKE <= not SCKE;
+				if (state >= start_SCL-1) and (state <= end_SCL-1) then
+					SCLE <= not SCLE;
 				else
-					SCKE <= true;
+					SCLE <= true;
 				end if;
-				SCK <= to_std_logic(SCKE);
+				SCL <= to_std_logic(SCLE);
 			else
-				if (state >= start_sck) and (state <= end_sck) then
-					SCK <= not SCK;
+				if (state >= start_SCL) and (state <= end_SCL) then
+					SCL <= not SCL;
 				else
-					SCK <= '0';
+					SCL <= '0';
 				end if;
 			end if;
+			
+			SCL <= 'Z';
 		end if;
 
-		-- NCSA and NCSG are our negative-true outputs.
-		NCSA <= to_std_logic(not CSA);
-		NCSG <= to_std_logic(not CSG);
 	end process;
 	
 -- The Sample Transmitter responds to Transmit Initiate (TXI) by turning on the 
@@ -999,18 +962,12 @@ begin
 		end if;
 	end process;
 		
+
+		
 -- Test Point One appears on P3-1 after the programming connector has been removed.
-	TP1 <= to_std_logic(FHI);
+	TP1 <= IDY;
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
-	TP2 <= RESET;
-	
--- Test Point Three appears on P1-6 after the programming connector is removed.
-	TP3 <= tp_reg(0);
+	TP2 <= RCK;
 
--- Test point Four appears on P1-8 after the programming connector is removed. 
--- Note that P1-8 is tied LO with 8 kOhm on the programming extension, so if 
--- this output is almost always HI, and the programming extension is still 
--- attached, quiescent current increases by 250 uA.
-	TP4 <= tp_reg(1);
 end behavior;

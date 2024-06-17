@@ -1,0 +1,798 @@
+
+             Lattice Mapping Report File for Design Module 'main'
+
+
+Design Information
+------------------
+
+Command line:   map -a MachXO2 -p LCMXO2-1200ZE -t TQFP100 -s 1 -oc Industrial
+     P3051_impl1.ngd -o P3051_impl1_map.ncd -pr P3051_impl1.prf -mp
+     P3051_impl1.mrp -lpf C:/Firmware/P3051/P3051/impl1/P3051_impl1_synplify.lpf
+     -lpf C:/Firmware/P3051/P3051/P3051.lpf -c 0 -gui -msgset
+     C:/Firmware/P3051/P3051/promote.xml 
+Target Vendor:  LATTICE
+Target Device:  LCMXO2-1200ZETQFP100
+Target Performance:   1
+Mapper:  xo2c00,  version:  Diamond (64-bit) 3.12.0.240.2
+Mapped on:  06/17/24  10:55:58
+
+Design Summary
+--------------
+
+   Number of registers:    372 out of  1520 (24%)
+      PFU registers:          366 out of  1280 (29%)
+      PIO registers:            6 out of   240 (3%)
+   Number of SLICEs:       577 out of   640 (90%)
+      SLICEs as Logic/ROM:    577 out of   640 (90%)
+      SLICEs as RAM:            0 out of   480 (0%)
+      SLICEs as Carry:         98 out of   640 (15%)
+   Number of LUT4s:        1143 out of  1280 (89%)
+      Number used as logic LUTs:        947
+      Number used as distributed RAM:     0
+      Number used as ripple logic:      196
+      Number used as shift registers:     0
+   Number of PIO sites used: 13 + 1(JTAGENB) out of 80 (18%)
+   Number of block RAMs:  5 out of 7 (71%)
+   Number of GSRs:        1 out of 1 (100%)
+   EFB used :        No
+   JTAG used :       No
+   Readback used :   No
+   Oscillator used : No
+   Startup used :    No
+   POR :             On
+   Bandgap :         On
+   Number of Power Controller:  1 out of 1 (100%)
+   Number of Dynamic Bank Controller (BCINRD):  0 out of 4 (0%)
+   Number of Dynamic Bank Controller (BCLVDSO):  0 out of 1 (0%)
+   Number of DCCA:  0 out of 8 (0%)
+   Number of DCMA:  0 out of 2 (0%)
+   Number of PLLs:  0 out of 1 (0%)
+   Number of DQSDLLs:  0 out of 2 (0%)
+   Number of CLKDIVC:  0 out of 4 (0%)
+   Number of ECLKSYNCA:  0 out of 4 (0%)
+   Number of ECLKBRIDGECS:  0 out of 2 (0%)
+   Notes:-
+      1. Total number of LUT4s = (Number of logic LUT4s) + 2*(Number of
+     distributed RAMs) + 2*(Number of ripple logic)
+      2. Number of logic LUT4s does not include count of distributed RAM and
+     ripple logic.
+   Number of clocks:  6
+     Net RCK_c: 10 loads, 5 rising, 5 falling (Driver: PIO RCK )
+     Net CK: 169 loads, 101 rising, 68 falling (Driver: CK_RNO )
+     Net TCK_1: 43 loads, 35 rising, 8 falling (Driver: TCK )
+
+                                    Page 1
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+Design Summary (cont)
+---------------------
+     Net FCK: 6 loads, 5 rising, 1 falling (Driver: Fast_CK/CK )
+     Net CPU/un1_state_20_i[0]: 1 loads, 1 rising, 0 falling (Driver:
+     CPU/alu_cin_RNO )
+     Net Fast_CK/RIN: 4 loads, 4 rising, 0 falling (Driver: Fast_CK/un2_rin )
+   Number of Clock Enables:  44
+     Net RESET_1: 10 loads, 10 LSLICEs
+     Net BOOST_1_sqmuxa: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[7]: 1 loads, 0 LSLICEs
+     Net tck_divisor_1_sqmuxa: 2 loads, 2 LSLICEs
+     Net frequency_low_1_sqmuxa: 2 loads, 2 LSLICEs
+     Net GYSEL_1_sqmuxa: 2 loads, 2 LSLICEs
+     Net sensor_bits_ince[0]: 1 loads, 1 LSLICEs
+     Net CPU/opcode_0_sqmuxa: 4 loads, 4 LSLICEs
+     Net CPU/flag_S_RNO: 1 loads, 1 LSLICEs
+     Net CPU/un1_reset_inv_2_0: 4 loads, 4 LSLICEs
+     Net CPU/reg_SPe: 6 loads, 6 LSLICEs
+     Net CPU/un1_reset_15_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_16_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_5_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_6_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_7_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_4_i: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_20_i: 4 loads, 4 LSLICEs
+     Net CPU/prog_cntre: 7 loads, 7 LSLICEs
+     Net CPU/un1_next_flag_i_1_sqmuxa_2: 1 loads, 1 LSLICEs
+     Net CPU/un1_next_flag_i_2_sqmuxa: 1 loads, 1 LSLICEs
+     Net CPU/un1_next_flag_i_1_sqmuxa_1: 1 loads, 1 LSLICEs
+     Net CPU/first_operand_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net CPU/un1_reset_21_i: 7 loads, 7 LSLICEs
+     Net CPU/un1_reset_14_i: 6 loads, 6 LSLICEs
+     Net cpu_multiplier_b_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net cpu_multiplier_a_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net int_period_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net ENTCK_1_sqmuxa: 1 loads, 1 LSLICEs
+     Net int_mask_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net tx_channel_1_sqmuxa: 4 loads, 4 LSLICEs
+     Net un1_GYSEL_0_sqmuxa: 1 loads, 1 LSLICEs
+     Net un1_RESET_inv: 1 loads, 1 LSLICEs
+     Net xmit_bitsce[1]: 4 loads, 4 LSLICEs
+     Net xmit_bitsce[10]: 4 loads, 4 LSLICEs
+     Net N_19_i: 5 loads, 5 LSLICEs
+     Net sensor_data_ince[0]: 4 loads, 4 LSLICEs
+     Net sensor_data_ince[10]: 4 loads, 4 LSLICEs
+     Net sensor_bits_ince[1]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[2]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[3]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[4]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[5]: 1 loads, 1 LSLICEs
+     Net sensor_bits_ince[6]: 1 loads, 1 LSLICEs
+   Number of local set/reset loads for net RESET_1 merged into GSR:  119
+   Number of LSRs:  8
+     Net TXA_1: 5 loads, 0 LSLICEs
+     Net RESETs: 1 loads, 1 LSLICEs
+     Net RESET_1: 5 loads, 0 LSLICEs
+     Net N_10: 1 loads, 1 LSLICEs
+     Net CPU/un1_opcode_8_u: 1 loads, 1 LSLICEs
+
+                                    Page 2
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+Design Summary (cont)
+---------------------
+     Net ENTCK: 7 loads, 7 LSLICEs
+     Net PowerUp.un2_reset_c2_i: 1 loads, 1 LSLICEs
+     Net SBYI_1: 4 loads, 4 LSLICEs
+   Number of nets driven by tri-state buffers:  0
+   Top 10 highest fanout non-clock nets:
+     Net CPU/state[17]: 100 loads
+     Net CPU/opcode_3[1]: 49 loads
+     Net CPU/opcode_3[3]: 48 loads
+     Net CPU/state[13]: 47 loads
+     Net CPU/opcode_3[2]: 45 loads
+     Net CPU/state[14]: 43 loads
+     Net CPU/opcode_3[0]: 42 loads
+     Net CPU/opcode_3[5]: 42 loads
+     Net RESET_1: 41 loads
+     Net prog_data[4]: 36 loads
+
+
+
+
+   Number of warnings:  6
+   Number of errors:    0
+     
+
+Design Errors/Warnings
+----------------------
+
+WARNING - map: C:/Firmware/P3051/P3051/P3051.lpf(22): Semantic error in "USE
+     DOUT TRUE CELL "xdac_1_0io[1]" ;": Block "xdac_1_0io[1]" of DOUT
+     "xdac_1_0io[1]" cannot be found in design. This preference has been
+     disabled.
+WARNING - map: The JTAG port has been disabled in this project and JTAG pins
+     will be configured as General Purpose IO.  You have to use JTAGENB pin in
+     hardware to change the personality of the port from JTAG pins to general
+     purpose IO.  Reference MachXO2 Handbook for details on dual function JTAG
+     port.
+WARNING - map: All configuration ports of the design have been disabled.
+     Reference MachXO2 Handbook for information on the Configuration Ports of
+     MachXO2
+WARNING - map: Using local reset signal 'RESET_1' to infer global GSR net.
+WARNING - map: BANDGAP turned off dynamically by Power controller
+     'Power_Controller/PCNTR_Inst0'. When the BANDGAP circuitry is turned off,
+     POR circuitry, analog circuits PLL, oscillator, Inputs (MIPI, SSTLXX,
+     HSTL18, LVCMOSXXD, SSTLXXD,HSTL18D, LVTTL33D, LVCMOSXXRXX, LVDS25, RSDS25,
+     BLVDS25, MLVDS25 and LVPECL33), Outputs (LVDS25 true only), Bidir (MIPI_LP,
+     SSTLXX, HSTL18 , LVCMOSXXD, SSTLXXD, HSTL18D, LVTTL33D, BLVDS25E and
+     MLVDS25E) are turned off.
+WARNING - map: POR turned off dynamically by Power controller
+     'Power_Controller/PCNTR_Inst0'. POR is only released when SFLAG is cleared.
+
+IO (PIO) Attributes
+-------------------
+
++---------------------+-----------+-----------+------------+
+| IO Name             | Direction | Levelmode | IO         |
+|                     |           |  IO_TYPE  | Register   |
++---------------------+-----------+-----------+------------+
+
+                                    Page 3
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+IO (PIO) Attributes (cont)
+--------------------------
+| SCL                 | OUTPUT    | LVCMOS33  |            |
++---------------------+-----------+-----------+------------+
+| XEN                 | OUTPUT    | LVCMOS33  |            |
++---------------------+-----------+-----------+------------+
+| RCK                 | INPUT     | LVCMOS33  |            |
++---------------------+-----------+-----------+------------+
+| xdac[4]             | OUTPUT    | LVCMOS33  | OUT        |
++---------------------+-----------+-----------+------------+
+| xdac[3]             | OUTPUT    | LVCMOS33  | OUT        |
++---------------------+-----------+-----------+------------+
+| xdac[2]             | OUTPUT    | LVCMOS33  | OUT        |
++---------------------+-----------+-----------+------------+
+| xdac[1]             | OUTPUT    | LVCMOS33  | OUT        |
++---------------------+-----------+-----------+------------+
+| xdac[0]             | OUTPUT    | LVCMOS33  | OUT        |
++---------------------+-----------+-----------+------------+
+| IDY                 | INPUT     | LVCMOS33  |            |
++---------------------+-----------+-----------+------------+
+| SDA                 | INPUT     | LVCMOS33  | IN         |
++---------------------+-----------+-----------+------------+
+| SA0                 | OUTPUT    | LVCMOS33  |            |
++---------------------+-----------+-----------+------------+
+| TP2                 | OUTPUT    | LVCMOS33  |            |
++---------------------+-----------+-----------+------------+
+| TP1                 | OUTPUT    | LVCMOS33  |            |
++---------------------+-----------+-----------+------------+
+
+Removed logic
+-------------
+
+Block Multiplier/VCC undriven or does not drive anything - clipped.
+Signal sensor_bits_in_0_.CN was merged into signal TCK_1
+Signal TCK.CN was merged into signal FCK
+Signal counter_0_.CN was merged into signal RCK_c
+Signal TXA_1_i was merged into signal TXA_1
+Signal SBYI_1_i was merged into signal SBYI_1
+Signal ENTCK_i was merged into signal ENTCK
+Signal RESET_1_i was merged into signal RESET_1
+Signal CK_i was merged into signal CK
+Signal VCC undriven or does not drive anything - clipped.
+Signal Fast_CK/GND undriven or does not drive anything - clipped.
+Signal Process_Memory/VCC undriven or does not drive anything - clipped.
+Signal Process_Memory/GND undriven or does not drive anything - clipped.
+Signal Program_Memory/VCC undriven or does not drive anything - clipped.
+Signal Program_Memory/GND undriven or does not drive anything - clipped.
+Signal Multiplier/GND undriven or does not drive anything - clipped.
+Signal CPU/GND undriven or does not drive anything - clipped.
+Signal tck_frequency_s_0_S1[7] undriven or does not drive anything - clipped.
+Signal tck_frequency_s_0_COUT[7] undriven or does not drive anything - clipped.
+Signal counter_cry_0_S0[0] undriven or does not drive anything - clipped.
+Signal N_2 undriven or does not drive anything - clipped.
+Signal counter_s_0_S1[7] undriven or does not drive anything - clipped.
+Signal counter_s_0_COUT[7] undriven or does not drive anything - clipped.
+Signal un4_completion_code_cry_0_0_S1 undriven or does not drive anything -
+     clipped.
+Signal un4_completion_code_cry_0_0_S0 undriven or does not drive anything -
+
+                                    Page 4
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+Removed logic (cont)
+--------------------
+     clipped.
+Signal N_3 undriven or does not drive anything - clipped.
+Signal un4_completion_code_s_3_0_S1 undriven or does not drive anything -
+     clipped.
+Signal un4_completion_code_s_3_0_COUT undriven or does not drive anything -
+     clipped.
+Signal Power_Controller/STOP undriven or does not drive anything - clipped.
+Signal Power_Controller/STDBY undriven or does not drive anything - clipped.
+Signal Fast_CK/un1_calib_cry_0_0_S1 undriven or does not drive anything -
+     clipped.
+Signal Fast_CK/un1_calib_cry_0_0_S0 undriven or does not drive anything -
+     clipped.
+Signal Fast_CK/N_1 undriven or does not drive anything - clipped.
+Signal Fast_CK/un1_calib_cry_1_0_S1 undriven or does not drive anything -
+     clipped.
+Signal Fast_CK/un1_calib_cry_1_0_S0 undriven or does not drive anything -
+     clipped.
+Signal Fast_CK/un1_calib_cry_3_0_S0 undriven or does not drive anything -
+     clipped.
+Signal Fast_CK/un1_calib_cry_3_0_COUT undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOB8 undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOB7 undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOB6 undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOB5 undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOB4 undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOB3 undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOB2 undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOB1 undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOB0 undriven or does not drive anything -
+     clipped.
+Signal Process_Memory/RAM_0_0_0_0_DOA8 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOB8 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOB7 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOB6 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOB5 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOB4 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOB3 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOB2 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOB1 undriven or does not drive anything -
+
+                                    Page 5
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+Removed logic (cont)
+--------------------
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOB0 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOA8 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOA7 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOA6 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOA5 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOA4 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOA3 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_3_0_DOA2 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOB8 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOB7 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOB6 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOB5 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOB4 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOB3 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOB2 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOB1 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOB0 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOA8 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOA7 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOA6 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOA5 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOA4 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOA3 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_2_1_DOA2 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOB8 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOB7 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOB6 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOB5 undriven or does not drive anything -
+
+                                    Page 6
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+Removed logic (cont)
+--------------------
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOB4 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOB3 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOB2 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOB1 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOB0 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOA8 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOA7 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOA6 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOA5 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOA4 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOA3 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_1_2_DOA2 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOB8 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOB7 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOB6 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOB5 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOB4 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOB3 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOB2 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOB1 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOB0 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOA8 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOA7 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOA6 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOA5 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOA4 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOA3 undriven or does not drive anything -
+     clipped.
+Signal Program_Memory/ROM_0_0_0_3_DOA2 undriven or does not drive anything -
+
+                                    Page 7
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+Removed logic (cont)
+--------------------
+     clipped.
+Signal Multiplier/VCC undriven or does not drive anything - clipped.
+Signal Multiplier/Cadd_t_MULT_0_2_1_S0 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_add_1_6_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/co_MULT_0_1_6 undriven or does not drive anything - clipped.
+Signal Multiplier/Cadd_MULT_0_1_1_S0 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/Cadd_MULT_0_0_7_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/Cadd_MULT_0_0_7_COUT undriven or does not drive anything -
+     clipped.
+Signal Multiplier/Cadd_MULT_0_0_1_S0 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_Cadd_6_4_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_Cadd_6_4_COUT undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_cin_lr_add_6_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_cin_lr_add_6_S0 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_Cadd_4_4_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_Cadd_4_4_COUT undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_cin_lr_add_4_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_cin_lr_add_4_S0 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_Cadd_2_4_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_Cadd_2_4_COUT undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_cin_lr_add_2_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_cin_lr_add_2_S0 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_Cadd_0_4_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_Cadd_0_4_COUT undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_cin_lr_add_0_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/MULT_0_cin_lr_add_0_S0 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/t_MULT_0_add_2_7_S1 undriven or does not drive anything -
+     clipped.
+Signal Multiplier/co_t_MULT_0_2_7 undriven or does not drive anything - clipped.
+     
+Signal CPU/reg_SP_cry_0_S0[0] undriven or does not drive anything - clipped.
+Signal CPU/N_22 undriven or does not drive anything - clipped.
+Signal CPU/reg_SP_cry_0_COUT[9] undriven or does not drive anything - clipped.
+Signal CPU/reg_IX_lcry_0_S1 undriven or does not drive anything - clipped.
+Signal CPU/reg_IX_lcry_0_S0 undriven or does not drive anything - clipped.
+
+                                    Page 8
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+Removed logic (cont)
+--------------------
+Signal CPU/N_23 undriven or does not drive anything - clipped.
+Signal CPU/reg_IX_s_0_S1[10] undriven or does not drive anything - clipped.
+Signal CPU/reg_IX_s_0_COUT[10] undriven or does not drive anything - clipped.
+Signal CPU/reg_IY_lcry_0_S1 undriven or does not drive anything - clipped.
+Signal CPU/reg_IY_lcry_0_S0 undriven or does not drive anything - clipped.
+Signal CPU/N_24 undriven or does not drive anything - clipped.
+Signal CPU/reg_IY_s_0_S1[10] undriven or does not drive anything - clipped.
+Signal CPU/reg_IY_s_0_COUT[10] undriven or does not drive anything - clipped.
+Signal CPU/prog_cntr_cry_0_S0[0] undriven or does not drive anything - clipped.
+Signal CPU/N_25 undriven or does not drive anything - clipped.
+Signal CPU/prog_cntr_s_0_S1[11] undriven or does not drive anything - clipped.
+Signal CPU/prog_cntr_s_0_COUT[11] undriven or does not drive anything - clipped.
+     
+Signal CPU/un3_next_sp_cry_0_0_S1 undriven or does not drive anything - clipped.
+     
+Signal CPU/un3_next_sp_cry_0_0_S0 undriven or does not drive anything - clipped.
+     
+Signal CPU/N_26 undriven or does not drive anything - clipped.
+Signal CPU/un3_next_sp_cry_9_0_COUT undriven or does not drive anything -
+     clipped.
+Signal CPU/un1_alu_in_x_cry_0_0_S0 undriven or does not drive anything -
+     clipped.
+Signal CPU/N_27 undriven or does not drive anything - clipped.
+Signal CPU/un1_alu_in_x_cry_7_0_COUT undriven or does not drive anything -
+     clipped.
+Signal tck_frequency_cry_0_S0[0] undriven or does not drive anything - clipped.
+Signal N_1 undriven or does not drive anything - clipped.
+Block sensor_bits_in_7_.CN was optimized away.
+Block TCK.CN was optimized away.
+Block counter_0_.CN was optimized away.
+Block TXA_1_RNIT4R2 was optimized away.
+Block SBYI_1_RNI7H31 was optimized away.
+Block ENTCK_RNILKJ9 was optimized away.
+Block RESET_1_RNIJN81 was optimized away.
+Block frequency_low_3_.CN was optimized away.
+Block VCC was optimized away.
+Block Fast_CK/GND was optimized away.
+Block Process_Memory/VCC was optimized away.
+Block Process_Memory/GND was optimized away.
+Block Program_Memory/VCC was optimized away.
+Block Program_Memory/GND was optimized away.
+Block Multiplier/GND was optimized away.
+Block CPU/GND was optimized away.
+
+Memory Usage
+------------
+
+/Process_Memory:
+    EBRs: 1
+    RAM SLICEs: 0
+    Logic SLICEs: 0
+    PFU Registers: 0
+    -Contains EBR RAM_0_0_0_0:  TYPE= DP8KC,  Width_A= 8,  Depth_A= 1024,
+         REGMODE_A= NOREG,  REGMODE_B= NOREG,  RESETMODE= ASYNC,
+         ASYNC_RESET_RELEASE= SYNC,  WRITEMODE_A= NORMAL,  WRITEMODE_B= NORMAL,
+         GSR= DISABLED,  MEM_INIT_FILE= INIT_ALL_0s,  MEM_LPC_FILE= RAM.lpc
+
+                                    Page 9
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+Memory Usage (cont)
+-------------------
+/Program_Memory:
+    EBRs: 4
+    RAM SLICEs: 0
+    Logic SLICEs: 0
+    PFU Registers: 0
+    -Contains EBR ROM_0_0_0_3:  TYPE= DP8KC,  Width_A= 2,  Depth_A= 4096,
+         REGMODE_A= NOREG,  REGMODE_B= NOREG,  RESETMODE= ASYNC,
+         ASYNC_RESET_RELEASE= SYNC,  WRITEMODE_A= NORMAL,  WRITEMODE_B= NORMAL,
+         GSR= DISABLED,  MEM_INIT_FILE= rom.mem,  MEM_LPC_FILE= ROM.lpc
+    -Contains EBR ROM_0_0_1_2:  TYPE= DP8KC,  Width_A= 2,  Depth_A= 4096,
+         REGMODE_A= NOREG,  REGMODE_B= NOREG,  RESETMODE= ASYNC,
+         ASYNC_RESET_RELEASE= SYNC,  WRITEMODE_A= NORMAL,  WRITEMODE_B= NORMAL,
+         GSR= DISABLED,  MEM_INIT_FILE= rom.mem,  MEM_LPC_FILE= ROM.lpc
+    -Contains EBR ROM_0_0_2_1:  TYPE= DP8KC,  Width_A= 2,  Depth_A= 4096,
+         REGMODE_A= NOREG,  REGMODE_B= NOREG,  RESETMODE= ASYNC,
+         ASYNC_RESET_RELEASE= SYNC,  WRITEMODE_A= NORMAL,  WRITEMODE_B= NORMAL,
+         GSR= DISABLED,  MEM_INIT_FILE= rom.mem,  MEM_LPC_FILE= ROM.lpc
+    -Contains EBR ROM_0_0_3_0:  TYPE= DP8KC,  Width_A= 2,  Depth_A= 4096,
+         REGMODE_A= NOREG,  REGMODE_B= NOREG,  RESETMODE= ASYNC,
+         ASYNC_RESET_RELEASE= SYNC,  WRITEMODE_A= NORMAL,  WRITEMODE_B= NORMAL,
+         GSR= DISABLED,  MEM_INIT_FILE= rom.mem,  MEM_LPC_FILE= ROM.lpc
+
+Power Controller Summary
+------------------------
+
+  PCNTR Instance Name:                              Power_Controller/PCNTR_Inst0
+     
+  Entry Options:
+        Configuration:                              DISABLED
+        User:                                       ENABLED/USERSTDBY
+         Stop to Standby Delay:                     Bypass
+  Wake Options:
+        Configuration:                              DISABLED
+        User:                                       ENABLED/CLRFLAG
+        Timeout Counter:                            DISABLED
+              Bypass:                               ENABLED
+  Standby Options:
+        Turn Off POR:                               ENABLED
+        Turn Off Bandgap:                           ENABLED
+
+     
+
+ASIC Components
+---------------
+
+Instance Name: Program_Memory/ROM_0_0_0_3
+         Type: DP8KC
+Instance Name: Program_Memory/ROM_0_0_1_2
+         Type: DP8KC
+Instance Name: Program_Memory/ROM_0_0_2_1
+         Type: DP8KC
+Instance Name: Program_Memory/ROM_0_0_3_0
+         Type: DP8KC
+Instance Name: Process_Memory/RAM_0_0_0_0
+         Type: DP8KC
+Instance Name: Power_Controller/PCNTR_Inst0
+
+                                   Page 10
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+ASIC Components (cont)
+----------------------
+         Type: PCNTR
+
+GSR Usage
+---------
+
+GSR Component:
+   The local reset signal 'RESET_1' of the design has been inferred as Global
+        Set Reset (GSR). The reset signal used for GSR control is 'RESET_1'.
+        
+
+     GSR Property:
+   The design components with GSR property set to ENABLED will respond to global
+        set reset while the components with GSR property set to DISABLED will
+        not.
+        
+
+     Components on inferred reset domain with GSR Property disabled
+--------------------------------------------------------------
+
+     These components have the GSR property set to DISABLED and are on the
+     inferred reset domain. The components will respond to the reset signal
+     'RESET_1' via the local reset on the component and not the GSR component.
+
+     Type and number of components of the type: 
+   Register = 17 
+   DP8KC = 5
+
+     Type and instance name of component: 
+   Register : int_set[0]
+   Register : int_set[1]
+   Register : int_set[2]
+   Register : int_set[5]
+   Register : int_set[6]
+   Register : int_set[7]
+   Register : int_rst[0]
+   Register : int_rst[1]
+   Register : int_rst[2]
+   Register : int_rst[5]
+   Register : int_rst[6]
+   Register : int_rst[7]
+   Register : TXDS
+   Register : SWRST
+   Register : SADS
+   Register : SAD
+   Register : SAA
+   DP8KC : Process_Memory/RAM_0_0_0_0
+   DP8KC : Program_Memory/ROM_0_0_3_0
+   DP8KC : Program_Memory/ROM_0_0_2_1
+   DP8KC : Program_Memory/ROM_0_0_1_2
+   DP8KC : Program_Memory/ROM_0_0_0_3
+
+Run Time and Memory Usage
+-------------------------
+
+   Total CPU Time: 0 secs  
+   Total REAL Time: 0 secs  
+
+                                   Page 11
+
+
+
+
+Design:  main                                          Date:  06/17/24  10:55:58
+
+Run Time and Memory Usage (cont)
+--------------------------------
+   Peak Memory Usage: 48 MB
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                   Page 12
+
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+     Copyright (c) 1995 AT&T Corp.   All rights reserved.
+     Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+     Copyright (c) 2001 Agere Systems   All rights reserved.
+     Copyright (c) 2002-2020 Lattice Semiconductor Corporation,  All rights
+     reserved.
