@@ -80,7 +80,8 @@ SCL <= 'Z';
 SA0 <= 'Z';
 IDY <= 'Z';
 	
+
 -- Test Point Two
-	TP2 <= (IDY and SCL and SDA);
+	TP2 <= (IDY and SCL and SDA and STDBY);
 
 end behavior;
