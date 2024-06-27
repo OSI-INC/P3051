@@ -1,6 +1,0 @@
-ckid0_1:@|S:uclk_Boost_Controller\.un12_ck.OUT@|E:int_bits[7:2]@|F:@syn_dgcc_clockid0_1==1@|M:ClockId_0_1
-ckid0_2:@|S:CPU.un1_state_20[0].OUT[0]@|E:CPU.alu_cin@|F:@syn_dgcc_clockid0_2==1@|M:ClockId_0_2
-ckid0_3:@|S:Fast_CK.un2_rin.OUT@|E:Fast_CK.count[3:0]@|F:@syn_dgcc_clockid0_3==1@|M:ClockId_0_3
-ckid0_5:@|S:TCK.Q[0]@|E:state[1]@|F:@syn_dgcc_clockid0_5==1@|M:ClockId_0_5
-ckid0_6:@|S:RCK@|E:state_5[2:0]@|F:@syn_dgcc_clockid0_6==1@|M:ClockId_0_6
-ckid0_7:@|S:Fast_CK.CK.Q[0]@|E:xdac[4:0]@|F:@syn_dgcc_clockid0_7==1@|M:ClockId_0_7
