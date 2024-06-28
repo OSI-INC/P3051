@@ -6,16 +6,16 @@ use ieee.numeric_std.all;
 
 entity main is 
 	port (
-		RCK -- Reference Clock
+		RCK, -- Reference Clock
+		IDY -- Interrupt/Data Ready
 		: in std_logic; 
 		XEN, -- Transmit Enable, for data transmission
 		TP1, -- Test Point One, available on P3-1
 		TP2, -- Test Point Two, available on P3-2
-		SA0 -- LSB of sensor address
+		SA0  -- LSB of sensor address
 		: out std_logic;
-		SDA, -- Serial Data In, for Acceleromater and Gyroscope		
-		SCL, -- Serial Clock
-		IDY -- Interrupt/Data Ready
+		SDA, -- Serial Data Access	
+		SCL  -- Serial Clock
 		: inout std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
@@ -27,7 +27,6 @@ entity main is
 	constant interrupt_pc : integer := 3;
 
 -- Configuration of peripherals.
-	constant enable_multiplier : boolean := true;
 	constant ram_addr_len : integer := 10;
 	
 -- Memory map sizes and base addresses in units of 512 bytes.
@@ -41,10 +40,10 @@ entity main is
 	constant mmu_slb  : integer := 16#01#; -- Sensor Data LO Byte
 	constant mmu_sar  : integer := 16#02#; -- Sensor Address Register
 	constant mmu_scr  : integer := 16#04#; -- Sensor Control Register
+	constant mmu_sr   : integer := 16#05#; -- Status Register
 	constant mmu_irqb : integer := 16#10#; -- Interrupt Request Bits
 	constant mmu_imsk : integer := 16#12#; -- Interrupt Mask Bits
 	constant mmu_irst : integer := 16#14#; -- Interrupt Reset Bits
-	constant mmu_iset : integer := 16#16#; -- Interrupt Set Bits
 	constant mmu_itp  : integer := 16#18#; -- Interrupt Timer Period 
 	constant mmu_rst  : integer := 16#19#; -- System Reset
 	constant mmu_xhb  : integer := 16#20#; -- Transmit HI Byte
@@ -56,11 +55,7 @@ entity main is
 	constant mmu_tcf  : integer := 16#32#; -- Transmit Clock Frequency
 	constant mmu_tcd  : integer := 16#34#; -- Transmit Clock Divider
 	constant mmu_bcc  : integer := 16#36#; -- Boost CPU Clock
-	constant mmu_tpr  : integer := 16#38#; -- Test Point Register
-	constant mmu_mia  : integer := 16#3A#; -- Multiplier Input A
-	constant mmu_mib  : integer := 16#3B#; -- Multiplier Input B
-	constant mmu_moh  : integer := 16#3C#; -- Multiplier Output HI	
-	constant mmu_mol  : integer := 16#3D#; -- Multiplier Output LO
+	constant mmu_dfr  : integer := 16#38#; -- Diagnostic Flag Register
 end;
 
 architecture behavior of main is
@@ -102,7 +97,6 @@ architecture behavior of main is
 	signal SBYI, -- Sensor Byte Access Initiate 
 		SBYD, -- Sensor Byte Access Done
 		SBYW, -- Sensor Byte Access Write
-		GYSEL, -- Gyroscope Select
 		SBYC, -- Sensor Access Continue
 		SCLE -- Serial Clock Early
 		: boolean := false;
@@ -136,8 +130,8 @@ architecture behavior of main is
 -- Boost Controller
 	signal BOOST : boolean;
 	
--- CPU-Writeable Test Points
-	signal tp_reg : std_logic_vector(7 downto 0) := (others => '0');
+-- CPU-Writeable Diagnostic Flags
+	signal df_reg : std_logic_vector(7 downto 0) := (others => '0');
 	
 -- Program Memory Signals
 	signal prog_data : std_logic_vector(7 downto 0); -- ROM Data
@@ -255,18 +249,6 @@ begin
         OutClockEn => '1',
         Reset => RESET,	
         Q => prog_data);
-
--- The eight-bit multiplier takes two eight-bit numbers and produces their sixteen-
--- bit product. This multiplier may or may not be useful to our code. If it is not
--- useful, and we are finding that the code does not fit in our logic chip, we can
--- eliminate the multiplier and its registers.
-	Multiplier : entity MULT port map (
-		Clock => not CK,
-		ClkEn => '1',
-		Aclr => RESET,
-		DataA => cpu_multiplier_a,
-		DataB => cpu_multiplier_b,
-		Result => cpu_multiplier_out);
 	
 -- The processor itself. We instantiate the OSR8 microprocessor entity.
 	CPU : entity OSR8_CPU 
@@ -325,19 +307,21 @@ begin
 				case bottom_bits is
 				when mmu_shb => cpu_data_in <= sensor_data_in(15 downto 8);
 				when mmu_slb => cpu_data_in <= sensor_data_in(7 downto 0);
+				when mmu_sr => 
+					cpu_data_in(0) <= IDY;                  -- Interrupt/Data Ready
+					cpu_data_in(1) <= to_std_logic(ENTCK);  -- Transmit Clock Enabled
+					cpu_data_in(2) <= to_std_logic(SAA);    -- Sensor Access Active Flag
+					cpu_data_in(3) <= to_std_logic(TXA);    -- Transmit Active Flag
+					cpu_data_in(5) <= to_std_logic(BOOST);  -- Boost CPU Flag
 				when mmu_irqb => cpu_data_in <= int_bits;
 				when mmu_imsk => cpu_data_in <= int_mask;
 				when mmu_itp => cpu_data_in <= int_period;
 				when mmu_tcf =>
 					cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
-				when mmu_moh => 
-					if enable_multiplier then
-						cpu_data_in <= cpu_multiplier_out(15 downto 8);
-					end if;
-				when mmu_mol => 
-					if enable_multiplier then
-						cpu_data_in <= cpu_multiplier_out(7 downto 0);
-					end if;
+				when mmu_dfr => cpu_data_in <= df_reg;
+				-- This others statement stabilizes the code. It also has the
+				-- effect of making the non-existent register read return a zero.
+				when others => cpu_data_in <= (others => '0');
 				end case;
 			end if;
 		end case;
@@ -373,7 +357,6 @@ begin
 					when mmu_sar => sensor_addr(7 downto 0) <= cpu_data_out;
 					when mmu_scr => 
 						SAI <= true;
-						GYSEL <= (cpu_data_out(0) = '1');
 						SAWR <= (cpu_data_out(1) = '1');
 						SA16 <= (cpu_data_out(2) = '1');
 					when mmu_xlb => xmit_bits(7 downto 0) <= cpu_data_out;
@@ -384,14 +367,14 @@ begin
 					when mmu_imsk => int_mask <= cpu_data_out;
 					when mmu_itp => int_period <= cpu_data_out;
 					when mmu_irst => int_rst <= cpu_data_out;
-					when mmu_iset => int_set <= cpu_data_out;
 					when mmu_rst => SWRST <= (cpu_data_out(0) = '1');
 					when mmu_etc => ENTCK <= (cpu_data_out(0) = '1');
 					when mmu_tcd => tck_divisor <= to_integer(unsigned(cpu_data_out));
 					when mmu_bcc => BOOST <= (cpu_data_out(0) = '1');
-					when mmu_tpr => tp_reg <= cpu_data_out;
-					when mmu_mia => cpu_multiplier_a <= cpu_data_out;
-					when mmu_mib => cpu_multiplier_b <= cpu_data_out;
+					when mmu_dfr => df_reg <= cpu_data_out;
+					-- The following others statement stabilizes the compile but
+					-- otherwise does nothing.
+					when others => df_reg <= df_reg;
 					end case;
 				end if;
 			end if;
@@ -399,8 +382,8 @@ begin
 	end process;
 	
 	-- The Clock Calibrator counts cycles of TCK for one half-period of RCK after the
-	-- assertion of Enable Transmit Clock (ENTCK) and makes them available to the CPU
-	-- in the tck_frequency register. If TCK is 5.00 MHz and RCK is 32.768 kHz, 
+	-- assertion of Enable Transmit Clock (ENTCK) and makes the count available to the 
+	-- CPU in the tck_frequency register. If TCK is 5.00 MHz and RCK is 32.768 kHz, 
 	-- tck_frequency will be 76 when the counter stops. The counter will hold its 
 	-- value until ENTCK is unasserted.
 	Clock_Calibrator : process (TCK,ENTCK) is
@@ -477,11 +460,9 @@ begin
 	Interrupt_Controller : process (RCK,CK,RESET) is
 	variable counter : integer range 0 to 255;
 	begin
-		-- The timer itself, counting down from int_period to zero with
-		-- period RCK. It never stops, so we can generate regular, periodic 
-		-- interrupts. We use the falling edge of RCK to count down, or 
-		-- else the compiler gets confused when generating our delayed signal
-		-- INTCTRZ in the next section.
+	
+		-- Eight-bit repeating timer. It nevers stops, and it generates an interrupt
+		-- every time it reaches zero.
 		if falling_edge(RCK) then
 			if (counter = 0) then
 				counter := to_integer(unsigned(int_period));
@@ -496,47 +477,19 @@ begin
 			int_bits <= (others => '0');
 			INTCTRZ <= false;
 		elsif rising_edge(CK) then
-		
-			-- Edge detecting signals.
-			TXDS <= TXD;
-			SADS <= SAD;
-			
-			-- The timer interrupt is set when the counter is zero
-			-- and reset when we write of 1 to int_rst(0).
+					
+			-- The timer interrupt is set when the counter reaches zero.
+			-- We reset when we write of 1 to int_rst(0).
 			INTCTRZ <= (counter = 0);
 			if (int_rst(0) = '1') then
 				int_bits(0) <= '0';				
-			elsif ((counter = 0) and (not INTCTRZ))
-					or (int_set(0) = '1') then
+			elsif ((counter = 0) and (not INTCTRZ)) then
 				int_bits(0) <= '1';
 			end if;
 			
-			-- The TXD interrupt is set on a rising edge of
-			-- TXD and reset upon a write of 1 to int_rst(1).
-			if (int_rst(1) = '1') then
-				int_bits(1) <= '0';
-			elsif ((not TXDS) and TXD) 
-					or (int_set(1) = '1') then
-				int_bits(1) <= '1';
-			end if;
-			
-			-- The SAD interrupt is set on a rising edge of
-			-- SAD and reset upon a write of 1 to int_rst(2).
-			if (int_rst(2) = '1') then
-				int_bits(2) <= '0';
-			elsif ((not SADS) and SAD) 
-					or (int_set(2) = '1') then
-				int_bits(2) <= '1';
-			end if;
-			
-			-- The CPU dedicated inputs INT1..INT3 the CPU sets and resets
-			-- itself through the int_rst and int_set control registers.
-			for i in 5 to 7 loop
-				if (int_rst(i) = '1') then
-					int_bits(i) <= '0';
-				elsif (int_set(i) = '1') then
-					int_bits(i) <= '1';
-				end if;
+			-- Disable all other interrupts.
+			for i in 1 to 7 loop
+				int_bits(i) <= '0';
 			end loop;
 		end if;
 
@@ -555,10 +508,7 @@ begin
 	-- perform each exchange of eight serial bits with one of the sensors. A sixteen-
 	-- bit data read, for example, consists of an eight-bit register address write
 	-- followed by two byte reads. The Sensor Controller uses the Sensor Interface to 
-	-- perform byte writes and reads. The sensor selection is performed by the Sensor 
-	-- Interface using GYSEL. But the behavior of the Sensor Controller is affected 
-	-- slightly by which sensor we are reading out. In this code, we have GYSEL selecting 
-	-- either the gyroscope or the accelerometer. The CPU instructs the Sensor Controller
+	-- perform byte writes and reads. The CPU instructs the Sensor Controller
 	-- by writing to mmu_scr, the Sensor Control Register. Any write to this register 
 	-- sets SAI true for one CPU write cycle, which starts the Sensor Controller. The
 	-- CPU must write the address of the register it wishes to access to the mmu_sar
@@ -566,7 +516,7 @@ begin
 	-- accesses, it write the most significant byte to mmu_shb and the other to mmu_slb.
 	-- If the byte ordering in the sensor is little-endian, the Sensor Controller will
 	-- write the mmu_slb byte first. When the CPU writes to mmu_scr, it also specifies
-	-- GYSEL, SAWR, and SA16. The SA16 flag selects sixteen-bit access, and SAWR selects
+	-- SAWR, and SA16. The SA16 flag selects sixteen-bit access, and SAWR selects
 	-- a write cycle.
 	Sensor_Controller : process (TCK,RESET) is
 		variable state, next_state : integer range 0 to 15 := 0;
@@ -614,7 +564,7 @@ begin
 					sensor_bits_out(6 downto 0) <= sensor_addr(6 downto 0);
 					sensor_bits_out(7) <= to_std_logic(not SAWR);
 					if SBYD then 
-						if (not GYSEL) and (not SAWR) then
+						if (not SAWR) then
 							next_state := prep_d; 
 						else
 							next_state := prep_b1;
@@ -708,16 +658,14 @@ begin
 		end if;
 	end process;
 	
-	-- The Sensor Interface reads or writes eight bits at a time to and from the gyroscope 
-	-- or the accelerometer. When Sensor Byte Write (SBYW) is asserted, the contents 
-	-- of sensor_bits_out are transmitted on SDA, most significant bit first. Otherwise, 
-	-- the SDA signal is loaded into sensor_bits_in, most significant bit first. When 
-	-- GYSEL is asserted, we access the gyroscope, otherwise we access the accelerometer. 
-	-- When SBYC is asserted, we continue to assert the sensor chip select after the end 
-	-- of the access, which permits us to continue a multi-byte access with another Sensor
-	-- interface read or write cycle. The access is begun by Sensor Byte Initiate (SBYI)
-	-- and terminated with Sensor Byte Done (SBYD). The Sensor Interface remains in its
-	-- done state until it sees SBYI unasserted.
+	-- The Sensor Interface reads or writes eight bits at a time to and from the sensro.
+	-- When Sensor Byte Write (SBYW) is asserted, the contents of sensor_bits_out are 
+	-- transmitted on SDA, most significant bit first. Otherwise, the SDA signal is loaded 
+	-- into sensor_bits_in, most significant bit first. When SBYC is asserted, we continue 
+	-- to assert the sensor chip select after the end of the access, which permits us to 
+	-- continue a multi-byte access with another Sensor interface read or write cycle. The 
+	-- access is begun by Sensor Byte Initiate (SBYI) and terminated with Sensor Byte Done 
+	-- (SBYD). The Sensor Interface remains in its done state until it sees SBYI unasserted.
 	Sensor_Interface : process (TCK,FCK) is
 		constant num_bits : integer := 8;
 		constant start_SCL : integer := 3;
@@ -750,18 +698,10 @@ begin
 			-- current byte exchange is a continuation of an on-going exchange, as 
 			-- controlled by SBYC.
 			if (state = start_SCL - 1) then
-				if GYSEL then 
-					CSG <= true;
-				else
-					CSA <= true;
-				end if;
+				CSA <= true;
 			elsif (state = all_done) then
 				if not SBYC then 
-					if GYSEL then 
-						CSG <= false;
-					else
-						CSA <= false;
-					end if;
+					CSA <= false;
 				end if;
 			end if;
 				
@@ -779,7 +719,11 @@ begin
 					or ((state = start_SCL + 7) and (sensor_bits_out(0) = '1'))
 				); 
 			end if;
-				SDA <= 'Z';
+				
+			-- We set SDA to high-impedance until we get this code converted from 
+			-- SDI to I2C.
+			SDA <= 'Z';
+
 			-- SBYD indicates to other processes that the sensor access is complete.
 			SBYD <= (state = all_done);			
 		end if;
@@ -803,21 +747,14 @@ begin
 		-- then delaying SCLE by one FCK period. The result is a 5-MHz clock that falls
 		-- on the rising edges of TCK and rises on the falling edges of TCK.
 		if falling_edge(FCK) then 			
-			if GYSEL then 
-				if (state >= start_SCL-1) and (state <= end_SCL-1) then
-					SCLE <= not SCLE;
-				else
-					SCLE <= true;
-				end if;
-				SCL <= to_std_logic(SCLE);
+			if (state >= start_SCL) and (state <= end_SCL) then
+				SCL <= not SCL;
 			else
-				if (state >= start_SCL) and (state <= end_SCL) then
-					SCL <= not SCL;
-				else
-					SCL <= '0';
-				end if;
+				SCL <= '0';
 			end if;
 			
+			-- We leave SCL as high-impedance until we convert this code from SDI
+			-- to I2C.
 			SCL <= 'Z';
 		end if;
 
@@ -962,12 +899,13 @@ begin
 		end if;
 	end process;
 		
-
+-- Sensor Address Zero we hold LO to indicate that the sensor address is 1011101b.
+	SA0 <= '0';
 		
--- Test Point One appears on P3-1 after the programming connector has been removed.
-	TP1 <= IDY;
+-- Test Point One 
+	TP1 <= df_reg(1);
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
-	TP2 <= RCK;
+	TP2 <= df_reg(0);
 
 end behavior;
