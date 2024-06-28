@@ -71,7 +71,7 @@ architecture behavior of main is
 	signal SWRST : boolean := false;
 	
 -- Ring Oscillator and Transmit Clock
-	signal TCK, FCK, CK, FCKEN : std_logic;
+	signal TCK, FCK, CK : std_logic;
 	attribute syn_keep of TCK, FCK, CK : signal is true;
 	attribute nomerge of TCK, FCK, CK : signal is "";  
 
@@ -81,12 +81,11 @@ architecture behavior of main is
 -- Message Transmission.
 	signal TXI, -- Transmit Initiate
 		TXA, -- Transmit Active
-		TXD, -- Transmit Done
 		TXB, -- Transmit Bit
 		FHI -- Frequency High
 		: boolean := false;
-	attribute syn_keep of TXI, TXA, TXD: signal is true;
-	attribute nomerge of TXI, TXA, TXD : signal is "";  
+	attribute syn_keep of TXI, TXA : signal is true;
+	attribute nomerge of TXI, TXA : signal is "";  
 	signal xmit_bits -- Sixteen bits to be transmitted as a message.
 		: std_logic_vector(15 downto 0) := (others => '0');
 	signal tx_channel : integer range 0 to 255 := 1; -- Transmit channel number
@@ -162,7 +161,6 @@ architecture behavior of main is
 -- Interrupt Handler signals.
 	signal int_mask, int_period, int_bits, 
 		int_rst, int_set : std_logic_vector(7 downto 0);
-	signal TXDS, SADS : boolean;
 	signal INTCTRZ : boolean; -- Interrupt Counter Zero Flag
 	
 -- Functions and Procedures	
@@ -207,15 +205,13 @@ begin
 	end process;
 	
 	
--- Ring Oscillator. This oscillator runs euring message transmission, sensor configuration,
--- sensor readout, and when ordered to do so by the CPU using the ENTCK flag. The ring oscillator
--- divisor divides the frequency of the ring oscillator so as to produce FCK close to 10 MHz. The
--- divisor itself is initialized by the firmware to a sensible value on power-up, but will later
--- be written by the CPU after the CPU uses the Clock_Calibrator process to obtain the divisor
--- value that brings FCK closest to 10 MHz.
-	FCKEN <= to_std_logic(TXI or TXA or TXD or SAI or SAA or SAD or ENTCK);
+-- Ring Oscillator. This oscillator turns on when the microprocessor asserts
+-- Enable Transmit Clock (ENTCK). The transmit clock must be running during a
+-- sample transmission in order for the timing of the transmission to be correct.
+-- The transmit clock should be turned on during a sensor access as well, so that
+-- the sensor access will be quick and the sensor can power down again sooner.
 	Fast_CK : entity ring_oscillator port map (
-		ENABLE => FCKEN, 
+		ENABLE => to_std_logic(ENTCK), 
 		calib => tck_divisor,
 		CK => FCK);
 	
@@ -491,11 +487,11 @@ begin
 			for i in 1 to 7 loop
 				int_bits(i) <= '0';
 			end loop;
+			
+			-- We generate an interrupt if any one interrupt bit is 
+			-- set and unmasked.
+			CPUIRQ <= (int_bits and int_mask) /= "00000000";
 		end if;
-
-		-- We generate an interrupt if any one interrupt bit is 
-		-- set and unmasked.
-		CPUIRQ <= (int_bits and int_mask) /= "00000000";
 	end process;
 	
 
@@ -539,6 +535,8 @@ begin
 			state := idle;
 			SBYI <= false;
 			SBYC <= false;
+			SAA <= false;
+			SAD <= false;
 			
 		-- The Sensor Contoller proceeds through states so as to manage single and
 		-- double-bytes reads and writes to and from either sensor. Double-byte reads 
@@ -720,10 +718,6 @@ begin
 				); 
 			end if;
 				
-			-- We set SDA to high-impedance until we get this code converted from 
-			-- SDI to I2C.
-			SDA <= 'Z';
-
 			-- SBYD indicates to other processes that the sensor access is complete.
 			SBYD <= (state = all_done);			
 		end if;
@@ -752,19 +746,20 @@ begin
 			else
 				SCL <= '0';
 			end if;
-			
-			-- We leave SCL as high-impedance until we convert this code from SDI
-			-- to I2C.
-			SCL <= 'Z';
 		end if;
 
+		-- Disable SDA and SCL until we get this state machine converted to I2C.
+		SDA <= '1';
+		SCL <= '1';
 	end process;
 	
 -- The Sample Transmitter responds to Transmit Initiate (TXI) by turning on the 
 -- radio-frequency oscillator, reading sixteen bits from one of the sensors and
 -- transmitting the bits.
 	Sample_Transmitter : process (TCK) is
-		variable channel_num, set_num, completion_code : integer range 0 to 15; -- set number for data
+		variable channel_num : integer range 0 to 15; -- channel number
+		variable set_num : integer range 0 to 15; -- set number 
+		variable completion_code : integer range 0 to 15; -- completion code
 		constant num_sync_bits : integer := 11; -- Num synchronizing bits at start.
 		constant num_id_bits : integer := 4; -- Number of ID bits.
 		constant num_start_bits : integer := 1; -- Num zero start bits.
@@ -852,9 +847,6 @@ begin
 				or ((state = first_cc_bit + 2) and (cc_bits(1) = '1'))
 				or ((state = first_cc_bit + 3) and (cc_bits(0) = '1'));
 				
-			-- TXD indicates to other processes that the transmission is complete, while
-			TXD <= (state = st_done);
-
 			-- TXA indicates that a transmission is on-going.
 			TXA <= (state /= st_idle) and (state /= st_done);
 			
@@ -900,12 +892,12 @@ begin
 	end process;
 		
 -- Sensor Address Zero we hold LO to indicate that the sensor address is 1011101b.
-	SA0 <= '0';
+	SA0 <= df_reg(0);
 		
 -- Test Point One 
 	TP1 <= df_reg(1);
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
-	TP2 <= df_reg(0);
+	TP2 <= to_std_logic(FHI);
 
 end behavior;

@@ -4,7 +4,7 @@
 ; This code runs in the OSR8 microprocessor of the A3051A.
 
 ; Calibration Constants
-const tx_frequency      6  ; Transmit frequency calibration
+const tx_frequency      5  ; Transmit frequency calibration
 const device_id        17  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
@@ -39,7 +39,7 @@ const mmu_dfr  0x0638 ; Diagnostic Flag Resister
 
 ; Configuration Constants
 const init_cntr 	    0x0C00 ; Value for HL to count down from during initialization.
-const min_tcf       	75     ; Minimum TCK periods per half RCK period.
+const min_tcf       	72     ; Minimum TCK periods per half RCK period.
 const max_tcd           15     ; Maximum possible value of transmit clock divisor.
 
 ; Timing consstants.
@@ -96,15 +96,16 @@ ld A,0xAA
 ld (mmu_slb),A 
 
 ; Load A with the sensor write byte command and write to the sensor
-; control register. The write will begin immediately, but it will
-; take about ten microseconds. 
+; control register. 
 ld A,sensor_wr8	 
 ld (mmu_scr),A 
 
+; Wait for the write to complete.
+ld A,sa_delay    
+dly A
+
 ; Load another sensor register address into A, then write to the 
-; sensor interface. We don't have to delay before setting up this
-; next sensor access because our clock period is 30 us. The sensor
-; access we began in the previous operation is already complete.
+; sensor interface.
 ld A,0x01
 ld (mmu_sar),A 
 
@@ -114,10 +115,13 @@ ld A,0xBB
 ld (mmu_slb),A 
 
 ; Load A with the sensor write byte command and write to the sensor
-; control register. The write will begin immediately, but it will
-; take about ten microseconds. 
+; control register. 
 ld A,sensor_wr8	 
 ld (mmu_scr),A 
+
+; Wait for the write to complete.
+ld A,sa_delay    
+dly A
 
 ; Restore the accumulator and flags register before returning.
 pop A            
@@ -125,22 +129,26 @@ pop F
 ret               
 
 ; ------------------------------------------------------------
-; Prototype sensor transmit routines. Here we assume we are 
-; running in Boost Mode within an interrupt routine, so we 
-; insert the sensor access delay to wait for the access to
-; complete.
+; The interrupt routine. Reads the sensor and transmits the
+; measurement with the sample transmitter.
 
-xmit_sensor:
+interrupt:
 
-; We'll be using the accumulator, and we'll be setting the
-; flags with an addition, so push flags and accumulator
-; onto the stack.
-push F
-push A          
+; Save A on the stack, set bit zero to one, use to enable
+; the transmit clock and then boost the CPU to TCK.
+push A       
+ld A,0x01          
+ld (mmu_etc),A    
+ld (mmu_bcc),A
+push F    
 
-; Write the device identifier to the transmit channel number register.
-ld A,device_id   
-ld (mmu_xcn),A 
+; Set the zero bit of the diagnostic flag register. We can
+; direct this bit to a test pin to see if the interrupt is
+; happening. We read the register and OR with 0x01 to set
+; the zero bit.
+ld A,(mmu_dfr)     
+or A,0x01          
+ld (mmu_dfr),A     
 
 ; Read sixteen bits from sensor address zero. 
 ld A,0x00        
@@ -163,20 +171,38 @@ ld (mmu_xhb),A
 ld A,(mmu_slb) 
 ld (mmu_xlb),A 
 
+; Write the device identifier to the transmit channel number register.
+ld A,device_id   
+ld (mmu_xcn),A 
+
 ; Initiate transmission with any write to the transmission control
 ; register.
 ld (mmu_xcr),A 
 
-; Wait for the transmission to complete before returning. We may not
-; have to do this, if we are sure no other transmission will be started
-; immediately by the calling routine.
-ld A,tx_delay  
-dly A 
+; Wait for transmission to complete. We must keep the transmit clock going
+; so the state machine will finish its transmission.
+ld A,tx_delay    
+dly A            
 
-; Restore registers and return.
-pop A           
-pop F
-ret                         
+; Reset all interrupts.
+ld A,0xFF   
+ld (mmu_irst),A   
+
+; Clear bit zero of the diagnostic flag register to indicate the end
+; of the interrupt.
+ld A,(mmu_dfr)  
+and A,0xFE   
+ld (mmu_dfr),A 
+
+; Move the CPU out of boost, then stop the transmit clock.
+ld A,0x00        
+ld (mmu_bcc),A    
+ld (mmu_etc),A 
+
+; Restore F, then A, then return from interrupt.
+pop F 
+pop A
+rti  
 
 ; ------------------------------------------------------------
 ; Calibrate the transmit clock frequency. Will leave the
@@ -242,37 +268,9 @@ pop F
 ret              
 
 ; ------------------------------------------------------------
-; The interrupt routine. Transmits the sensor measurement. It 
-; generates a pulse on bit zero of the diagnostic flag register.
+; Initialize the device. We will be setting up the stack, calibrating
+; the ring oscillator, and configuring the sensor.
 
-interrupt:
-
-push F              
-push A              
-
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-or A,0x01           ; set bit zero and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
-
-ld A,0x01           ; Set bit zero to one.
-ld (mmu_etc),A      ; Enable the transmit clock, TCK.
-ld (mmu_bcc),A      ; Boost the CPU clock to TCK.
-
-call xmit_sensor    ; Transmit pressure measurement.
-
-ld A,(mmu_dfr)      ; Load the diagnostic flag register.
-and A,0xFE          ; set bit zero and
-ld (mmu_dfr),A      ; write to diagnostic flag register.
-
-ld A,0xFF           ; Set all bits to one and use to
-ld (mmu_irst),A     ; reset all interrupts.
-
-pop A               ; Restore A
-pop F               ; Restore the flags.
-rti                 ; Return from interrupt.
-
-; ------------------------------------------------------------
-; Initialize the device.
 initialize:
 
 ; Initialize the stack pointer.
@@ -307,29 +305,32 @@ call sensor_init
 ; register is the sample period minus one, because the interrupt timer counts
 ; the value down to zero. So we load A with sample_period, then decrement. If
 ; sample_period is zero (0x00), the value we write is 255 (0xFF).
-ld A,0xFF            ; Load A with ones
-ld (mmu_irst),A      ; and reset all interrupts.
-ld A,sample_period   ; Load A with the sample period,
-dec A                ; and decrement to get the value
-ld (mmu_itp),A       ; we write to timer period register.
-ld A,0x01            ; Set bit zero of A to one and use
-ld (mmu_imsk),A      ; to enable the timer interrupt.
+ld A,0xFF           
+ld (mmu_irst),A  
+ld A,sample_period 
+dec A 
+ld (mmu_itp),A 
+ld A,0x01 
+ld (mmu_imsk),A 
 
 
 ; ------------------------------------------------------------
 
 ; The main program loop. The interrupts will be running 
-; in the background, and they do all the work.
+; in the background, and they do all the work. The main
+; routine generates a pulse on bit one of the diagnostic
+; flag register, and it implements a delay so these 
+; pulses are rare.
 
 main:
 
-ld A,(mmu_dfr)      ; Load the test point register.
-or A,0x02           ; Set bit one and
-ld (mmu_dfr),A      ; write to test point register.
-and A,0xFD          ; Clear bit one and
-ld (mmu_dfr),A      ; write to test point register.
-ld A,255            ; Delay for 255 clock cycles.
-dly A               ; so as to make the test pulse rare.
-jp main             ; Repeat the main loop.
+ld A,(mmu_dfr) 
+or A,0x02
+ld (mmu_dfr),A
+and A,0xFD
+ld (mmu_dfr),A
+ld A,255  
+dly A      
+jp main
 
 ; ------------------------------------------------------------
