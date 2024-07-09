@@ -892,10 +892,10 @@ begin
 	end process;
 		
 -- Sensor Address Zero we hold LO to indicate that the sensor address is 1011101b.
-	SA0 <= df_reg(0);
+	SA0 <= TCK;
 		
 -- Test Point One 
-	TP1 <= df_reg(1);
+	TP1 <= df_reg(0);
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
 	TP2 <= to_std_logic(FHI);

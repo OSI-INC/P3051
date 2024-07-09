@@ -4,9 +4,9 @@
   (keywordMap (keywordLevel 0))
   (status
     (written
-      (timestamp 2024 6 28 15 10 57)
-      (program "SCUBA" (version "Diamond (64-bit) 3.12.1.454"))))
-      (comment "C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type bram -wp 00 -rp 1100 -addr_width 12 -data_width 8 -num_rows 4096 -cascade 11 -memfile c:/kevan/a3051/p3051/rom.mem -memformat hex ")
+      (timestamp 2024 7 9 15 8 21)
+      (program "SCUBA" (version "Diamond (64-bit) 3.12.0.240.2"))))
+      (comment "C:\lscc\diamond\3.12\ispfpga\bin\nt64\scuba.exe -w -n ROM -lang vhdl -synth synplify -bus_exp 7 -bb -arch xo2c00 -type bram -wp 00 -rp 1100 -addr_width 12 -data_width 8 -num_rows 4096 -cascade 11 -memfile c:/firmware/p3051/rom.mem -memformat hex ")
   (library ORCLIB
     (edifLevel 0)
     (technology
@@ -467,7 +467,7 @@
             (property INITVAL_01
               (string "0x000000000000000020B703EC41E2440A28503A02022C3014DE028131E031020C7022C715C1C0E21A"))
             (property INITVAL_00
-              (string "0x11EC7022C71E2470DA8602A84030400304102047026C618E1111E840220708218082100C81115020"))
+              (string "0x11EC7022C71E2470DA8602284030400304102047026C618E1111E840220708218082100C81115020"))
             (property CSDECODE_B
               (string "0b111"))
             (property CSDECODE_A
