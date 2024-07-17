@@ -664,95 +664,30 @@ begin
 	-- continue a multi-byte access with another Sensor interface read or write cycle. The 
 	-- access is begun by Sensor Byte Initiate (SBYI) and terminated with Sensor Byte Done 
 	-- (SBYD). The Sensor Interface remains in its done state until it sees SBYI unasserted.
-	Sensor_Interface : process (TCK,FCK) is
-		constant num_bits : integer := 8;
+	Sensor_Interface : process (RCK) is
+		variable state : integer range 0 to 15; 
 		constant start_SCL : integer := 3;
-		constant end_SCL : integer := start_SCL + num_bits - 1;
-		constant all_done : integer := end_SCL + 3;
-		variable state : integer range 0 to 63 := 0;
-				
+		constant num_bits : integer := 8;
+		constant stop_SCL : integer := start_SCL + num_bits + 20;
 	begin
-		-- We use SBYI as asynchronous reset for the state variable and the done
-		-- flag, which makes sure that SBYD clears as soon as the Sensor Controller
-		-- unasserst SBYI.
-		if (not SBYI) then
-			state := 0;
-			SBYD <= false;
-		
-		-- We use the Transmit Clock (TCK), which runs at 5 MHz, to drive the byte
-		-- exchange. With fourteen states, the exchange takes 2.8 us.
-		elsif rising_edge(TCK) then
-			if (state < all_done) then 
-				state := state + 1;
-			else 
-				state := all_done; 
-			end if;
-			
-			-- We assert the sensor chip select (CSG or CSA) just before the first 
-			-- falling edge of SCL. The Serial Byte Continue (SBYC) flag determines 
-			-- whether or not we unassert the chip select after the last rising edge 
-			-- of the byte transfer. If chip select happens to be asserted when we 
-			-- start up our Sensor Interface, we leave it asserted, because the 
-			-- current byte exchange is a continuation of an on-going exchange, as 
-			-- controlled by SBYC.
-			if (state = start_SCL - 2) then
-				SCL <= '1';
+		if rising_edge(RCK) then
+			if state < (start_SCL - 1) then
 				SDA <= '1';
-			elsif (state = start_SCL - 1) then
-				CSA <= true;
+				SCL <= '1';
+			elsif state = (start_SCL - 1) then
 				SDA <= '0';
-			elsif (state = all_done) then
-				if not SBYC then 
-					CSA <= false;
-				end if;
-			end if;
-				
-			-- On a write cycle, we assert the sensor output bits one after another
-			-- on the rising edges of TCK.
-			if SBYW then
-				SDA <= to_std_logic(
-					((state = start_SCL + 0) and (sensor_bits_out(7) = '1'))
-					or ((state = start_SCL + 1) and (sensor_bits_out(6) = '1'))
-					or ((state = start_SCL + 2) and (sensor_bits_out(5) = '1'))
-					or ((state = start_SCL + 3) and (sensor_bits_out(4) = '1'))
-					or ((state = start_SCL + 4) and (sensor_bits_out(3) = '1'))
-					or ((state = start_SCL + 5) and (sensor_bits_out(2) = '1'))
-					or ((state = start_SCL + 6) and (sensor_bits_out(1) = '1'))
-					or ((state = start_SCL + 7) and (sensor_bits_out(0) = '1'))
-				); 
-			end if;
-				
-			-- SBYD indicates to other processes that the sensor access is complete.
-			SBYD <= (state = all_done);			
-		end if;
-		
-		-- On a read cycle, we detect the value of SDA on the faling edges of TCK.
-		if falling_edge(TCK) then
-			if (not SBYW) then 
-				if (state = start_SCL + 0) then sensor_bits_in(7) <= SDA; end if;
-				if (state = start_SCL + 1) then sensor_bits_in(6) <= SDA; end if;
-				if (state = start_SCL + 2) then sensor_bits_in(5) <= SDA; end if;
-				if (state = start_SCL + 3) then sensor_bits_in(4) <= SDA; end if;
-				if (state = start_SCL + 4) then sensor_bits_in(3) <= SDA; end if;
-				if (state = start_SCL + 5) then sensor_bits_in(2) <= SDA; end if;
-				if (state = start_SCL + 6) then sensor_bits_in(1) <= SDA; end if;
-				if (state = start_SCL + 7) then sensor_bits_in(0) <= SDA; end if;	
+				SCL <= '1';
+			elsif (state >= start_SCL) and (state <= start_SCL + 8) then
+				SCL <= not(SCL);
+				SDA <=
+					((start_SCL and 
 			end if;
 		end if;
 		
-		-- SCL is the serial clock that drives communication between the sensors and
-		-- the logic chip. We generate SCL by first creating Serial Clock Early (SCLE),
-		-- then delaying SCLE by one FCK period. The result is a 5-MHz clock that falls
-		-- on the rising edges of TCK and rises on the falling edges of TCK.
-		if falling_edge(FCK) then 			
-			if (state >= start_SCL) and (state <= end_SCL) then
-				SCL <= not SCL;
-			else
-				SCL <= '0';
-			end if;
-		end if;
-
-		-- Disable SDA and SCL until we get this state machine converted to I2C.
+		
+		
+		
+		
 		SDA <= 'Z';
 		SCL <= 'Z';
 		SA0 <= '1';
