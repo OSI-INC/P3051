@@ -6,8 +6,7 @@ use ieee.numeric_std.all;
 
 entity main is 
 	port (
-		RCK, -- Reference Clock
-		IDY -- Interrupt/Data Ready
+		RCK -- Reference Clock
 		: in std_logic; 
 		XEN, -- Transmit Enable, for data transmission
 		TP1, -- Test Point One, available on P3-1
@@ -15,7 +14,8 @@ entity main is
 		SA0  -- LSB of sensor address
 		: out std_logic;
 		SDA, -- Serial Data Access	
-		SCL  -- Serial Clock
+		SCL,  -- Serial Clock
+		IDY -- Interrupt/Data Ready
 		: inout std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
@@ -695,8 +695,12 @@ begin
 			-- start up our Sensor Interface, we leave it asserted, because the 
 			-- current byte exchange is a continuation of an on-going exchange, as 
 			-- controlled by SBYC.
-			if (state = start_SCL - 1) then
+			if (state = start_SCL - 2) then
+				SCL <= '1';
+				SDA <= '1';
+			elsif (state = start_SCL - 1) then
 				CSA <= true;
+				SDA <= '0';
 			elsif (state = all_done) then
 				if not SBYC then 
 					CSA <= false;
@@ -749,8 +753,10 @@ begin
 		end if;
 
 		-- Disable SDA and SCL until we get this state machine converted to I2C.
-		SDA <= '1';
-		SCL <= '1';
+		SDA <= 'Z';
+		SCL <= 'Z';
+		SA0 <= '1';
+		IDY <= 'Z';
 	end process;
 	
 -- The Sample Transmitter responds to Transmit Initiate (TXI) by turning on the 
@@ -891,13 +897,11 @@ begin
 		end if;
 	end process;
 		
--- Sensor Address Zero we hold LO to indicate that the sensor address is 1011101b.
-	SA0 <= TCK;
 		
 -- Test Point One 
 	TP1 <= df_reg(0);
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
-	TP2 <= to_std_logic(FHI);
+	TP2 <= SCL;
 
 end behavior;

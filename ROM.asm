@@ -14,6 +14,8 @@ const mmu_ctrl 0x0600 ; Base of Control Space
 const mmu_sba  0x0300 ; Stack Base Address
 
 ; Address Map Constants
+const ramp_ctr 0x0000 ; Ramp Counter
+const ramp_dow 0x0001 ; Ramping Down Counter
 const mmu_shb  0x0600 ; Sensor Data HI Byte 
 const mmu_slb  0x0601 ; Sensor Data LO Byte
 const mmu_sar  0x0602 ; Sensor Address Register
@@ -48,6 +50,8 @@ const sa_delay      70  ; Wait time for sensor access, TCK periods.
 const boot_delay    10  ; Boot delay, multiples of 7.8 ms.
 
 ; Sensor interface commands.
+const sensor_radd   0xBB ; Read Address from sensor
+const sensor_wadd   0xBA ; Write Address from sensor
 const sensor_rd16   0x04 ; Read Sixteen-Bit Word from Sensor
 const sensor_wr16   0x06 ; Write Sixteen-Bit Word to Sensor
 const sensor_rd8    0x00 ; Read Eight-Bit Byte from Sensor
@@ -168,8 +172,12 @@ add A,off_16bs
 ld (mmu_xhb),A   
 
 ; Read the LO byte and write to the transmitter.
-ld A,(mmu_slb) 
-ld (mmu_xlb),A 
+ld A, (ramp_ctr) 
+inc A
+ld (ramp_ctr), A
+ld (mmu_xhb),A 
+ld A, 0
+ld (mmu_xlb),A
 
 ; Write the device identifier to the transmit channel number register.
 ld A,device_id   
@@ -183,6 +191,29 @@ ld (mmu_xcr),A
 ; so the state machine will finish its transmission.
 ld A,tx_delay    
 dly A            
+
+
+; Second Channel Write
+ld A, (ramp_dow) 
+sub A, 2
+ld (ramp_dow), A
+ld (mmu_xhb),A 
+ld A, 0
+ld (mmu_xlb),A
+
+; Write the device identifier to the transmit channel number register.
+ld A, 2  
+ld (mmu_xcn),A 
+
+; Initiate transmission with any write to the transmission control
+; register.
+ld (mmu_xcr),A 
+
+; Wait for transmission to complete. We must keep the transmit clock going
+; so the state machine will finish its transmission.
+ld A,tx_delay    
+dly A    
+
 
 ; Reset all interrupts.
 ld A,0xFF   
