@@ -514,147 +514,141 @@ begin
 	-- write the mmu_slb byte first. When the CPU writes to mmu_scr, it also specifies
 	-- SAWR, and SA16. The SA16 flag selects sixteen-bit access, and SAWR selects
 	-- a write cycle.
-	Sensor_Controller : process (TCK,RESET) is
-		variable state, next_state : integer range 0 to 15 := 0;
-		constant idle : integer := 0;
-		constant write_addr : integer := 1;
-		constant prep_b1 : integer := 2;
-		constant write_b1 : integer := 3;
-		constant read_b1 : integer := 4;
-		constant prep_d : integer := 5;
-		constant read_d : integer := 6;
-		constant prep_b2 : integer := 7;
-		constant write_b2 : integer := 8;
-		constant read_b2 : integer := 9;
-		constant all_done : integer := 15;
+	--Sensor_Controller : process (TCK,RESET) is
+		--variable state, next_state : integer range 0 to 15 := 0;
+		--constant idle : integer := 0;
+		--constant write_addr : integer := 1;
+		--constant prep_b1 : integer := 2;
+		--constant write_b1 : integer := 3;
+		--constant read_b1 : integer := 4;
+		--constant prep_d : integer := 5;
+		--constant read_d : integer := 6;
+		--constant prep_b2 : integer := 7;
+		--constant write_b2 : integer := 8;
+		--constant read_b2 : integer := 9;
+		--constant all_done : integer := 15;
 		
- 	begin
+ 	--begin
 		-- Upon startup, we make sure we are in the idle state and we are not
 		-- requesting a byte access by the Sensor Interface.
-		if (RESET = '1') then 
-			state := idle;
-			SBYI <= false;
-			SBYC <= false;
-			SAA <= false;
-			SAD <= false;
+		--if (RESET = '1') then 
+		--	state := idle;
+		--	SBYI <= false;
+		--	SBYC <= false;
+		--	SAA <= false;
+		--	SAD <= false;
 			
-		-- The Sensor Contoller proceeds through states so as to manage single and
-		-- double-bytes reads and writes to and from either sensor. Double-byte reads 
-		-- will be performed by an address write followed by two single-byte reads, with
-		-- the chip select line being asserted throughout the three cycles. The sensors
-		-- are designed so that reading one byte of a sixteen-bit data value causes the
-		-- other byte to remain fixed until it too is read, or until the chip select line
-		-- is unasserted.
-		elsif rising_edge(TCK) then
-			next_state := state;
+
+		--elsif rising_edge(TCK) then
+			--next_state := state;
 			
-			case state is
-				when idle => 
-					SBYI <= false;
-					if SAI then 
-						next_state := write_addr;
-					end if;
+			--case state is
+				--when idle => 
+					--SBYI <= false;
+					--if SAI then 
+						--next_state := write_addr;
+					--end if;
 					
-				when write_addr =>
-					SBYI <= true;
-					SBYC <= true;
-					SBYW <= true;
-					sensor_bits_out(6 downto 0) <= sensor_addr(6 downto 0);
-					sensor_bits_out(7) <= to_std_logic(not SAWR);
-					if SBYD then 
-						if (not SAWR) then
-							next_state := prep_d; 
-						else
-							next_state := prep_b1;
-						end if;
-					end if;
+				--when write_addr =>
+					--SBYI <= true;
+					--SBYC <= true;
+					--SBYW <= true;
+					--sensor_bits_out(6 downto 0) <= sensor_addr(6 downto 0);
+					--sensor_bits_out(7) <= to_std_logic(not SAWR);
+					--if SBYD then 
+						--if (not SAWR) then
+							--next_state := prep_d; 
+						--else
+							--next_state := prep_b1;
+						--end if;
+					--end if;
 					
-				when prep_d =>
-					SBYI <= false;
-					next_state := read_d;
+				--when prep_d =>
+					--SBYI <= false;
+					--next_state := read_d;
 					
-				when read_d =>
-					SBYI <= true;
-					SBYW <= false;
-					if SBYD then 
-						next_state := prep_b1;
-					end if;
+				--when read_d =>
+					--SBYI <= true;
+					--SBYW <= false;
+					--if SBYD then 
+						--next_state := prep_b1;
+					--end if;
 					
-				when prep_b1 =>
-					SBYI <= false;
-					if SAWR then 
-						next_state := write_b1;
-					else
-						next_state := read_b1;
-					end if;
+				--when prep_b1 =>
+					--SBYI <= false;
+					--if SAWR then 
+						--next_state := write_b1;
+					--else
+						--next_state := read_b1;
+					--end if;
 				
-				when write_b1 =>
-					SBYI <= true;
-					SBYC <= SA16;
-					SBYW <= true;
-					sensor_bits_out <= sensor_data_out(7 downto 0);
-					if SBYD then 
-						if SA16 then 
-							next_state := prep_b2;
-						else
-							next_state := all_done;
-						end if;
-					end if;
+				--when write_b1 =>
+					--SBYI <= true;
+					--SBYC <= SA16;
+					--SBYW <= true;
+					--sensor_bits_out <= sensor_data_out(7 downto 0);
+					--if SBYD then 
+						--if SA16 then 
+							--next_state := prep_b2;
+						--else
+							--next_state := all_done;
+						--end if;
+					--end if;
 
-				when read_b1 =>
-					SBYI <= true;
-					SBYC <= SA16;
-					SBYW <= false;
-					if SBYD then 
-						sensor_data_in(7 downto 0) <= sensor_bits_in;
-						if SA16 then 
-							next_state := prep_b2;
-						else
-							next_state := all_done;
-						end if;
-					end if;
+				--when read_b1 =>
+					--SBYI <= true;
+					--SBYC <= SA16;
+					--SBYW <= false;
+					--if SBYD then 
+						--sensor_data_in(7 downto 0) <= sensor_bits_in;
+						--if SA16 then 
+							--next_state := prep_b2;
+						--else
+							--next_state := all_done;
+						--end if;
+					--end if;
 
-				when prep_b2 =>
-					SBYI <= false;
-					if SAWR then 
-						next_state := write_b2;
-					else
-						next_state := read_b2;
-					end if;
+				--when prep_b2 =>
+					--SBYI <= false;
+					--if SAWR then 
+						--next_state := write_b2;
+					--else
+						--next_state := read_b2;
+					--end if;
 				
-				when write_b2 =>
-					SBYI <= true;
-					SBYC <= false;
-					SBYW <= true;
-					sensor_bits_out <= sensor_data_out(15 downto 8);
-					if SBYD then 
-						next_state := all_done;
-					end if;
+				--when write_b2 =>
+					--SBYI <= true;
+					--SBYC <= false;
+					--SBYW <= true;
+					--sensor_bits_out <= sensor_data_out(15 downto 8);
+					--if SBYD then 
+						--next_state := all_done;
+					--end if;
 
-				when read_b2 =>
-					SBYI <= true;
-					SBYC <= false;
-					SBYW <= false;
-					if SBYD then 
-						sensor_data_in(15 downto 8) <= sensor_bits_in;
-						next_state := all_done;
-					end if;
+				--when read_b2 =>
+					--SBYI <= true;
+					--SBYC <= false;
+					--SBYW <= false;
+					--if SBYD then 
+						--sensor_data_in(15 downto 8) <= sensor_bits_in;
+						--next_state := all_done;
+					--end if;
 
-				when all_done =>
-					SBYI <= false;
-					SAD <= true;
-					if not SAI then 
-						next_state := idle;
-					end if;
+				--when all_done =>
+					--SBYI <= false;
+					--SAD <= true;
+					--if not SAI then 
+						--next_state := idle;
+					--end if;
 					
-				when others => 
-					next_state := idle;
-			end case;
-			SAD <= (state = all_done);
-			SAA <= (state /= idle) and (state /= all_done);
-			state := next_state;
-		end if;
-	end process;
+				--when others => 
+					--next_state := idle;
+			--end case;
+			--SAD <= (state = all_done);
+			--SAA <= (state /= idle) and (state /= all_done);
+			--state := next_state;
+		--end if;
+	--end process;
 	
 	-- The Sensor Interface reads or writes eight bits at a time to and from the sensro.
 	-- When Sensor Byte Write (SBYW) is asserted, the contents of sensor_bits_out are 
@@ -665,27 +659,69 @@ begin
 	-- access is begun by Sensor Byte Initiate (SBYI) and terminated with Sensor Byte Done 
 	-- (SBYD). The Sensor Interface remains in its done state until it sees SBYI unasserted.
 	Sensor_Interface : process (RCK) is
-		variable state : integer range 0 to 15; 
-		constant start_SCL : integer := 3;
-		constant num_bits : integer := 8;
-		constant stop_SCL : integer := start_SCL + num_bits + 20;
+		variable state, next_state : integer range 0 to 255; 
+
 	begin
+		SBYW <= false;
 		if rising_edge(RCK) then
-			if state < (start_SCL - 1) then
-				SDA <= '1';
-				SCL <= '1';
-			elsif state = (start_SCL - 1) then
-				SDA <= '0';
-				SCL <= '1';
-			elsif (state >= start_SCL) and (state <= start_SCL + 8) then
-				SCL <= not(SCL);
-				SDA <=
-					((start_SCL and 
+			next_state := state + 1;
+			if (not SBYW) then
+				if state < 3 then
+					SDA <= '1';
+					SCL <= '1';
+				elsif state = 3 then
+					SDA <= '0';
+					SCL <= '1';
+				elsif (state >= 4) and (state <= 29) then
+					SCL <= not(SCL);
+					if state = 4 then SDA <= '1';
+					elsif state = 5 then SDA <= '0';
+					elsif state = 6 then SDA <= '1';
+					elsif state = 7 then SDA <= '1';
+					elsif state = 8 then SDA <= '1';				
+					elsif state = 9 then SDA <= '0';				
+					elsif state = 10 then SDA <= '1';	
+					elsif state = 11 then SDA <= '0';
+					elsif state = 12 then SDA <= 'Z';
+					elsif (state >= 13) and (state <= 28) then SDA <= 'Z';
+					elsif state = 29 then SDA <= 'Z';
+					end if;
+				elsif state = 30 then 
+					SDA <= '1';
+					SCL <= '1';
+				elsif state = 31 then
+					SDA <= '0';
+					SCL <= '1';
+				elsif (state >= 32) and (state <= 55) then
+					SCL <= not(SCL);
+					if state = 32 then SDA <= '1';
+					elsif state = 33 then SDA <= '0';
+					elsif state = 34 then SDA <= '1';
+					elsif state = 35 then SDA <= '1';
+					elsif state = 36 then SDA <= '1';
+					elsif state = 37 then SDA <= '0';
+					elsif state = 38 then SDA <= '1';
+					elsif state = 39 then SDA <= '1';
+					elsif state = 40 then SDA <= 'Z';
+					elsif (state >= 41) and (state <= 48) then
+					SDA <= to_std_logic(
+						((state = 41) and (sensor_bits_out(7) = '1'))
+						or ((state = 42) and (sensor_bits_out(6) = '1'))
+						or ((state = 43) and (sensor_bits_out(5) = '1'))
+						or ((state = 44) and (sensor_bits_out(4) = '1'))
+						or ((state = 45) and (sensor_bits_out(3) = '1'))
+						or ((state = 46) and (sensor_bits_out(2) = '1'))
+						or ((state = 47) and (sensor_bits_out(1) = '1'))
+						or ((state = 48) and (sensor_bits_out(0) = '1'))
+					);
+					end if;
+					
+				end if;
 			end if;
+			state := next_state;
 		end if;
 		
-		
-		
+		state := next_state;
 		
 		
 		SDA <= 'Z';

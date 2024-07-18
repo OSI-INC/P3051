@@ -2,7 +2,7 @@
 <BaliProject version="3.2" title="P3051" device="LCMXO2-1200ZE-1TG100I" default_implementation="impl1">
     <Options/>
     <Implementation title="impl1" dir="impl1" description="impl1" synthesis="synplify" default_strategy="Strategy1">
-        <Options def_top="OSR8_CPU" top="main"/>
+        <Options def_top="main" top="main"/>
         <Source name="ROM.ipx" type="IPX_Module" type_short="IPX">
             <Options/>
         </Source>
