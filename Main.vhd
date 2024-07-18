@@ -703,16 +703,8 @@ begin
 					elsif state = 38 then SDA <= '1';
 					elsif state = 39 then SDA <= '1';
 					elsif state = 40 then SDA <= 'Z';
-					elsif (state >= 41) and (state <= 48) then
-					SDA <= to_std_logic(
-						((state = 41) and (sensor_bits_out(7) = '1'))
-						or ((state = 42) and (sensor_bits_out(6) = '1'))
-						or ((state = 43) and (sensor_bits_out(5) = '1'))
-						or ((state = 44) and (sensor_bits_out(4) = '1'))
-						or ((state = 45) and (sensor_bits_out(3) = '1'))
-						or ((state = 46) and (sensor_bits_out(2) = '1'))
-						or ((state = 47) and (sensor_bits_out(1) = '1'))
-						or ((state = 48) and (sensor_bits_out(0) = '1'))
+					elsif state = 41 then sensor_bits_in(7) <= SDA;
+					
 					);
 					end if;
 					
