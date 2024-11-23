@@ -12,10 +12,10 @@ entity main is
 		XEN, -- Transmit Enable, for data transmission
 		TP1, -- Test Point One, available on P3-1
 		TP2, -- Test Point Two, available on P3-2
-		SA0  -- LSB of sensor address
-		: out std_logic;
-		SDA, -- Serial Data Access	
+		SA0,  -- LSB of sensor address
 		SCL  -- Serial Clock
+		: out std_logic;
+		SDA -- Serial Data Access	
 		: inout std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
@@ -89,24 +89,25 @@ architecture behavior of main is
 	signal xmit_bits -- Sixteen bits to be transmitted as a message.
 		: std_logic_vector(15 downto 0) := (others => '0');
 	signal tx_channel : integer range 0 to 255 := 1; -- Transmit channel number
-	signal frequency_low : integer range 0 to 15 := 6; -- Low frequency for transmission
+	signal frequency_low : integer range 0 to 31 := 6; -- Low frequency for transmission
 	constant frequency_step : integer := 1; -- High minus low frequency
 		
 -- Sensor Interface
-	signal SBYI, -- Sensor Byte Access Initiate 
-		SBYD, -- Sensor Byte Access Done
-		SBYW, -- Sensor Byte Access Write
-		SBYC, -- Sensor Access Continue
+	signal SBAI, -- Sensor Byte Access Initiate 
+		SBAD, -- Sensor Byte Access Done
+		SBAW, -- Sensor Byte Access Write
+		SBAC, -- Sensor Access Continue
 		SCLE -- Serial Clock Early
 		: boolean := false;
-	attribute syn_keep of SBYI, SBYD, SCLE : signal is true;
-	attribute nomerge of SBYI, SBYD, SCLE : signal is "";  
+	attribute syn_keep of SBAI, SBAD, SCLE : signal is true;
+	attribute nomerge of SBAI, SBAD, SCLE : signal is "";  
 	signal sensor_bits_out, -- Eight bits that we will transmit to a sensor.
 		sensor_bits_in -- Eight bits that we will receive from a sensor.
 		: std_logic_vector(7 downto 0) := (others => '0');
 
 -- Sensor Controller
-	signal SAI, -- Sensor Access Initiate 
+	signal SCLS, -- Serial Clock Source
+		SAI, -- Sensor Access Initiate 
 		SAA, -- Sensor Access Active
 		SAD, -- Sensor Access Done
 		SAWR, -- Sensor Write
@@ -533,8 +534,8 @@ begin
 		-- requesting a byte access by the Sensor Interface.
 		if (RESET = '1') then 
 			state := idle;
-			SBYI <= false;
-			SBYC <= false;
+			SBAI <= false;
+			SBAC <= false;
 			SAA <= false;
 			SAD <= false;
 			
@@ -550,18 +551,18 @@ begin
 			
 			case state is
 				when idle => 
-					SBYI <= false;
+					SBAI <= false;
 					if SAI then 
 						next_state := write_addr;
 					end if;
 					
 				when write_addr =>
-					SBYI <= true;
-					SBYC <= true;
-					SBYW <= true;
+					SBAI <= true;
+					SBAC <= true;
+					SBAW <= true;
 					sensor_bits_out(6 downto 0) <= sensor_addr(6 downto 0);
 					sensor_bits_out(7) <= to_std_logic(not SAWR);
-					if SBYD then 
+					if SBAD then 
 						if (not SAWR) then
 							next_state := prep_d; 
 						else
@@ -570,18 +571,18 @@ begin
 					end if;
 					
 				when prep_d =>
-					SBYI <= false;
+					SBAI <= false;
 					next_state := read_d;
 					
 				when read_d =>
-					SBYI <= true;
-					SBYW <= false;
-					if SBYD then 
+					SBAI <= true;
+					SBAW <= false;
+					if SBAD then 
 						next_state := prep_b1;
 					end if;
 					
 				when prep_b1 =>
-					SBYI <= false;
+					SBAI <= false;
 					if SAWR then 
 						next_state := write_b1;
 					else
@@ -589,11 +590,11 @@ begin
 					end if;
 				
 				when write_b1 =>
-					SBYI <= true;
-					SBYC <= SA16;
-					SBYW <= true;
+					SBAI <= true;
+					SBAC <= SA16;
+					SBAW <= true;
 					sensor_bits_out <= sensor_data_out(7 downto 0);
-					if SBYD then 
+					if SBAD then 
 						if SA16 then 
 							next_state := prep_b2;
 						else
@@ -602,10 +603,10 @@ begin
 					end if;
 
 				when read_b1 =>
-					SBYI <= true;
-					SBYC <= SA16;
-					SBYW <= false;
-					if SBYD then 
+					SBAI <= true;
+					SBAC <= SA16;
+					SBAW <= false;
+					if SBAD then 
 						sensor_data_in(7 downto 0) <= sensor_bits_in;
 						if SA16 then 
 							next_state := prep_b2;
@@ -615,7 +616,7 @@ begin
 					end if;
 
 				when prep_b2 =>
-					SBYI <= false;
+					SBAI <= false;
 					if SAWR then 
 						next_state := write_b2;
 					else
@@ -623,25 +624,25 @@ begin
 					end if;
 				
 				when write_b2 =>
-					SBYI <= true;
-					SBYC <= false;
-					SBYW <= true;
+					SBAI <= true;
+					SBAC <= false;
+					SBAW <= true;
 					sensor_bits_out <= sensor_data_out(15 downto 8);
-					if SBYD then 
+					if SBAD then 
 						next_state := all_done;
 					end if;
 
 				when read_b2 =>
-					SBYI <= true;
-					SBYC <= false;
-					SBYW <= false;
-					if SBYD then 
+					SBAI <= true;
+					SBAC <= false;
+					SBAW <= false;
+					if SBAD then 
 						sensor_data_in(15 downto 8) <= sensor_bits_in;
 						next_state := all_done;
 					end if;
 
 				when all_done =>
-					SBYI <= false;
+					SBAI <= false;
 					SAD <= true;
 					if not SAI then 
 						next_state := idle;
@@ -657,13 +658,14 @@ begin
 	end process;
 	
 	-- The Sensor Interface reads or writes eight bits at a time to and from the sensro.
-	-- When Sensor Byte Write (SBYW) is asserted, the contents of sensor_bits_out are 
+	-- When Sensor Byte Access Write (SBAW) is asserted, the contents of sensor_bits_out are 
 	-- transmitted on SDA, most significant bit first. Otherwise, the SDA signal is loaded 
-	-- into sensor_bits_in, most significant bit first. When SBYC is asserted, we continue 
+	-- into sensor_bits_in, most significant bit first. When SBAC is asserted, we continue 
 	-- to assert the sensor chip select after the end of the access, which permits us to 
 	-- continue a multi-byte access with another Sensor interface read or write cycle. The 
-	-- access is begun by Sensor Byte Initiate (SBYI) and terminated with Sensor Byte Done 
-	-- (SBYD). The Sensor Interface remains in its done state until it sees SBYI unasserted.
+	-- access is begun by Sensor Byte Access Initiate (SBAI) and terminated with Sensor Byte 
+	-- Access Done (SBAD). The Sensor Interface remains in its done state until it sees SBAI 
+	-- unasserted.
 	Sensor_Interface : process (TCK,FCK) is
 		constant num_bits : integer := 8;
 		constant start_SCL : integer := 3;
@@ -672,12 +674,12 @@ begin
 		variable state : integer range 0 to 63 := 0;
 				
 	begin
-		-- We use SBYI as asynchronous reset for the state variable and the done
-		-- flag, which makes sure that SBYD clears as soon as the Sensor Controller
-		-- unasserst SBYI.
-		if (not SBYI) then
+		-- We use SBAI as asynchronous reset for the state variable and the done
+		-- flag, which makes sure that SBAD clears as soon as the Sensor Controller
+		-- unasserts SBAI.
+		if (not SBAI) then
 			state := 0;
-			SBYD <= false;
+			SBAD <= false;
 		
 		-- We use the Transmit Clock (TCK), which runs at 5 MHz, to drive the byte
 		-- exchange. With fourteen states, the exchange takes 2.8 us.
@@ -689,23 +691,23 @@ begin
 			end if;
 			
 			-- We assert the sensor chip select (CSG or CSA) just before the first 
-			-- falling edge of SCL. The Serial Byte Continue (SBYC) flag determines 
+			-- falling edge of SCL. The Serial Byte Access Continue (SBAC) flag determines 
 			-- whether or not we unassert the chip select after the last rising edge 
 			-- of the byte transfer. If chip select happens to be asserted when we 
 			-- start up our Sensor Interface, we leave it asserted, because the 
 			-- current byte exchange is a continuation of an on-going exchange, as 
-			-- controlled by SBYC.
+			-- controlled by SBAC.
 			if (state = start_SCL - 1) then
 				CSA <= true;
 			elsif (state = all_done) then
-				if not SBYC then 
+				if not SBAC then 
 					CSA <= false;
 				end if;
 			end if;
 				
 			-- On a write cycle, we assert the sensor output bits one after another
 			-- on the rising edges of TCK.
-			if SBYW then
+			if SBAW then
 				SDA <= to_std_logic(
 					((state = start_SCL + 0) and (sensor_bits_out(7) = '1'))
 					or ((state = start_SCL + 1) and (sensor_bits_out(6) = '1'))
@@ -718,13 +720,13 @@ begin
 				); 
 			end if;
 				
-			-- SBYD indicates to other processes that the sensor access is complete.
-			SBYD <= (state = all_done);			
+			-- SBAD indicates to other processes that the sensor access is complete.
+			SBAD <= (state = all_done);			
 		end if;
 		
 		-- On a read cycle, we detect the value of SDA on the faling edges of TCK.
 		if falling_edge(TCK) then
-			if (not SBYW) then 
+			if (not SBAW) then 
 				if (state = start_SCL + 0) then sensor_bits_in(7) <= SDA; end if;
 				if (state = start_SCL + 1) then sensor_bits_in(6) <= SDA; end if;
 				if (state = start_SCL + 2) then sensor_bits_in(5) <= SDA; end if;
@@ -736,15 +738,15 @@ begin
 			end if;
 		end if;
 		
-		-- SCL is the serial clock that drives communication between the sensors and
-		-- the logic chip. We generate SCL by first creating Serial Clock Early (SCLE),
-		-- then delaying SCLE by one FCK period. The result is a 5-MHz clock that falls
-		-- on the rising edges of TCK and rises on the falling edges of TCK.
-		if falling_edge(FCK) then 			
+		-- SCLS is Serial Clock Source, from which we obtain the serial clock output.
+		-- This clock synchronizes the sensors readout.
+		if (not SBAI) then
+			SCLS <= false;
+		elsif falling_edge(FCK) then 			
 			if (state >= start_SCL) and (state <= end_SCL) then
-				SCL <= not SCL;
+				SCLS <= not SCLS;
 			else
-				SCL <= '0';
+				SCLS <= true;
 			end if;
 		end if;
 
@@ -892,10 +894,10 @@ begin
 	end process;
 		
 -- Sensor Address Zero we hold LO to indicate that the sensor address is 1011101b.
-	SA0 <= df_reg(0);
+	SA0 <= df_reg(1);
 		
 -- Test Point One 
-	TP1 <= df_reg(1);
+	TP1 <= RCK;
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
 	TP2 <= to_std_logic(FHI);

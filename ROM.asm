@@ -5,7 +5,7 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        17  ; Will be used as the first channel number.
+const device_id        51  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Boundary Constants
@@ -38,9 +38,8 @@ const mmu_bcc  0x0636 ; Boost CPU Clock
 const mmu_dfr  0x0638 ; Diagnostic Flag Resister
 
 ; Configuration Constants
-const init_cntr 	    0x0C00 ; Value for HL to count down from during initialization.
-const min_tcf       	72     ; Minimum TCK periods per half RCK period.
-const max_tcd           15     ; Maximum possible value of transmit clock divisor.
+const min_tcf       75  ; Minimum TCK periods per half RCK period.
+const max_tcd       31  ; Maximum possible value of transmit clock divisor.
 
 ; Timing consstants.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
@@ -54,7 +53,7 @@ const sensor_rd8    0x00 ; Read Eight-Bit Byte from Sensor
 const sensor_wr8    0x02 ; Write Eight-Bit Byte to Sensor
 
 ; Math constants.
-const off_16bs    0x80  ; Convert sixteen bit signed to unsigned.
+const off_16bs      0x80 ; Convert sixteen bit signed to unsigned.
 
 ; ------------------------------------------------------------
 
@@ -100,10 +99,6 @@ ld (mmu_slb),A
 ld A,sensor_wr8	 
 ld (mmu_scr),A 
 
-; Wait for the write to complete.
-ld A,sa_delay    
-dly A
-
 ; Load another sensor register address into A, then write to the 
 ; sensor interface.
 ld A,0x01
@@ -118,10 +113,6 @@ ld (mmu_slb),A
 ; control register. 
 ld A,sensor_wr8	 
 ld (mmu_scr),A 
-
-; Wait for the write to complete.
-ld A,sa_delay    
-dly A
 
 ; Restore the accumulator and flags register before returning.
 pop A            
@@ -150,7 +141,7 @@ ld A,(mmu_dfr)
 or A,0x01          
 ld (mmu_dfr),A     
 
-; Read sixteen bits from sensor address zero. 
+; Initiate a sixteen-bit sensor read from address zero. 
 ld A,0x00        
 ld (mmu_sar),A 
 ld A,sensor_rd16 
@@ -230,7 +221,7 @@ ld (mmu_bcc),A
 ld (mmu_etc),A
 
 ; Pick an initial value for the divisor that we know will be 
-; too high, so the transmit clock frequencyu will certainly
+; too high, so the transmit clock frequency will certainly
 ; be too low. Store this value in both A and B registers. There
 ; is no instruction to move A directly into B. Instead, we push
 ; A onto the stack, then pop it off into B.
