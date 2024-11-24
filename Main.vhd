@@ -1,5 +1,10 @@
 -- <pre> Blood Pressure Monitor (A3051B) Firmware, Toplevel Unit
 
+-- Version 2.1 [21-NOV-24] Transmission, reading zero byte from sensor 
+-- interface.
+
+-- Version 2.1 [23-NOV-24] Start converting sensor interface to I2C.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -13,7 +18,7 @@ entity main is
 		TP1, -- Test Point One, available on P3-1
 		TP2, -- Test Point Two, available on P3-2
 		SA0,  -- LSB of sensor address
-		SCL  -- Serial Clock
+		SCL  -- Serial Clock Output
 		: out std_logic;
 		SDA -- Serial Data Access	
 		: inout std_logic;
@@ -70,10 +75,10 @@ architecture behavior of main is
 	attribute nomerge of RESET : signal is "";
 	signal SWRST : boolean := false;
 	
--- Ring Oscillator and Transmit Clock
-	signal TCK, FCK, CK : std_logic;
-	attribute syn_keep of TCK, FCK, CK : signal is true;
-	attribute nomerge of TCK, FCK, CK : signal is "";  
+-- Clock Generation
+	signal TCK, FCK, CK, PSCK : std_logic;
+	attribute syn_keep of TCK, FCK, CK, PSCK : signal is true;
+	attribute nomerge of TCK, FCK, CK, PSCK : signal is "";  
 
 -- Sensor Readout
 	signal CSA, CSG : boolean;
@@ -216,12 +221,22 @@ begin
 		calib => tck_divisor,
 		CK => FCK);
 	
--- The Transmit Clock process divides FCK in two so as to produce a clock with
--- exactly 50% duty cycle and frequency close to 5 MHz, which we call the 
--- Transmit Clock (TCK). We clock TCK on the falling edge of FCK.
-	Tx_CK : process (FCK) is 
+-- The Clock Generator derives clocks from FCK. We obtain TCK by dividing FCK in two, 
+-- so as to obtain a symmetric 5 MHz. We obtain PSCK by dividing FCK by twenty, so as
+-- to obtain a symmetric 500 kHz to read out the pressure sensor. We clock TCK on the 
+-- falling edge of FCK so as to support our use of FCK in the Frequency Modulator.
+	Clock_Generator : process (FCK) is 
+		variable count : integer range 0 to 31 := 0;
 	begin
 		if falling_edge(FCK) then TCK <= to_std_logic(TCK = '0'); end if;
+		if falling_edge(FCK) then
+			if (count = 19) then 
+				count := 0;
+			else
+				count := count + 1;
+			end if;
+			PSCK <= to_std_logic(count < 10); 
+		end if;
 	end process;
 
 -- User memory and configuration code for the CPU. This RAM will be initialized at
@@ -494,28 +509,26 @@ begin
 			CPUIRQ <= (int_bits and int_mask) /= "00000000";
 		end if;
 	end process;
-	
 
 	-- The Sensor Controller receives instructions from the CPU through the signals
 	-- Sensor Access Write (SAWR), Sensor Access Initiate (SAI), and Sensor Access 
 	-- Sixteen Bits (SA16). When it is done with its task, it asserts Sensor Access 
-	-- Done (SAD). The Sensor Controller runs off the Transmit Clock (TCK), which 
-	-- is guaranteed to start up with the assertion of SAI and continues until both 
-	-- SAI and SAD are un-asserted. The Sensor Controller uses the Sensor Interface to 
-	-- perform each exchange of eight serial bits with one of the sensors. A sixteen-
-	-- bit data read, for example, consists of an eight-bit register address write
-	-- followed by two byte reads. The Sensor Controller uses the Sensor Interface to 
-	-- perform byte writes and reads. The CPU instructs the Sensor Controller
-	-- by writing to mmu_scr, the Sensor Control Register. Any write to this register 
-	-- sets SAI true for one CPU write cycle, which starts the Sensor Controller. The
-	-- CPU must write the address of the register it wishes to access to the mmu_sar
-	-- address. On single-byte accesses, it writes the byte to mmu_slb. On sixteen-bit
-	-- accesses, it write the most significant byte to mmu_shb and the other to mmu_slb.
-	-- If the byte ordering in the sensor is little-endian, the Sensor Controller will
-	-- write the mmu_slb byte first. When the CPU writes to mmu_scr, it also specifies
-	-- SAWR, and SA16. The SA16 flag selects sixteen-bit access, and SAWR selects
-	-- a write cycle.
-	Sensor_Controller : process (TCK,RESET) is
+	-- Done (SAD). The Sensor Controller runs off the Pressure Sensor Clock (PSCK), 
+	-- which turns on when the CPU enables the transmit clock. The Sensor Controller 
+	-- uses the Sensor Interface to perform each exchange of eight serial bits with 
+	-- one of the sensors. A sixteen-bit data read, for example, consists of an 
+	-- eight-bit register address write followed by two byte reads. The Sensor Controller 
+	-- uses the Sensor Interface to perform byte writes and reads. The CPU instructs 
+	-- the Sensor Controller by writing to mmu_scr, the Sensor Control Register. Any 
+	-- write to this register sets SAI true for one CPU write cycle, which starts the 
+	-- Sensor Controller. The CPU must write the address of the register it wishes to 
+	-- access to the mmu_sar address. On single-byte accesses, it writes the byte to 
+	-- mmu_slb. On sixteen-bit accesses, it write the most significant byte to mmu_shb 
+	-- and the other to mmu_slb. If the byte ordering in the sensor is little-endian, 
+	-- the Sensor Controller will write the mmu_slb byte first. When the CPU writes to 
+	-- mmu_scr, it also specifies SAWR, and SA16. The SA16 flag selects sixteen-bit 
+	-- access, and SAWR selects a write cycle.
+	Sensor_Controller : process (PSCK,RESET) is
 		variable state, next_state : integer range 0 to 15 := 0;
 		constant idle : integer := 0;
 		constant write_addr : integer := 1;
@@ -546,7 +559,7 @@ begin
 		-- are designed so that reading one byte of a sixteen-bit data value causes the
 		-- other byte to remain fixed until it too is read, or until the chip select line
 		-- is unasserted.
-		elsif rising_edge(TCK) then
+		elsif rising_edge(PSCK) then
 			next_state := state;
 			
 			case state is
@@ -666,7 +679,7 @@ begin
 	-- access is begun by Sensor Byte Access Initiate (SBAI) and terminated with Sensor Byte 
 	-- Access Done (SBAD). The Sensor Interface remains in its done state until it sees SBAI 
 	-- unasserted.
-	Sensor_Interface : process (TCK,FCK) is
+	Sensor_Interface : process (PSCK) is
 		constant num_bits : integer := 8;
 		constant start_SCL : integer := 3;
 		constant end_SCL : integer := start_SCL + num_bits - 1;
@@ -683,7 +696,7 @@ begin
 		
 		-- We use the Transmit Clock (TCK), which runs at 5 MHz, to drive the byte
 		-- exchange. With fourteen states, the exchange takes 2.8 us.
-		elsif rising_edge(TCK) then
+		elsif rising_edge(PSCK) then
 			if (state < all_done) then 
 				state := state + 1;
 			else 
@@ -725,7 +738,7 @@ begin
 		end if;
 		
 		-- On a read cycle, we detect the value of SDA on the faling edges of TCK.
-		if falling_edge(TCK) then
+		if falling_edge(PSCK) then
 			if (not SBAW) then 
 				if (state = start_SCL + 0) then sensor_bits_in(7) <= SDA; end if;
 				if (state = start_SCL + 1) then sensor_bits_in(6) <= SDA; end if;
@@ -738,18 +751,6 @@ begin
 			end if;
 		end if;
 		
-		-- SCLS is Serial Clock Source, from which we obtain the serial clock output.
-		-- This clock synchronizes the sensors readout.
-		if (not SBAI) then
-			SCLS <= false;
-		elsif falling_edge(FCK) then 			
-			if (state >= start_SCL) and (state <= end_SCL) then
-				SCLS <= not SCLS;
-			else
-				SCLS <= true;
-			end if;
-		end if;
-
 		-- Disable SDA and SCL until we get this state machine converted to I2C.
 		SDA <= '1';
 		SCL <= '1';
@@ -894,10 +895,10 @@ begin
 	end process;
 		
 -- Sensor Address Zero we hold LO to indicate that the sensor address is 1011101b.
-	SA0 <= df_reg(1);
+	SA0 <= '0';
 		
--- Test Point One 
-	TP1 <= RCK;
+-- Test Point One appears on P3-1 after the programming connector has been removed. 
+	TP1 <= df_reg(1);
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
 	TP2 <= to_std_logic(FHI);
