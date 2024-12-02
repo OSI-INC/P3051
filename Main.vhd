@@ -14,14 +14,14 @@ entity main is
 		RCK, -- Reference Clock
 		IDY -- Interrupt/Data Ready
 		: in std_logic; 
+		SCL, -- Serial Clock Output
+		SDA -- Serial Data Access	
+		: inout std_logic;
 		XEN, -- Transmit Enable, for data transmission
 		TP1, -- Test Point One, available on P3-1
 		TP2, -- Test Point Two, available on P3-2
-		SA0,  -- LSB of sensor address
-		SCL  -- Serial Clock Output
+		SA0  -- LSB of sensor address
 		: out std_logic;
-		SDA -- Serial Data Access	
-		: inout std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
 		
@@ -41,10 +41,8 @@ entity main is
 	constant ctrl_range : integer := 1;	
 
 -- Control space locations, offset from control space base address.
-	constant mmu_shb  : integer := 16#00#; -- Sensor Data HI Byte 
-	constant mmu_slb  : integer := 16#01#; -- Sensor Data LO Byte
-	constant mmu_sar  : integer := 16#02#; -- Sensor Address Register
-	constant mmu_scr  : integer := 16#04#; -- Sensor Control Register
+	constant mmu_sda  : integer := 16#00#; -- Sensor Data Access 
+	constant mmu_scl  : integer := 16#01#; -- Sensor Clock
 	constant mmu_sr   : integer := 16#05#; -- Status Register
 	constant mmu_irqb : integer := 16#10#; -- Interrupt Request Bits
 	constant mmu_imsk : integer := 16#12#; -- Interrupt Mask Bits
@@ -76,9 +74,9 @@ architecture behavior of main is
 	signal SWRST : boolean := false;
 	
 -- Clock Generation
-	signal TCK, FCK, CK, PSCK : std_logic;
-	attribute syn_keep of TCK, FCK, CK, PSCK : signal is true;
-	attribute nomerge of TCK, FCK, CK, PSCK : signal is "";  
+	signal TCK, FCK, CK : std_logic;
+	attribute syn_keep of TCK, FCK, CK : signal is true;
+	attribute nomerge of TCK, FCK, CK : signal is "";  
 
 -- Sensor Readout
 	signal CSA, CSG : boolean;
@@ -96,35 +94,6 @@ architecture behavior of main is
 	signal tx_channel : integer range 0 to 255 := 1; -- Transmit channel number
 	signal frequency_low : integer range 0 to 31 := 6; -- Low frequency for transmission
 	constant frequency_step : integer := 1; -- High minus low frequency
-		
--- Sensor Interface
-	signal SBAI, -- Sensor Byte Access Initiate 
-		SBAD, -- Sensor Byte Access Done
-		SBAW, -- Sensor Byte Access Write
-		SBAC, -- Sensor Access Continue
-		SCLE -- Serial Clock Early
-		: boolean := false;
-	attribute syn_keep of SBAI, SBAD, SCLE : signal is true;
-	attribute nomerge of SBAI, SBAD, SCLE : signal is "";  
-	signal sensor_bits_out, -- Eight bits that we will transmit to a sensor.
-		sensor_bits_in -- Eight bits that we will receive from a sensor.
-		: std_logic_vector(7 downto 0) := (others => '0');
-
--- Sensor Controller
-	signal SCLS, -- Serial Clock Source
-		SAI, -- Sensor Access Initiate 
-		SAA, -- Sensor Access Active
-		SAD, -- Sensor Access Done
-		SAWR, -- Sensor Write
-		SA16 -- Sensor Access Sixteen Bits
-		: boolean := false;
-	attribute syn_keep of SAI, SAA, SAD : signal is true;
-	attribute nomerge of SAI, SAA, SAD : signal is "";  
-	signal sensor_addr -- Eight bit address for sensor, will use only first seven.
-		: std_logic_vector(7 downto 0) := (others => '0');
-	signal sensor_data_in, -- Data bits we read from a sensor.
-		sensor_data_out -- Data bits we want to write to a sensor.
-		: std_logic_vector(15 downto 0) := (others => '0');
 		
 -- Clock Calibrator
 	signal ENTCK : boolean; -- Enable the Transmit Clock
@@ -215,28 +184,22 @@ begin
 -- Enable Transmit Clock (ENTCK). The transmit clock must be running during a
 -- sample transmission in order for the timing of the transmission to be correct.
 -- The transmit clock should be turned on during a sensor access as well, so that
--- the sensor access will be quick and the sensor can power down again sooner.
+-- the sensor access will be quick and the sensor can power down again sooner. The
+-- ring oscillator will produce FCK at 10 MHz.
 	Fast_CK : entity ring_oscillator port map (
 		ENABLE => to_std_logic(ENTCK), 
 		calib => tck_divisor,
 		CK => FCK);
 	
 -- The Clock Generator derives clocks from FCK. We obtain TCK by dividing FCK in two, 
--- so as to obtain a symmetric 5 MHz. We obtain PSCK by dividing FCK by twenty, so as
--- to obtain a symmetric 500 kHz to read out the pressure sensor. We clock TCK on the 
--- falling edge of FCK so as to support our use of FCK in the Frequency Modulator.
+-- so as to obtain a symmetric 5 MHz. The CPU clock is called CK, and this CK will be
+-- set to RCK, the 32.768-kHz reference clock, or to TCK, the 5-MHz transmit clock, 
+-- as directed by the ENTCK flag. We clock TCK on the falling edge of FCK so as to 
+-- support our use of FCK for frequency modulation in the Frequency Modulator.
 	Clock_Generator : process (FCK) is 
 		variable count : integer range 0 to 31 := 0;
 	begin
 		if falling_edge(FCK) then TCK <= to_std_logic(TCK = '0'); end if;
-		if falling_edge(FCK) then
-			if (count = 19) then 
-				count := 0;
-			else
-				count := count + 1;
-			end if;
-			PSCK <= to_std_logic(count < 10); 
-		end if;
 	end process;
 
 -- User memory and configuration code for the CPU. This RAM will be initialized at
@@ -317,14 +280,12 @@ begin
 		when ctrl_base to (ctrl_base+ctrl_range-1) =>
 			if not CPUWR then 
 				case bottom_bits is
-				when mmu_shb => cpu_data_in <= sensor_data_in(15 downto 8);
-				when mmu_slb => cpu_data_in <= sensor_data_in(7 downto 0);
 				when mmu_sr => 
-					cpu_data_in(0) <= IDY;                  -- Interrupt/Data Ready
-					cpu_data_in(1) <= to_std_logic(ENTCK);  -- Transmit Clock Enabled
-					cpu_data_in(2) <= to_std_logic(SAA);    -- Sensor Access Active Flag
-					cpu_data_in(3) <= to_std_logic(TXA);    -- Transmit Active Flag
-					cpu_data_in(5) <= to_std_logic(BOOST);  -- Boost CPU Flag
+					cpu_data_in(0) <= SDA; -- Sensor Data Access
+					cpu_data_in(1) <= IDY; -- Sensor Interrupt Data Reacy
+					cpu_data_in(2) <= SCL; -- Sensor Clock
+					cpu_data_in(3) <= to_std_logic(ENTCK);  -- Transmit Clock Enabled
+					cpu_data_in(4) <= to_std_logic(BOOST); -- CPU Boost Enabled
 				when mmu_irqb => cpu_data_in <= int_bits;
 				when mmu_imsk => cpu_data_in <= int_mask;
 				when mmu_itp => cpu_data_in <= int_period;
@@ -343,12 +304,12 @@ begin
 		-- CK period. After a reset, the cpu address will not select the SWRST location, so
 		-- SWRST will be cleared on the next falling edge of CK.
 		if (RESET = '1') then
-			SAI <= false;
+			SDA <= 'Z';
+			SCL <= '1';
 			TXI <= false;
 			ENTCK <= false;
 			BOOST <= false;
 			tck_divisor <= default_tck_divisor;
-			tx_channel <= 0;
 			int_period <= (others => '0');
 			int_mask <= (others => '0');
 		-- We use the falling edge of RCK to write to registers and to initiate sensor 
@@ -356,7 +317,6 @@ begin
 		-- these we assert as false by default.
 		elsif falling_edge(CK) then
 			SWRST <= false;
-			SAI <= false;
 			TXI <= false;
 			int_rst <= (others => '0');
 			int_set <= (others => '0');
@@ -364,13 +324,18 @@ begin
 				if (top_bits >= ctrl_base) 
 						and (top_bits <= ctrl_base+ctrl_range-1) then
 					case bottom_bits is
-					when mmu_shb => sensor_data_out(15 downto 8) <= cpu_data_out;
-					when mmu_slb => sensor_data_out(7 downto 0) <= cpu_data_out;
-					when mmu_sar => sensor_addr(7 downto 0) <= cpu_data_out;
-					when mmu_scr => 
-						SAI <= true;
-						SAWR <= (cpu_data_out(1) = '1');
-						SA16 <= (cpu_data_out(2) = '1');
+					when mmu_sda => 
+						case cpu_data_out(1 downto 0) is
+							when "00" => SDA <= '0';
+							when "01" => SDA <= '1';
+							when others => SDA <= 'Z';
+						end case;
+					when mmu_scl => 
+						case cpu_data_out(1 downto 0) is
+							when "00" => SCL <= '0';
+							when "01" => SCL <= '1';
+							when others => SCL <= 'Z';
+						end case;
 					when mmu_xlb => xmit_bits(7 downto 0) <= cpu_data_out;
 					when mmu_xhb => xmit_bits(15 downto 8) <= cpu_data_out;
 					when mmu_xcn => tx_channel <= to_integer(unsigned(cpu_data_out));
@@ -508,252 +473,6 @@ begin
 			-- set and unmasked.
 			CPUIRQ <= (int_bits and int_mask) /= "00000000";
 		end if;
-	end process;
-
-	-- The Sensor Controller receives instructions from the CPU through the signals
-	-- Sensor Access Write (SAWR), Sensor Access Initiate (SAI), and Sensor Access 
-	-- Sixteen Bits (SA16). When it is done with its task, it asserts Sensor Access 
-	-- Done (SAD). The Sensor Controller runs off the Pressure Sensor Clock (PSCK), 
-	-- which turns on when the CPU enables the transmit clock. The Sensor Controller 
-	-- uses the Sensor Interface to perform each exchange of eight serial bits with 
-	-- one of the sensors. A sixteen-bit data read, for example, consists of an 
-	-- eight-bit register address write followed by two byte reads. The Sensor Controller 
-	-- uses the Sensor Interface to perform byte writes and reads. The CPU instructs 
-	-- the Sensor Controller by writing to mmu_scr, the Sensor Control Register. Any 
-	-- write to this register sets SAI true for one CPU write cycle, which starts the 
-	-- Sensor Controller. The CPU must write the address of the register it wishes to 
-	-- access to the mmu_sar address. On single-byte accesses, it writes the byte to 
-	-- mmu_slb. On sixteen-bit accesses, it write the most significant byte to mmu_shb 
-	-- and the other to mmu_slb. If the byte ordering in the sensor is little-endian, 
-	-- the Sensor Controller will write the mmu_slb byte first. When the CPU writes to 
-	-- mmu_scr, it also specifies SAWR, and SA16. The SA16 flag selects sixteen-bit 
-	-- access, and SAWR selects a write cycle.
-	Sensor_Controller : process (PSCK,RESET) is
-		variable state, next_state : integer range 0 to 15 := 0;
-		constant idle : integer := 0;
-		constant write_addr : integer := 1;
-		constant prep_b1 : integer := 2;
-		constant write_b1 : integer := 3;
-		constant read_b1 : integer := 4;
-		constant prep_d : integer := 5;
-		constant read_d : integer := 6;
-		constant prep_b2 : integer := 7;
-		constant write_b2 : integer := 8;
-		constant read_b2 : integer := 9;
-		constant all_done : integer := 15;
-		
- 	begin
-		-- Upon startup, we make sure we are in the idle state and we are not
-		-- requesting a byte access by the Sensor Interface.
-		if (RESET = '1') then 
-			state := idle;
-			SBAI <= false;
-			SBAC <= false;
-			SAA <= false;
-			SAD <= false;
-			
-		-- The Sensor Contoller proceeds through states so as to manage single and
-		-- double-bytes reads and writes to and from either sensor. Double-byte reads 
-		-- will be performed by an address write followed by two single-byte reads, with
-		-- the chip select line being asserted throughout the three cycles. The sensors
-		-- are designed so that reading one byte of a sixteen-bit data value causes the
-		-- other byte to remain fixed until it too is read, or until the chip select line
-		-- is unasserted.
-		elsif rising_edge(PSCK) then
-			next_state := state;
-			
-			case state is
-				when idle => 
-					SBAI <= false;
-					if SAI then 
-						next_state := write_addr;
-					end if;
-					
-				when write_addr =>
-					SBAI <= true;
-					SBAC <= true;
-					SBAW <= true;
-					sensor_bits_out(6 downto 0) <= sensor_addr(6 downto 0);
-					sensor_bits_out(7) <= to_std_logic(not SAWR);
-					if SBAD then 
-						if (not SAWR) then
-							next_state := prep_d; 
-						else
-							next_state := prep_b1;
-						end if;
-					end if;
-					
-				when prep_d =>
-					SBAI <= false;
-					next_state := read_d;
-					
-				when read_d =>
-					SBAI <= true;
-					SBAW <= false;
-					if SBAD then 
-						next_state := prep_b1;
-					end if;
-					
-				when prep_b1 =>
-					SBAI <= false;
-					if SAWR then 
-						next_state := write_b1;
-					else
-						next_state := read_b1;
-					end if;
-				
-				when write_b1 =>
-					SBAI <= true;
-					SBAC <= SA16;
-					SBAW <= true;
-					sensor_bits_out <= sensor_data_out(7 downto 0);
-					if SBAD then 
-						if SA16 then 
-							next_state := prep_b2;
-						else
-							next_state := all_done;
-						end if;
-					end if;
-
-				when read_b1 =>
-					SBAI <= true;
-					SBAC <= SA16;
-					SBAW <= false;
-					if SBAD then 
-						sensor_data_in(7 downto 0) <= sensor_bits_in;
-						if SA16 then 
-							next_state := prep_b2;
-						else
-							next_state := all_done;
-						end if;
-					end if;
-
-				when prep_b2 =>
-					SBAI <= false;
-					if SAWR then 
-						next_state := write_b2;
-					else
-						next_state := read_b2;
-					end if;
-				
-				when write_b2 =>
-					SBAI <= true;
-					SBAC <= false;
-					SBAW <= true;
-					sensor_bits_out <= sensor_data_out(15 downto 8);
-					if SBAD then 
-						next_state := all_done;
-					end if;
-
-				when read_b2 =>
-					SBAI <= true;
-					SBAC <= false;
-					SBAW <= false;
-					if SBAD then 
-						sensor_data_in(15 downto 8) <= sensor_bits_in;
-						next_state := all_done;
-					end if;
-
-				when all_done =>
-					SBAI <= false;
-					SAD <= true;
-					if not SAI then 
-						next_state := idle;
-					end if;
-					
-				when others => 
-					next_state := idle;
-			end case;
-			SAD <= (state = all_done);
-			SAA <= (state /= idle) and (state /= all_done);
-			state := next_state;
-		end if;
-	end process;
-	
-	-- The Sensor Interface reads or writes eight bits at a time to and from the sensro.
-	-- When Sensor Byte Access Write (SBAW) is asserted, the contents of sensor_bits_out are 
-	-- transmitted on SDA, most significant bit first. Otherwise, the SDA signal is loaded 
-	-- into sensor_bits_in, most significant bit first. When SBAC is asserted, we continue 
-	-- to assert the sensor chip select after the end of the access, which permits us to 
-	-- continue a multi-byte access with another Sensor interface read or write cycle. The 
-	-- access is begun by Sensor Byte Access Initiate (SBAI) and terminated with Sensor Byte 
-	-- Access Done (SBAD). The Sensor Interface remains in its done state until it sees SBAI 
-	-- unasserted.
-	Sensor_Interface : process (PSCK) is
-		constant num_bits : integer := 8;
-		constant start_SCL : integer := 3;
-		constant end_SCL : integer := start_SCL + num_bits - 1;
-		constant all_done : integer := end_SCL + 3;
-		variable state : integer range 0 to 63 := 0;
-				
-	begin
-		-- We use SBAI as asynchronous reset for the state variable and the done
-		-- flag, which makes sure that SBAD clears as soon as the Sensor Controller
-		-- unasserts SBAI.
-		if (not SBAI) then
-			state := 0;
-			SBAD <= false;
-		
-		-- We use the Transmit Clock (TCK), which runs at 5 MHz, to drive the byte
-		-- exchange. With fourteen states, the exchange takes 2.8 us.
-		elsif rising_edge(PSCK) then
-			if (state < all_done) then 
-				state := state + 1;
-			else 
-				state := all_done; 
-			end if;
-			
-			-- We assert the sensor chip select (CSG or CSA) just before the first 
-			-- falling edge of SCL. The Serial Byte Access Continue (SBAC) flag determines 
-			-- whether or not we unassert the chip select after the last rising edge 
-			-- of the byte transfer. If chip select happens to be asserted when we 
-			-- start up our Sensor Interface, we leave it asserted, because the 
-			-- current byte exchange is a continuation of an on-going exchange, as 
-			-- controlled by SBAC.
-			if (state = start_SCL - 1) then
-				CSA <= true;
-			elsif (state = all_done) then
-				if not SBAC then 
-					CSA <= false;
-				end if;
-			end if;
-				
-			-- On a write cycle, we assert the sensor output bits one after another
-			-- on the rising edges of TCK.
-			if SBAW then
-				SDA <= to_std_logic(
-					((state = start_SCL + 0) and (sensor_bits_out(7) = '1'))
-					or ((state = start_SCL + 1) and (sensor_bits_out(6) = '1'))
-					or ((state = start_SCL + 2) and (sensor_bits_out(5) = '1'))
-					or ((state = start_SCL + 3) and (sensor_bits_out(4) = '1'))
-					or ((state = start_SCL + 4) and (sensor_bits_out(3) = '1'))
-					or ((state = start_SCL + 5) and (sensor_bits_out(2) = '1'))
-					or ((state = start_SCL + 6) and (sensor_bits_out(1) = '1'))
-					or ((state = start_SCL + 7) and (sensor_bits_out(0) = '1'))
-				); 
-			end if;
-				
-			-- SBAD indicates to other processes that the sensor access is complete.
-			SBAD <= (state = all_done);			
-		end if;
-		
-		-- On a read cycle, we detect the value of SDA on the faling edges of TCK.
-		if falling_edge(PSCK) then
-			if (not SBAW) then 
-				if (state = start_SCL + 0) then sensor_bits_in(7) <= SDA; end if;
-				if (state = start_SCL + 1) then sensor_bits_in(6) <= SDA; end if;
-				if (state = start_SCL + 2) then sensor_bits_in(5) <= SDA; end if;
-				if (state = start_SCL + 3) then sensor_bits_in(4) <= SDA; end if;
-				if (state = start_SCL + 4) then sensor_bits_in(3) <= SDA; end if;
-				if (state = start_SCL + 5) then sensor_bits_in(2) <= SDA; end if;
-				if (state = start_SCL + 6) then sensor_bits_in(1) <= SDA; end if;
-				if (state = start_SCL + 7) then sensor_bits_in(0) <= SDA; end if;	
-			end if;
-		end if;
-		
-		-- Disable SDA and SCL until we get this state machine converted to I2C.
-		SDA <= '1';
-		SCL <= '1';
 	end process;
 	
 -- The Sample Transmitter responds to Transmit Initiate (TXI) by turning on the 

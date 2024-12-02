@@ -5,7 +5,7 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        51  ; Will be used as the first channel number.
+const device_id        52  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Boundary Constants
@@ -14,10 +14,8 @@ const mmu_ctrl 0x0600 ; Base of Control Space
 const mmu_sba  0x0300 ; Stack Base Address
 
 ; Address Map Constants
-const mmu_shb  0x0600 ; Sensor Data HI Byte 
-const mmu_slb  0x0601 ; Sensor Data LO Byte
-const mmu_sar  0x0602 ; Sensor Address Register
-const mmu_scr  0x0604 ; Sensor Control Register
+const mmu_sda  0x0600 ; Sensor Data Access
+const mmu_scl  0x0601 ; Sensor Clock
 const mmu_sr   0x0605 ; Status Register
 const mmu_irqb 0x0610 ; Interrupt Request Bits
 const mmu_imsk 0x0612 ; Interrupt Mask Bits
@@ -41,19 +39,20 @@ const mmu_dfr  0x0638 ; Diagnostic Flag Resister
 const min_tcf       75  ; Minimum TCK periods per half RCK period.
 const max_tcd       31  ; Maximum possible value of transmit clock divisor.
 
-; Timing consstants.
+; Timing constants.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
 const sa_delay      70  ; Wait time for sensor access, TCK periods.
 const boot_delay    10  ; Boot delay, multiples of 7.8 ms.
 
-; Sensor interface commands.
-const sensor_rd16   0x04 ; Read Sixteen-Bit Word from Sensor
-const sensor_wr16   0x06 ; Write Sixteen-Bit Word to Sensor
-const sensor_rd8    0x00 ; Read Eight-Bit Byte from Sensor
-const sensor_wr8    0x02 ; Write Eight-Bit Byte to Sensor
+; Sensor Bit Masks
+const sda_mask     0x01 ; Sensor Data Access (SDA) in status register.
+const idy_mask     0x02 ; Interrupt Data Ready (IDY) in status register.
+const scl_mask     0x04 ; Sensor Clock (SCL) in status register.
 
-; Math constants.
-const off_16bs      0x80 ; Convert sixteen bit signed to unsigned.
+; Variables
+const xmit_hi    0x0000 ;
+const xmit_lo    0x0001 ;
+
 
 ; ------------------------------------------------------------
 
@@ -84,36 +83,6 @@ sensor_init:
 push F
 push A  
 
-; We load a sensor register address into A, then write to the 
-; sensor interface.
-ld A,0x00
-ld (mmu_sar),A 
-
-; We load into A the data byte that we want to write to the sensor
-; register, then we write the byte to the sensor interface LO byte.
-ld A,0xAA   
-ld (mmu_slb),A 
-
-; Load A with the sensor write byte command and write to the sensor
-; control register. 
-ld A,sensor_wr8	 
-ld (mmu_scr),A 
-
-; Load another sensor register address into A, then write to the 
-; sensor interface.
-ld A,0x01
-ld (mmu_sar),A 
-
-; We load into A the data byte that we want to write to the sensor
-; register, then we write the byte to the sensor interface LO byte.
-ld A,0xBB   
-ld (mmu_slb),A 
-
-; Load A with the sensor write byte command and write to the sensor
-; control register. 
-ld A,sensor_wr8	 
-ld (mmu_scr),A 
-
 ; Restore the accumulator and flags register before returning.
 pop A            
 pop F 
@@ -139,29 +108,36 @@ push F
 ; the zero bit.
 ld A,(mmu_dfr)     
 or A,0x01          
-ld (mmu_dfr),A     
+ld (mmu_dfr),A  
 
-; Initiate a sixteen-bit sensor read from address zero. 
-ld A,0x00        
-ld (mmu_sar),A 
-ld A,sensor_rd16 
-ld (mmu_scr),A 
+ld A,1
+ld (mmu_sda),A
+ld (mmu_scl),A
+ld A,10
+dly A
+ld A,0
+ld (mmu_sda),A
+ld A,5
+ld A,0
+ld (mmu_scl),A
+ld A,10
+dly A
+ld A,1
+ld (mmu_scl),A
+ld A,5
+dly A
+ld A,1
+ld (mmu_sda),A
 
-; Wait for the read to complete.
-ld A,sa_delay    
-dly A            
-
-; Load the HI byte into A and offset to make the most negative output
-; value zero. We are tranmitting positive values only. We write the
-; offset HI byte to the HI byte of the our transmitter.
-ld A,(mmu_shb)  
-add A,off_16bs   
-ld (mmu_xhb),A   
-
-; Read the LO byte and write to the transmitter.
-ld A,(mmu_slb) 
-ld (mmu_xlb),A 
-
+ld A,(xmit_lo)
+add A,7
+ld (xmit_lo),A
+ld (mmu_xlb),A
+ld A,(xmit_hi)
+adc A,0
+ld (xmit_hi),A
+ld (mmu_xhb),A
+          
 ; Write the device identifier to the transmit channel number register.
 ld A,device_id   
 ld (mmu_xcn),A 
@@ -290,6 +266,10 @@ ld (mmu_xfc),A
 
 ; Initialize the sensor.
 call sensor_init
+
+ld A,0
+ld (xmit_hi),A
+ld (xmit_lo),A
 
 ; Set interrupt timer interval and enable the timer interrupt to implement
 ; the sample period. The value we want to load into the interrup timer period 
