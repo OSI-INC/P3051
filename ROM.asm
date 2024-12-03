@@ -5,7 +5,7 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        52  ; Will be used as the first channel number.
+const device_id        54  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Boundary Constants
@@ -14,26 +14,33 @@ const mmu_ctrl 0x0600 ; Base of Control Space
 const mmu_sba  0x0300 ; Stack Base Address
 
 ; Address Map Constants
-const mmu_sda  0x0600 ; Sensor Data Access
-const mmu_scl  0x0601 ; Sensor Clock
-const mmu_sr   0x0605 ; Status Register
-const mmu_irqb 0x0610 ; Interrupt Request Bits
-const mmu_imsk 0x0612 ; Interrupt Mask Bits
-const mmu_irst 0x0614 ; Interrupt Reset Bits
-const mmu_itp  0x0618 ; Interrupt Timer Period 
-const mmu_rst  0x0619 ; System Reset
-const mmu_sph  0x061B ; Initial Stack Pointer HI Byte
-const mmu_spl  0x061C ; Initial Stack Pointer LO Byte
-const mmu_xhb  0x0620 ; Transmit HI Byte
-const mmu_xlb  0x0621 ; Transmit LO Byte
-const mmu_xcn  0x0622 ; Transmit Channel Number
-const mmu_xcr  0x0624 ; Transmit Control Register
-const mmu_xfc  0x0626 ; Transmit Frequency Calibration
-const mmu_etc  0x0630 ; Enable Transmit Clock
-const mmu_tcf  0x0632 ; Transmit Clock Frequency
-const mmu_tcd  0x0634 ; Transmit Clock Divider
-const mmu_bcc  0x0636 ; Boost CPU Clock
-const mmu_dfr  0x0638 ; Diagnostic Flag Resister
+const mmu_i2c00 0x0600 ; i2c SDA=0 SCL=0
+const mmu_i2c01 0x0601 ; i2c SDA=0 SCL=1 
+const mmu_i2c10 0x0602 ; i2c SDA=1 SCL=0
+const mmu_i2c11 0x0603 ; i2c SDA=1 SCL=1 
+const mmu_i2cA0 0x0604 ; i2c SDA=A SCL=0
+const mmu_i2cA1 0x0605 ; i2c SDA=A SCL=1 
+const mmu_i2cZ0 0x0606 ; i2c SDA=Z SCL=0
+const mmu_i2cZ1 0x0607 ; i2c SDA=Z SCL=1 
+const mmu_i2crd 0x0608 ; i2c serial byte
+const mmu_sr    0x060F ; Status Register
+const mmu_irqb  0x0610 ; Interrupt Request Bits
+const mmu_imsk  0x0612 ; Interrupt Mask Bits
+const mmu_irst  0x0614 ; Interrupt Reset Bits
+const mmu_itp   0x0618 ; Interrupt Timer Period 
+const mmu_rst   0x0619 ; System Reset
+const mmu_sph   0x061B ; Initial Stack Pointer HI Byte
+const mmu_spl   0x061C ; Initial Stack Pointer LO Byte
+const mmu_xhb   0x0620 ; Transmit HI Byte
+const mmu_xlb   0x0621 ; Transmit LO Byte
+const mmu_xcn   0x0622 ; Transmit Channel Number
+const mmu_xcr   0x0624 ; Transmit Control Register
+const mmu_xfc   0x0626 ; Transmit Frequency Calibration
+const mmu_etc   0x0630 ; Enable Transmit Clock
+const mmu_tcf   0x0632 ; Transmit Clock Frequency
+const mmu_tcd   0x0634 ; Transmit Clock Divider
+const mmu_bcc   0x0636 ; Boost CPU Clock
+const mmu_dfr   0x0638 ; Diagnostic Flag Resister
 
 ; Configuration Constants
 const min_tcf       75  ; Minimum TCK periods per half RCK period.
@@ -63,93 +70,6 @@ start:
 jp initialize
 jp interrupt
             
-; ------------------------------------------------------------
-; i2c_ST generates a start token on SDA and SCL. It assumes that
-; the SDA and SCL lines are both HI before it executes.
-i2c_ST:
-push A
-
-ld A,0
-ld (mmu_sda),A
-ld (mmu_scl),A
-
-pop A
-ret
-
-; ------------------------------------------------------------
-; i2c_SP generates a stop token on SDA and SCL. It assumes SCL is
-; LO before it executes, but does not assume SDA is LO.
-i2c_SP:
-push A
-
-ld A,0
-ld (mmu_sda),A
-ld A,1
-ld (mmu_scl),A
-ld (mmu_sda),A
-
-pop A
-ret
-
-; ------------------------------------------------------------
-; i2c_RS generates a repeat-start token on SDA and SCL. It assumes
-; SCL is LO before it executes, but does not assume SDA is HI.
-i2c_RS:
-push A
-
-ld A,1
-ld (mmu_sda),A
-ld A,1
-ld (mmu_scl),A
-ld A,0
-ld (mmu_sda),A
-
-pop A
-ret
-
-; ------------------------------------------------------------
-; i2c_WR writes a bit to the bus by driving SDA and generating 
-; an SCL pulse. It assumes that SCL is LO before execution. The
-; bit to be transmitted is the zero bit in A.
-i2c_WR:
-
-push F
-push A
-
-and A,0x01
-ld (mmu_sda),A
-ld A,1
-ld (mmu_scl),A
-ld A,0
-ld (mmu_scl),A
-
-pop A
-pop F
-ret
-
-
-
-; ------------------------------------------------------------
-; i2c_RD reads a bit from the bus by generating an SCL pulse.
-; It returns the state of the bit in the Z flag. It assumes
-; SCL is LO before execution. It starts by putting SDA into high-Z.
-i2c_RD:
-
-push A
-
-ld A,0x03
-ld (mmu_sda),A
-ld A,1
-ld (mmu_scl),A
-ld A,(mmu_sr)
-and A,0x01
-ld A,0
-ld (mmu_scl),A
-
-pop A
-ret
-
-
 
 ; ------------------------------------------------------------
 ; The interrupt routine. Reads the sensor and transmits the
@@ -172,25 +92,194 @@ ld A,(mmu_dfr)
 or A,0x01          
 ld (mmu_dfr),A  
 
-; Temporary code: exercise i2c token routines.
-call i2c_ST
-ld A,0
-call i2c_WR
-ld A,1
-call i2c_WR
-ld A,0
-call i2c_WR
-ld A,1
-call i2c_WR
-ld A,0
-call i2c_WR
-ld A,1
-call i2c_WR
-ld A,0
-call i2c_WR
-ld A,1
-call i2c_WR
-call i2c_SP
+; I2C Start Code
+ld (mmu_i2c11),A  ; 3
+ld (mmu_i2c01),A  ; 3
+ld (mmu_i2c00),A  ; 3
+
+; Write seven-bit device address and a write bit.
+ld A,0xB8         ; 2
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+; Read acknowledge bit.
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+; Write eight-bit sub address.
+ld A,0x0F         ; 2
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+; Read acknowledge bit.
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+; I2C Repeat Start Code
+ld (mmu_i2c10),A  ; 3
+ld (mmu_i2c11),A  ; 3
+ld (mmu_i2c01),A  ; 3
+ld (mmu_i2c00),A  ; 3
+
+; Write seven-bit device address and a read bit.
+ld A,0xB9         ; 2
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+; Read acknowledge bit.
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+; Read eight bits of data.
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2crd),A  ; 3
+
+
+; I2C Stop code.
+ld (mmu_i2c00),A  ; 3
+ld (mmu_i2c01),A  ; 3
+ld (mmu_i2c11),A  ; 3
 
 ; Temporary code: increment a sixteen-bit counter variable
 ; and transmit.

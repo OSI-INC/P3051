@@ -41,24 +41,31 @@ entity main is
 	constant ctrl_range : integer := 1;	
 
 -- Control space locations, offset from control space base address.
-	constant mmu_sda  : integer := 16#00#; -- Sensor Data Access 
-	constant mmu_scl  : integer := 16#01#; -- Sensor Clock
-	constant mmu_sr   : integer := 16#05#; -- Status Register
-	constant mmu_irqb : integer := 16#10#; -- Interrupt Request Bits
-	constant mmu_imsk : integer := 16#12#; -- Interrupt Mask Bits
-	constant mmu_irst : integer := 16#14#; -- Interrupt Reset Bits
-	constant mmu_itp  : integer := 16#18#; -- Interrupt Timer Period 
-	constant mmu_rst  : integer := 16#19#; -- System Reset
-	constant mmu_xhb  : integer := 16#20#; -- Transmit HI Byte
-	constant mmu_xlb  : integer := 16#21#; -- Transmit LO Byte
-	constant mmu_xcn  : integer := 16#22#; -- Transmit Channel Number
-	constant mmu_xcr  : integer := 16#24#; -- Transmit Control Register
-	constant mmu_xfc  : integer := 16#26#; -- Transmit Frequency Calibration
-	constant mmu_etc  : integer := 16#30#; -- Enable Transmit Clock
-	constant mmu_tcf  : integer := 16#32#; -- Transmit Clock Frequency
-	constant mmu_tcd  : integer := 16#34#; -- Transmit Clock Divider
-	constant mmu_bcc  : integer := 16#36#; -- Boost CPU Clock
-	constant mmu_dfr  : integer := 16#38#; -- Diagnostic Flag Register
+	constant mmu_i2c00 : integer := 16#00#; -- i2c SDA=0 SCL=0 (Write)
+	constant mmu_i2c01 : integer := 16#01#; -- i2c SDA=0 SCL=1 (Write)
+	constant mmu_i2c10 : integer := 16#02#; -- i2c SDA=1 SCL=0 (Write)
+	constant mmu_i2c11 : integer := 16#03#; -- i2c SDA=1 SCL=1 (Write)
+	constant mmu_i2cA0 : integer := 16#04#; -- i2c SDA=A SCL=0 (Write)
+	constant mmu_i2cA1 : integer := 16#05#; -- i2c SDA=A SCL=1 (Write)
+	constant mmu_i2cZ0 : integer := 16#06#; -- i2c SDA=Z SCL=0 (Write)
+	constant mmu_i2cZ1 : integer := 16#07#; -- i2c SDA=Z SCL=1 (Write)
+	constant mmu_i2crd : integer := 16#08#; -- i2c read (Read/Write)
+	constant mmu_sr    : integer := 16#0F#; -- Status Register (Read)
+	constant mmu_irqb  : integer := 16#10#; -- Interrupt Request Bits (Read)
+	constant mmu_imsk  : integer := 16#12#; -- Interrupt Mask Bits (Read/Write)
+	constant mmu_irst  : integer := 16#14#; -- Interrupt Reset Bits (Write)
+	constant mmu_itp   : integer := 16#18#; -- Interrupt Timer Period (Read/Write)
+	constant mmu_rst   : integer := 16#19#; -- System Reset (Write)
+	constant mmu_xhb   : integer := 16#20#; -- Transmit HI Byte (Write)
+	constant mmu_xlb   : integer := 16#21#; -- Transmit LO Byte (Write)
+	constant mmu_xcn   : integer := 16#22#; -- Transmit Channel Number (Write)
+	constant mmu_xcr   : integer := 16#24#; -- Transmit Control Register (Write)
+	constant mmu_xfc   : integer := 16#26#; -- Transmit Frequency Calibration (Write)
+	constant mmu_etc   : integer := 16#30#; -- Enable Transmit Clock (Write)
+	constant mmu_tcf   : integer := 16#32#; -- Transmit Clock Frequency (Read)
+	constant mmu_tcd   : integer := 16#34#; -- Transmit Clock Divider (Write)
+	constant mmu_bcc   : integer := 16#36#; -- Boost CPU Clock (Write)
+	constant mmu_dfr   : integer := 16#38#; -- Diagnostic Flag Register (Read/Write)
 end;
 
 architecture behavior of main is
@@ -79,7 +86,7 @@ architecture behavior of main is
 	attribute nomerge of TCK, FCK, CK : signal is "";  
 
 -- Sensor Readout
-	signal CSA, CSG : boolean;
+	signal i2c_in : std_logic_vector(7 downto 0); -- I2C Serial Byte
 	
 -- Message Transmission.
 	signal TXI, -- Transmit Initiate
@@ -294,6 +301,7 @@ begin
 				when mmu_dfr => cpu_data_in <= df_reg;
 				-- This others statement stabilizes the code. It also has the
 				-- effect of making the non-existent register read return a zero.
+				when mmu_i2crd => cpu_data_in <= i2c_in;
 				when others => cpu_data_in <= (others => '0');
 				end case;
 			end if;
@@ -312,6 +320,7 @@ begin
 			tck_divisor <= default_tck_divisor;
 			int_period <= (others => '0');
 			int_mask <= (others => '0');
+			i2c_in <= (others => '0');
 		-- We use the falling edge of RCK to write to registers and to initiate sensor 
 		-- and transmit activity. Some signals we assert only for one CK period, and 
 		-- these we assert as false by default.
@@ -324,18 +333,35 @@ begin
 				if (top_bits >= ctrl_base) 
 						and (top_bits <= ctrl_base+ctrl_range-1) then
 					case bottom_bits is
-					when mmu_sda => 
-						case cpu_data_out(1 downto 0) is
-							when "00" => SDA <= '0';
-							when "01" => SDA <= '1';
-							when others => SDA <= 'Z';
-						end case;
-					when mmu_scl => 
-						case cpu_data_out(1 downto 0) is
-							when "00" => SCL <= '0';
-							when "01" => SCL <= '1';
-							when others => SCL <= 'Z';
-						end case;
+					when mmu_i2c00 => 
+						SDA <= '0';
+						SCL <= '0';
+					when mmu_i2c01 =>
+						SDA <= '0';
+						SCL <= '1';
+					when mmu_i2c10 => 
+						SDA <= '1';
+						SCL <= '0';
+					when mmu_i2c11 =>
+						SDA <= '1';
+						SCL <= '1';
+					when mmu_i2cA0 => 
+						SDA <= cpu_data_out(7);
+						SCL <= '0';
+					when mmu_i2cA1 =>
+						SDA <= cpu_data_out(7);
+						SCL <= '1';
+					when mmu_i2cZ0 => 
+						SDA <= 'Z';
+						SCL <= '0';
+					when mmu_i2cZ1 => 
+						SDA <= 'Z';
+						SCL <= '1';
+					when mmu_i2crd => 
+						SDA <= 'Z';
+						SCL <= '0';
+						i2c_in(7 downto 1) <= i2c_in(6 downto 0);
+						i2c_in(0) <= SDA;
 					when mmu_xlb => xmit_bits(7 downto 0) <= cpu_data_out;
 					when mmu_xhb => xmit_bits(15 downto 8) <= cpu_data_out;
 					when mmu_xcn => tx_channel <= to_integer(unsigned(cpu_data_out));
