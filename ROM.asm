@@ -62,36 +62,98 @@ const xmit_lo    0x0001 ;
 start: 
 jp initialize
 jp interrupt
+            
+; ------------------------------------------------------------
+; i2c_ST generates a start token on SDA and SCL. It assumes that
+; the SDA and SCL lines are both HI before it executes.
+i2c_ST:
+push A
+
+ld A,0
+ld (mmu_sda),A
+ld (mmu_scl),A
+
+pop A
+ret
+
+; ------------------------------------------------------------
+; i2c_SP generates a stop token on SDA and SCL. It assumes SCL is
+; LO before it executes, but does not assume SDA is LO.
+i2c_SP:
+push A
+
+ld A,0
+ld (mmu_sda),A
+ld A,1
+ld (mmu_scl),A
+ld (mmu_sda),A
+
+pop A
+ret
+
+; ------------------------------------------------------------
+; i2c_RS generates a repeat-start token on SDA and SCL. It assumes
+; SCL is LO before it executes, but does not assume SDA is HI.
+i2c_RS:
+push A
+
+ld A,1
+ld (mmu_sda),A
+ld A,1
+ld (mmu_scl),A
+ld A,0
+ld (mmu_sda),A
+
+pop A
+ret
+
+; ------------------------------------------------------------
+; i2c_WR writes a bit to the bus by driving SDA and generating 
+; an SCL pulse. It assumes that SCL is LO before execution. The
+; bit to be transmitted is the zero bit in A.
+i2c_WR:
+
+push F
+push A
+
+and A,0x01
+ld (mmu_sda),A
+ld A,1
+ld (mmu_scl),A
+ld A,0
+ld (mmu_scl),A
+
+pop A
+pop F
+ret
+
 
 
 ; ------------------------------------------------------------
-; Prototype sensor initialization routine, showing how to load
-; the sensor interface address, HI and LO data bytes, and then
-; initiate the exchange with a write to the sensor control 
-; register. The sensor interface supports both single and double-
-; byte reads and writes, so we have four commands that we can
-; write to the control register. The routine assumes that the 
-; CPU is running in non-boost, so its clock period is 30 us.
-; A serial access begun in one CPU operation will be complete
-; before the next CPU operation.
+; i2c_RD reads a bit from the bus by generating an SCL pulse.
+; It returns the state of the bit in the Z flag. It assumes
+; SCL is LO before execution. It starts by putting SDA into high-Z.
+i2c_RD:
 
-sensor_init:
+push A
 
-; Push the two registers we are going to use onto the stack. We'll
-; pop them off later to recover them, just before we return from
-; this subroutine.
-push F
-push A  
+ld A,0x03
+ld (mmu_sda),A
+ld A,1
+ld (mmu_scl),A
+ld A,(mmu_sr)
+and A,0x01
+ld A,0
+ld (mmu_scl),A
 
-; Restore the accumulator and flags register before returning.
-pop A            
-pop F 
-ret               
+pop A
+ret
+
+
 
 ; ------------------------------------------------------------
 ; The interrupt routine. Reads the sensor and transmits the
 ; measurement with the sample transmitter.
-
 interrupt:
 
 ; Save A on the stack, set bit zero to one, use to enable
@@ -110,25 +172,28 @@ ld A,(mmu_dfr)
 or A,0x01          
 ld (mmu_dfr),A  
 
-ld A,1
-ld (mmu_sda),A
-ld (mmu_scl),A
-ld A,10
-dly A
+; Temporary code: exercise i2c token routines.
+call i2c_ST
 ld A,0
-ld (mmu_sda),A
-ld A,5
+call i2c_WR
+ld A,1
+call i2c_WR
 ld A,0
-ld (mmu_scl),A
-ld A,10
-dly A
+call i2c_WR
 ld A,1
-ld (mmu_scl),A
-ld A,5
-dly A
+call i2c_WR
+ld A,0
+call i2c_WR
 ld A,1
-ld (mmu_sda),A
+call i2c_WR
+ld A,0
+call i2c_WR
+ld A,1
+call i2c_WR
+call i2c_SP
 
+; Temporary code: increment a sixteen-bit counter variable
+; and transmit.
 ld A,(xmit_lo)
 add A,7
 ld (xmit_lo),A
@@ -179,7 +244,6 @@ rti
 ; ring oscillator frequency, gives us a frequency close to
 ; 5 MHz. We will write that value to the transmit clock divisor
 ; register, and so calibrate the ring oscillator.
-
 calibrate_tck:
 
 ; Push the registers we are going to use.
@@ -235,26 +299,41 @@ pop F
 ret              
 
 ; ------------------------------------------------------------
+; Sensor initialization routine. Write to all registers we need to
+; configure to obtain pressure and temperature measurements of the
+; desired range and precision.
+sensor_init:
+
+; Push the two registers we are going to use onto the stack. We'll
+; pop them off later to recover them, just before we return from
+; this subroutine.
+push F
+push A  
+
+; Restore the accumulator and flags register before returning.
+pop A            
+pop F 
+ret   
+
+
+; ------------------------------------------------------------
 ; Initialize the device. We will be setting up the stack, calibrating
 ; the ring oscillator, and configuring the sensor.
-
 initialize:
 
 ; Initialize the stack pointer.
 ld HL,mmu_sba
 ld SP,HL
 
-; Wait for a while. The power supplies must settle after entering
-; standby mode, and the ring oscillator frequency is sensitive to
-; the power supply voltage. We must let the gyroscope and accelerometer
-; settle down also.
-ld A,boot_delay  ; We want start_delay x 256 
-push A           ; cycles of RCK = 32.768 kHz
-pop B            ; before proceeding with execution.
+; The boot delay allows the power supplies to settle before we calibrate
+; the ring oscillator.
+ld A,boot_delay  ; We want boot_delay
+push A           ; multiplied by 256 cycles of RCK
+pop B            ; before proceeding.
 pwr_up_lp:
-ld A,0xFF        ; Load A with 255 to give the maximum eight bit
-dly A            ; count, and wait this number of RCK periods.
-dec B            ; Decremnent B until zero.
+ld A,0xFF        ; Load A with 255
+dly A            ; and delay,
+dec B            ; then decrement B.
 jp nz,pwr_up_lp
 
 ; Calibrate the transmit clock.
@@ -263,13 +342,12 @@ call calibrate_tck
 ; Set the low radio frequency for sample transmission
 ld A,tx_frequency
 ld (mmu_xfc),A
-
-; Initialize the sensor.
-call sensor_init
-
 ld A,0
 ld (xmit_hi),A
 ld (xmit_lo),A
+
+; Initialize the sensor.
+call sensor_init
 
 ; Set interrupt timer interval and enable the timer interrupt to implement
 ; the sample period. The value we want to load into the interrup timer period 
@@ -284,6 +362,9 @@ ld (mmu_itp),A
 ld A,0x01 
 ld (mmu_imsk),A 
 
+; Done with initialization, jump to main loop.
+jp main
+
 
 ; ------------------------------------------------------------
 
@@ -292,7 +373,6 @@ ld (mmu_imsk),A
 ; routine generates a pulse on bit one of the diagnostic
 ; flag register, and it implements a delay so these 
 ; pulses are rare.
-
 main:
 
 ld A,(mmu_dfr) 
