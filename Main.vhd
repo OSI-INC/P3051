@@ -196,13 +196,10 @@ begin
 		calib => tck_divisor,
 		CK => FCK);
 	
--- The Clock Generator derives clocks from FCK. We obtain TCK by dividing FCK in two, 
--- so as to obtain a symmetric 5 MHz. The CPU clock is called CK, and this CK will be
--- set to RCK, the 32.768-kHz reference clock, or to TCK, the 5-MHz transmit clock, 
--- as directed by the ENTCK flag. We clock TCK on the falling edge of FCK so as to 
--- support our use of FCK for frequency modulation in the Frequency Modulator.
-	Clock_Generator : process (FCK) is 
-		variable count : integer range 0 to 31 := 0;
+-- The Transmit Clock process divides FCK in two so as to produce a clock with
+-- exactly 50% duty cycle and frequency close to 5 MHz, which we call the 
+-- Transmit Clock (TCK). We clock TCK on the falling edge of FCK.
+	Tx_CK : process (FCK) is 
 	begin
 		if falling_edge(FCK) then TCK <= to_std_logic(TCK = '0'); end if;
 	end process;
