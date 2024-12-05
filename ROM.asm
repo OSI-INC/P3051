@@ -234,6 +234,24 @@ ld A,0x02
 ld (mmu_dfr),A
 ld A,20 
 dly A      
+
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+
 ld A,0x00
 ld (mmu_dfr),A
 ld A,20 
