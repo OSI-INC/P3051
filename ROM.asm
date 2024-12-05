@@ -5,7 +5,7 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        68  ; Will be used as the first channel number.
+const device_id        69  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Boundary Constants
@@ -234,23 +234,6 @@ ld A,0x02
 ld (mmu_dfr),A
 ld A,20 
 dly A      
-
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
 
 ld A,0x00
 ld (mmu_dfr),A

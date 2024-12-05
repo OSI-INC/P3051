@@ -1,9 +1,10 @@
 -- <pre> Blood Pressure Monitor (A3051B) Firmware, Toplevel Unit
 
 -- Version 2.1 [21-NOV-24] Transmission, reading zero byte from sensor 
--- interface.
+-- interface. Start converting sensor interface to I2C.
 
--- Version 2.1 [23-NOV-24] Start converting sensor interface to I2C.
+-- Version 2.2 [04-DEV-24] I2C interface consisting of six write-only
+-- control registers and a read-only data byte.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -250,7 +251,7 @@ begin
 		);
 		
 -- The Memory Manager maps eight-bit read and write access to the 
--- Sensor Controller, Sample Transmitter, Random Access Memory, and 
+-- Sensor Interface , Sample Transmitter, Random Access Memory, and 
 -- Interrupt Handler. Byte ordering is big-endian (most significant byte at
 -- lower address). 
 	MMU : process (CK,RESET) is
@@ -269,7 +270,7 @@ begin
 		ram_addr <= cpu_addr(ra_top downto 0);
 		cpu_data_in <= (others => '0');		
 		
-		-- These signals develop after the CPU assserts a new address
+		-- These signals develop after the CPU asserts a new address
 		-- along with CPU Write and CPU Sixteen-Bit Access. They will
 		-- be ready before the falling edge of the CPU clock.
 		case top_bits is
@@ -294,9 +295,9 @@ begin
 				when mmu_tcf =>
 					cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
 				when mmu_dfr => cpu_data_in <= df_reg;
+				when mmu_i2cMR => cpu_data_in <= i2c_in;
 				-- This others statement stabilizes the code. It also has the
 				-- effect of making the non-existent register read return a zero.
-				when mmu_i2cMR => cpu_data_in <= i2c_in;
 				when others => cpu_data_in <= (others => '0');
 				end case;
 			end if;
@@ -316,9 +317,8 @@ begin
 			int_period <= (others => '0');
 			int_mask <= (others => '0');
 			i2c_in <= (others => '0');
-		-- We use the falling edge of RCK to write to registers and to initiate sensor 
-		-- and transmit activity. Some signals we assert only for one CK period, and 
-		-- these we assert as false by default.
+		-- We use the falling edge of CK to write to registers. Some signals we assert 
+		-- only for one CK period, and these we assert as false by default.
 		elsif falling_edge(CK) then
 			SWRST <= false;
 			TXI <= false;
@@ -369,8 +369,7 @@ begin
 					when mmu_tcd => tck_divisor <= to_integer(unsigned(cpu_data_out));
 					when mmu_bcc => BOOST <= (cpu_data_out(0) = '1');
 					when mmu_dfr => df_reg <= cpu_data_out;
-					-- The following others statement stabilizes the compile but
-					-- otherwise does nothing.
+					-- The following others statement stabilizes code.
 					when others => df_reg <= df_reg;
 					end case;
 				end if;
