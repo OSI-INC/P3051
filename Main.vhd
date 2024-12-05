@@ -113,9 +113,9 @@ architecture behavior of main is
 -- CPU-Writeable Diagnostic Flags
 	signal df_reg : std_logic_vector(7 downto 0) := (others => '0');
 	
--- Program Memory Signals
-	signal prog_data : std_logic_vector(7 downto 0); -- ROM Data
-	signal prog_addr : std_logic_vector(prog_addr_len-1 downto 0); -- ROM Address
+-- Program Memory Data and Address
+	signal prog_data : std_logic_vector(7 downto 0); 
+	signal prog_addr : std_logic_vector(prog_addr_len-1 downto 0); 
 	
 -- Random Access Memory Signals
 	constant ra_top : integer := ram_addr_len-1;
@@ -123,10 +123,6 @@ architecture behavior of main is
 	signal ram_out, ram_in : std_logic_vector(7 downto 0); -- RAM Data In and Out
 	signal RAMWR : std_logic; -- Command Memory Write
 	
--- Eight-Bit Multiplier Signals
-	signal cpu_multiplier_a, cpu_multiplier_b : std_logic_vector(7 downto 0);
-	signal cpu_multiplier_out : std_logic_vector(15 downto 0);
-
 -- Central Processing Unit Signals
 	signal cpu_data_out, cpu_data_in : std_logic_vector(7 downto 0); 
 	constant ca_top : integer := cpu_addr_len-1;
@@ -632,13 +628,13 @@ begin
 		end if;
 	end process;
 		
--- Sensor Address Zero we hold LO to indicate that the sensor address is 1011101b.
+-- Sensor Address Zero we hold LO to indicate that the sensor address is 1011100b.
 	SA0 <= '0';
 		
 -- Test Point One appears on P3-1 after the programming connector has been removed. 
-	TP1 <= df_reg(1);
+	TP1 <= to_std_logic(unsigned(prog_addr) = 0);
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
-	TP2 <= to_std_logic(FHI);
+	TP2 <= df_reg(1);
 
 end behavior;

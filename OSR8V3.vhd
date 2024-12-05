@@ -253,7 +253,7 @@ architecture behavior of OSR8_CPU is
 -- The Stack Pointer (SP) we use to manage an upward-growing stack. The
 -- Stack Pointer points to the top of the stack, which is the byte most
 -- recently pushed onto the stack, and at the highest address of all the 
--- bytes on the stack. When we push a byte onto the stack, we increment
+-- bytes on the stack. When we push a byte onto the stack, we increment
 -- the stack pointer, then perform the write. When we pop from the stack, we 
 -- read from the stack and then decrement the stack pointer.
 	signal reg_SP : std_logic_vector(ca_top downto 0);
@@ -266,9 +266,6 @@ architecture behavior of OSR8_CPU is
 	begin if v then return('1'); else return('0'); end if; end function;
 
 begin 
-
--- The program address is equal to the program counter.
-	prog_addr <= prog_cntr;
 
 -- The Arithmetic Logic Unit provides an eight-bit adder-subtractor with carry 
 -- in and carry out, as well as logical operations AND, OR, and XOR.
@@ -407,6 +404,8 @@ begin
 		variable jump : boolean;		
 						
 	begin
+		-- The program address is equal to the program counter.
+		prog_addr <= prog_cntr;
 
 		-- Reset the cpu state and program counter until we enter standby mode.
 		if (RESET ='1') then 

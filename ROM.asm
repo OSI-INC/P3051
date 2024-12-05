@@ -67,7 +67,6 @@ start:
 jp initialize
 jp interrupt
 
-
 ; ------------------------------------------------------------
 ; The interrupt routine. Reads the sensor and transmits the
 ; measurement with the sample transmitter.
@@ -221,7 +220,7 @@ pop F
 ret              
 
 ; ------------------------------------------------------------
-; Write to registers in the sensor so as to set it up for readout.
+; Initialize the sensor by writing to its configuration registers.
 
 sensor_init:
 
@@ -232,13 +231,19 @@ push C
 
 ld A,0x02
 ld (mmu_dfr),A
-ld A,20 
-dly A      
+
+ld A,0x38
+push A
+pop C
+ld A,ps_IF_CTRL
+call i2c_wr8
+
+nop
+nop
+nop
 
 ld A,0x00
 ld (mmu_dfr),A
-ld A,20 
-dly A   
 
 pop C
 pop B
@@ -250,6 +255,11 @@ ret
 ; Initialize the processor, clock, memory, and sensor.
 
 initialize:
+
+; Start a pulse on DF1.
+
+ld A,0x02
+ld (mmu_dfr),A
 
 ; Disable and reset interrupts.
 
@@ -275,6 +285,11 @@ ld A,0xFF
 dly A
 dec B
 jp nz,pwr_up_lp
+
+; End the pulse on DF1.
+
+ld A,0x00
+ld (mmu_dfr),A
 
 ; Calibrate the transmit clock.
 
@@ -309,7 +324,6 @@ jp main
 
 
 ; ------------------------------------------------------------
-
 ; The main program loop. The interrupts will be running 
 ; in the background, and they do all the work. The main
 ; routine generates a pulse on bit one of the diagnostic
@@ -331,8 +345,8 @@ jp main
 ; ------------------------------------------------------------
 ; I2C Eight-Bit Write. Write to one register location on the
 ; sensor. The address of the register should be passed into
-; the routine in the accumulator and the byte to be written should
-; be passed in C.
+; the routine in the accumulator and the byte to be written 
+; should be passed in C.
 
 i2c_wr8:
 

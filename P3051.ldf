@@ -18,9 +18,6 @@
         <Source name="Main.vhd" type="VHDL" type_short="VHDL">
             <Options top_module="main"/>
         </Source>
-        <Source name="impl1/impl1.xcf" type="Programming Project File" type_short="Programming">
-            <Options/>
-        </Source>
         <Source name="P3051.lpf" type="Logic Preference" type_short="LPF">
             <Options/>
         </Source>
