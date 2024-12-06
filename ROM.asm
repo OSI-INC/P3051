@@ -5,7 +5,7 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        69  ; Will be used as the first channel number.
+const device_id        70  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Boundary Constants
@@ -48,7 +48,7 @@ const boot_delay    10  ; Boot delay, multiples of 7.8 ms.
 
 ; Sensor Addresses
 const ps_SAD      0x5C  ; Pressure sensor I2C address (SAD).
-const ps_IF_CTRL  0x0E  ; Interfac Control
+const ps_IF_CTRL  0x0E  ; Interface Control
 const ps_WHO_AM_I 0x0F  ; Fixed value 0xB4
 const ps_CTRL1    0x10  ; Control Register One
 const ps_P_XL     0x28  ; Pressure Extra LO byte.
@@ -102,10 +102,10 @@ call i2c_rd16
 
 ; Transfer the two bytes into the transmit data registers.
 
-ld (mmu_xlb),A
+ld (mmu_xhb),A
 push B
 pop A
-ld (mmu_xhb),A
+ld (mmu_xlb),A
 
 ; Write the device identifier to the transmit channel number register.
 
@@ -232,15 +232,11 @@ push C
 ld A,0x02
 ld (mmu_dfr),A
 
-ld A,0x38
+ld A,0x00
 push A
 pop C
 ld A,ps_IF_CTRL
 call i2c_wr8
-
-nop
-nop
-nop
 
 ld A,0x00
 ld (mmu_dfr),A
