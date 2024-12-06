@@ -102,10 +102,10 @@ call i2c_rd16
 
 ; Transfer the two bytes into the transmit data registers.
 
-ld (mmu_xhb),A
+ld (mmu_xlb),A
 push B
 pop A
-ld (mmu_xlb),A
+ld (mmu_xhb),A
 
 ; Write the device identifier to the transmit channel number register.
 
