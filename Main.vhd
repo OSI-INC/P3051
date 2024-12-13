@@ -169,14 +169,14 @@ begin
 		SFLAG => SFLAG);	
 
 -- The Power-Up Process. We have CLRFLAG and USERSTDBY cleared LO on power-up,
--- and RESET set HI. When RCK starts up, we us the falling edge to move the 
--- chip into standby mode, then unassert RESET once we receive SFLAG from the
--- Power Control Unit (PCU).
+-- and RESET set HI. When RCK starts up, we use it to move the chip into 
+-- standby mode. We unassert RESET once we receive SFLAG from the Power Control 
+-- Unit (PCU).
 	PowerUp: process (RCK) is
 		constant end_state : integer := 7;
 		variable state : integer range 0 to end_state := 0;
 	begin
-		if falling_edge(RCK) then
+		if rising_edge(RCK) then
 			CLRFLAG <= to_std_logic(state = 1);
 			USERSTDBY <= to_std_logic(state >= 3);
 			RESET <= to_std_logic((state < end_state) or SWRST);
