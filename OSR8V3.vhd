@@ -23,6 +23,9 @@
 -- sizes. Improve implementation of stack overflow signal, which now remains
 -- asserted until RESET.
 
+-- [06-DEC-24] Searching for boot bug, eliminate prog_addr in code, use
+-- prog_addr.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -34,16 +37,16 @@ use ieee.numeric_std.all;
 -- due to what we believe is a compiler error, so we cannot re-configure the OSR8
 -- from the instantiating entity. 
 
- -- Both memories must be clocked on the falling edge of CK. The CPU increments the
- -- program counter on the rising edge of CK and expects the next instruction byte
- -- to be present for decoding well before the next rising edge, which in practice
- -- means we must fetch it on the falling edge of CK. The WR and DS control signals
- -- along with the cpu_addr and cpu_data_out will be asserted on the rising edge of
- -- CK and persist until the next rising edge, so they are always valid on the
- -- falling edge of CK for the data memory to use. On a read cycle, the CPU expects
- -- the data to be ready before the next rising edge of CK after it asserts DS. On
- -- a write cycle, the CPU expects the write to take place on the falling edge of
- -- CK after it asserts DS and WR. 
+-- Both memories must be clocked on the falling edge of CK. The CPU increments the
+-- program counter on the rising edge of CK and expects the next instruction byte
+-- to be present for decoding well before the next rising edge, which in practice
+-- means we must fetch it on the falling edge of CK. The WR and DS control signals
+-- along with the cpu_addr and cpu_data_out will be asserted on the rising edge of
+-- CK and persist until the next rising edge, so they are always valid on the
+-- falling edge of CK for the data memory to use. On a read cycle, the CPU expects
+-- the data to be ready before the next rising edge of CK after it asserts DS. On
+-- a write cycle, the CPU expects the write to take place on the falling edge of
+-- CK after it asserts DS and WR. 
 
 -- The IRQ signal is for an interrupt request. The external memory management unit (MMU) 
 -- must provide a way for the CPU to clear the IRQ signal so it can get back to its main
@@ -223,8 +226,6 @@ architecture behavior of OSR8_CPU is
 	constant alu_cmd_srl  : integer := 11; -- Shift Right Logical of X
 	constant alu_cmd_inc  : integer := 12; -- Incrment X
 	constant alu_cmd_dec  : integer := 13; -- Decrement X
-		
--- CPU Registers
 
 -- The Accumulator, or Register A, in which we get the result of eight-bit
 -- arithmetic operations, logical operations, and shifts and rotations. 
@@ -236,13 +237,13 @@ architecture behavior of OSR8_CPU is
 -- require a second operand, such as addition, subtraction, and logical AND.
 	signal reg_B  : integer range 0 to 255;
 
--- General-purpose eight-bit registers C, D, H, and L. The last two have 
+-- General-purpose eight-bit registers C, D, E, H, and L. The last two have 
 -- one special function: to act as a loading platform for the stack pointer.
 	signal reg_C, reg_D, reg_E, reg_H, reg_L : integer range 0 to 255;
 	
 -- The flags are bits in the Flag Register, but we work with them as separate
--- boolean signals so as to simplify our code. We have the Zero flag, Carry
--- flag, Sign flag, and Interrupt flag.
+-- boolean signals so as to simplify our code. We have the Zero, Carry, Sign,
+-- and Interrupt flags.
 	signal flag_Z, flag_C, flag_S, flag_I : boolean;
 
 -- The index registers IX and IY are intended for use as pointers to bytes
@@ -257,10 +258,7 @@ architecture behavior of OSR8_CPU is
 -- the stack pointer, then perform the write. When we pop from the stack, we 
 -- read from the stack and then decrement the stack pointer.
 	signal reg_SP : std_logic_vector(ca_top downto 0);
-		
--- The program counter, which provides the program address.
-	signal prog_cntr : std_logic_vector(pa_top downto 0);
-	
+			
 -- Functions and Procedures	
 	function to_std_logic (v: boolean) return std_ulogic is
 	begin if v then return('1'); else return('0'); end if; end function;
@@ -396,21 +394,18 @@ begin
 		constant read_second_opcode : integer := 64;
 		constant incr_pc : integer := 128;
 			
-		-- We have next_pc to set up the next program counter value.
-		variable next_pc : std_logic_vector(pa_top downto 0);
+		-- We have next_pa to set up the next program counter value.
+		variable next_pa : std_logic_vector(pa_top downto 0);
 			
 		-- We uset the jump variable to determine if any of the various jump
 		-- conditions have been satisfied.
 		variable jump : boolean;		
 						
 	begin
-		-- The program address is equal to the program counter.
-		prog_addr <= prog_cntr;
-
 		-- Reset the cpu state and program counter until we enter standby mode.
 		if (RESET ='1') then 
 			state := read_opcode;
-			prog_cntr <= std_logic_vector(to_unsigned(start_pc,prog_addr_len)); 
+			prog_addr <= std_logic_vector(to_unsigned(start_pc,prog_addr_len)); 
 			reg_SP <= (others => '0'); 
 			flag_Z <= false;
 			flag_C <= false;
@@ -430,7 +425,7 @@ begin
 			-- specify the program counter and next state as often as we can
 			-- in order to suppress any possible ambiguity.
 			next_state := read_opcode;
-			next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+			next_pa := std_logic_vector(unsigned(prog_addr)+1);
 			next_A := reg_A;
 			next_B := reg_B;
 			next_C := reg_C;
@@ -470,13 +465,13 @@ begin
 				-- The no-operation instruction. Clock Cycles = 1.
 				when nop => 
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- The wait operation stays in this one place until we receive an
 				-- interrupt. It clears the interrupt flag. Clock Cycles = 1.
 				when cpu_wt =>
 					next_flag_I := false;
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 					next_state := read_opcode;
 					
 				-- The delay instruction decrements A until it reaches zero, then moves on.
@@ -484,9 +479,9 @@ begin
 				when dly_A => 
 					next_A := alu_out;
 					if (reg_A = 0) then 
-						next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+						next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					else
-						next_pc := prog_cntr; 
+						next_pa := prog_addr; 
 					end if;
 					next_state := read_opcode;
 					
@@ -509,10 +504,10 @@ begin
 					WR <= true;
 					DS <= true;
 					cpu_data_out <= (others => '0');
-					cpu_data_out(pa_top-8 downto 0) <= prog_cntr(pa_top downto 8);
+					cpu_data_out(pa_top-8 downto 0) <= prog_addr(pa_top downto 8);
 					if IRQ then next_flag_I := true; end if;
 					next_state := write_second_byte;
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 
 				-- Return from subroutine, we pop the LO byte of the program counter 
 				-- off the stack, then go on to pop the HI byte and load it into the
@@ -524,7 +519,7 @@ begin
 					WR <= false;
 					DS <= true;
 					next_state := read_first_byte;
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 			
 				-- Stack Pointer load to and from HL. We use H for the upper bits 
 				-- of SP and L for the lower bits. Clock Cycles = 1.
@@ -532,13 +527,13 @@ begin
 					next_H := to_integer(unsigned(reg_SP(ca_top downto 8)));
 					next_L := to_integer(unsigned(reg_SP(7 downto 0)));
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when ld_SP_HL =>
 					next_SP(ca_top downto 8) := 
 						std_logic_vector(to_unsigned(reg_H,cpu_addr_len-8));
 					next_SP(7 downto 0) := std_logic_vector(to_unsigned(reg_L,8));
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 
 				-- Program Counter load to and from HL. We use H for the upper bits of 
 				-- PC. These instructions allow us, in principle, to implement relative 
@@ -548,16 +543,16 @@ begin
 				-- ld PC,HL; for a total of 16 clock cycles compared to 3 for an
 				-- absolute, unconditional jump. Clock Cycles = 1.
 				when ld_HL_PC =>
-					next_H := to_integer(unsigned(prog_cntr(pa_top downto 8)));
-					next_L := to_integer(unsigned(prog_cntr(7 downto 0)));
+					next_H := to_integer(unsigned(prog_addr(pa_top downto 8)));
+					next_L := to_integer(unsigned(prog_addr(7 downto 0)));
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when ld_PC_HL =>
-					next_pc(pa_top downto 8) := 
+					next_pa(pa_top downto 8) := 
 						std_logic_vector(to_unsigned(reg_H,prog_addr_len-8));
-					next_pc(7 downto 0) := std_logic_vector(to_unsigned(reg_L,8));
+					next_pa(7 downto 0) := std_logic_vector(to_unsigned(reg_L,8));
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Push operations for eight-bit registers. We immediately generate 
 				-- the value SP-1 with our combinatorial decrementer. We drive SP+1 onto 
@@ -593,7 +588,7 @@ begin
 							cpu_data_out(0) <= to_std_logic(flag_Z);
 					end case;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				
 				-- Push operations for index registers. We start by pushing the HI byte onto
 				-- the stack, then we push the LO byte. Clock Cycles = 2.
@@ -610,7 +605,7 @@ begin
 							cpu_data_out(ca_top-8 downto 0) <= reg_IY(ca_top downto 8);
 					end case;
 					next_state := write_second_byte;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Pop instructions for eight-bit registers. We immediately generate SP+1
 				-- at the output of our combinatorial incrementer. On the next rising 
@@ -627,7 +622,7 @@ begin
 					WR <= false;
 					DS <= true;
 					next_state := read_first_byte;	
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Pop operations for index registers. We begin with an eight-bit pop of the
 				-- LO byte of the register, and then POP the HI byte in read_second_byte.
@@ -638,7 +633,7 @@ begin
 					WR <= false;
 					DS <= true;
 					next_state := read_first_byte;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Eight-bit indirect write operations with index register. We drive the index
 				-- register onto the address lines on the next rising edge of the clock and
@@ -652,14 +647,14 @@ begin
 					WR <= true;
 					DS <= true;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when ld_iy_A =>
 					cpu_data_out <= std_logic_vector(to_unsigned(reg_A,8));
 					cpu_addr <= reg_IY;
 					WR <= true;
 					DS <= true;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Eight-bit indirect read operations with index register. We drive the index
 				-- register onto the address lines on the next rising edge of the clcok and
@@ -671,13 +666,13 @@ begin
 					WR <= false;
 					DS <= true;
 					next_state := read_first_byte;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when ld_A_iy =>
 					cpu_addr <= reg_IY;
 					WR <= false;
 					DS <= true;
 					next_state := read_first_byte;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Eight-bit register increments and decrements, which use the combinatorial
 				-- eight-bit adder to performm the adjustment. These operations set the zero and
@@ -687,43 +682,43 @@ begin
 					next_flag_Z := (alu_out = 0);
 					next_flag_S := (alu_out >= 128);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when dec_B | inc_B => 
 					next_B := alu_out;
 					next_flag_Z := (alu_out = 0);
 					next_flag_S := (alu_out >= 128);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when dec_C | inc_C => 
 					next_C := alu_out;
 					next_flag_Z := (alu_out = 0);
 					next_flag_S := (alu_out >= 128);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when dec_D | inc_D => 
 					next_D := alu_out;
 					next_flag_Z := (alu_out = 0);
 					next_flag_S := (alu_out >= 128);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when dec_E | inc_E => 
 					next_E := alu_out;
 					next_flag_Z := (alu_out = 0);
 					next_flag_S := (alu_out >= 128);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when dec_H | inc_H => 
 					next_H := alu_out;
 					next_flag_Z := (alu_out = 0);
 					next_flag_S := (alu_out >= 128);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when dec_L | inc_L => 
 					next_L := alu_out;
 					next_flag_Z := (alu_out = 0);
 					next_flag_S := (alu_out >= 128);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Address pointer increments and decrements. These do not affect the
 				-- carry, sign, or zero flags. We use our combinatorial incrementer to
@@ -731,27 +726,27 @@ begin
 				when inc_IX => 
 					next_IX := std_logic_vector(unsigned(reg_IX)+1);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when dec_IX => 
 					next_IX := std_logic_vector(unsigned(reg_IX)-1);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when inc_IY => 
 					next_IY := std_logic_vector(unsigned(reg_IY)+1);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when dec_IY => 
 					next_IY := std_logic_vector(unsigned(reg_IY)-1);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when inc_SP => 
 					next_SP := std_logic_vector(unsigned(reg_SP)+1);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when dec_SP => 
 					next_SP := std_logic_vector(unsigned(reg_SP)-1);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Arithmetic operations, in which wse can add B register to the 
 				-- accumulator, A, or subtract B, with carry or without. The carry, 
@@ -764,7 +759,7 @@ begin
 					next_flag_C := alu_cout;
 					next_flag_S := (alu_out >= 128);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 
 				-- Eight-bit logical operations in the accumulator with register
 				-- B as the second operand. Sets the Z flag only. Clock Cycles = 1.
@@ -772,7 +767,7 @@ begin
 					next_A := alu_out;
 					next_flag_Z := (alu_out = 0);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Clear arithmetic flags: a single instruction clears the sign (S), 
 				-- zero (Z), and carry (C) flags, but not the interrupt (I) flag;
@@ -781,19 +776,19 @@ begin
 					next_flag_C := false;
 					next_flag_S := false;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 
 				-- Clear interrupt flag, so as to enable interrupts.
 				when clr_iflg =>
 					next_flag_I := false;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 
 				-- Set interrupt flag, so as to disable interrupts.
 				when set_iflg =>
 					next_flag_I := true;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Shift and rotate operations in the accumulator. All affect the
 				-- carry bit, but none affect the zero or sign bits. Clock Cycles = 1.
@@ -801,13 +796,13 @@ begin
 					next_A := alu_out;
 					next_flag_C := alu_cout;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- All other instructions need an operand. We don't bother to decode them
 				-- separately at this point.
 				when others => 
 					next_state := read_first_operand;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				end case;
 						
 			-- Instructions have either one or two operands, which will be provided HI-byte
@@ -825,7 +820,7 @@ begin
 				when ld_A_n => 
 					next_A := first_operand;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				
 				-- We use our combinatorial adder to combine a constant and the
 				-- accumulator value, and clock this new value into the accumulator
@@ -837,7 +832,7 @@ begin
 					next_flag_C := alu_cout;
 					next_flag_S := (alu_out >= 128);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Logical operations upon the accumulator with a constant as the
 				-- second operand. Sets the Z flag only. Clock Cycles = 2.
@@ -845,12 +840,12 @@ begin
 					next_A := alu_out;
 					next_flag_Z := (alu_out = 0);
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 
 				-- All others require a second operand, so we don't decode them yet.
 				when others => 
 					next_state := read_second_operand;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				end case;
 			
@@ -876,7 +871,7 @@ begin
 					WR <= false;
 					DS <= true;
 					next_state := read_first_byte;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Indirect eight-bit write operations using operands as address. Same as
 				-- the read cycle, except we assert WR on the next rising edge, and drive
@@ -892,7 +887,7 @@ begin
 					WR <= true;
 					DS <= true;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Direct load of constants into index registers. Clock Cycles = 3.
 				when ld_IX_nn =>
@@ -901,21 +896,21 @@ begin
 					next_IX(7 downto 0) := 
 						std_logic_vector(to_unsigned(second_operand,8));
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 				when ld_IY_nn =>
 					next_IY(ca_top downto 8) := 
 						std_logic_vector(to_unsigned(first_operand,cpu_addr_len-8));
 					next_IY(7 downto 0) := 
 						std_logic_vector(to_unsigned(second_operand,8));
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Direct load of sixteen-bit constant into HL. Clock Cycles = 3;
 				when ld_HL_nn =>
 					next_H := first_operand;
 					next_L := second_operand;
 					next_state := read_opcode;
-					next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+					next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					
 				-- Call a subroutine. We now have the full address to jump to, and we don't
 				-- have to increment the program counter to read any more constants, so we
@@ -928,9 +923,9 @@ begin
 					WR <= true;
 					DS <= true;
 					cpu_data_out <= (others => '0');
-					cpu_data_out(pa_top-8 downto 0) <= prog_cntr(pa_top downto 8);
+					cpu_data_out(pa_top-8 downto 0) <= prog_addr(pa_top downto 8);
 					next_state := write_second_byte;
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 				
 				-- Decide if we should jump to the address specified by the two operands. If
 				-- so, we will jump immediately by loading the program counter with a new 
@@ -951,12 +946,12 @@ begin
 					-- the specified absolute value. The first operand is the HI byte, the
 					-- second the LO byte.
 					if jump then
-						next_pc(pa_top downto 8) := 
+						next_pa(pa_top downto 8) := 
 							std_logic_vector(to_unsigned(first_operand,prog_addr_len-8));
-						next_pc(7 downto 0) := 
+						next_pa(7 downto 0) := 
 							std_logic_vector(to_unsigned(second_operand,8));
 					else
-						next_pc := std_logic_vector(unsigned(prog_cntr)+1);
+						next_pa := std_logic_vector(unsigned(prog_addr)+1);
 					end if;
 					next_state := read_opcode;
 					
@@ -974,7 +969,7 @@ begin
 				-- we will load the new value into the accumulator. Clock cycles = 2.
 				when ld_A_mm | ld_A_ix | ld_A_iy => 
 					next_A := to_integer(unsigned(cpu_data_in));
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 					next_state := read_opcode;
 					
 				-- We have selected a byte in the stack with the stack pointer, and half-way
@@ -995,7 +990,7 @@ begin
 							next_flag_S := (cpu_data_in(1) = '1');
 							next_flag_Z := (cpu_data_in(0) = '1');
 					end case;
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 					next_state := read_opcode;
 					
 				-- Read the LO byte of the index register from the stack, and prepare to read
@@ -1009,7 +1004,7 @@ begin
 						when pop_IX => next_IX(7 downto 0) := cpu_data_in(7 downto 0);
 						when pop_IY => next_IY(7 downto 0) := cpu_data_in(7 downto 0);
 					end case;
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 					next_state := read_second_byte;	
 					
 				-- Read the LO byte of the program counter from the stack and prepare to 
@@ -1019,8 +1014,8 @@ begin
 					cpu_addr <= reg_SP;
 					WR <= false;
 					DS <= true;
-					next_pc := (others => '0');
-					next_pc(7 downto 0) := cpu_data_in;
+					next_pa := (others => '0');
+					next_pa(7 downto 0) := cpu_data_in;
 					next_state := read_second_byte;	
 				end case;
 	
@@ -1033,11 +1028,11 @@ begin
 				-- Read the HI byte of index pointer from the stack.
 				when pop_IX => 
 					next_IX(ca_top downto 8) := cpu_data_in(ca_top-8 downto 0);
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 					next_state := read_opcode;
 				when pop_IY => 
 					next_IY(ca_top downto 8) := cpu_data_in(ca_top-8 downto 0);
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 					next_state := read_opcode;
 	
 				-- We are returning from a subroutine. We have already read the
@@ -1049,8 +1044,8 @@ begin
 				-- we leave the program counter as it is and clear flag_I so we 
 				-- can execute the instruction that was interrupted.
 				when ret_cll | ret_int =>
-					next_pc(pa_top downto 8) := cpu_data_in(pa_top-8 downto 0);
-					next_pc(7 downto 0) := prog_cntr(7 downto 0);	
+					next_pa(pa_top downto 8) := cpu_data_in(pa_top-8 downto 0);
+					next_pa(7 downto 0) := prog_addr(7 downto 0);	
 					if (not flag_I) or (opcode = ret_cll) then
 						next_state := incr_pc;
 					else 
@@ -1079,7 +1074,7 @@ begin
 						when push_IX => cpu_data_out(7 downto 0) <= reg_IX(7 downto 0);
 						when push_IY => cpu_data_out(7 downto 0) <= reg_IY(7 downto 0);
 					end case;
-					next_pc := prog_cntr;
+					next_pa := prog_addr;
 					next_state := read_opcode;
 					
 				-- Here we are completing a CALL or sw_int instruction by pushing the LO byte 
@@ -1091,16 +1086,16 @@ begin
 					cpu_addr <= std_logic_vector(unsigned(reg_SP)+1);
 					WR <= true;
 					DS <= true;
-					cpu_data_out <= prog_cntr(7 downto 0);
+					cpu_data_out <= prog_addr(7 downto 0);
 					if (opcode = call_nn) then
-						next_pc(pa_top downto 8) := 
+						next_pa(pa_top downto 8) := 
 							std_logic_vector(to_unsigned(first_operand,prog_addr_len-8));
-						next_pc(7 downto 0) := 
+						next_pa(7 downto 0) := 
 							std_logic_vector(to_unsigned(second_operand,8));
 					else
-						next_pc(pa_top downto 8) := 
+						next_pa(pa_top downto 8) := 
 							std_logic_vector(to_unsigned((interrupt_pc / 256),prog_addr_len-8));
-						next_pc(7 downto 0) := 
+						next_pa(7 downto 0) := 
 							std_logic_vector(to_unsigned((interrupt_pc rem 256),8));
 					end if;
 					next_state := read_opcode;
@@ -1113,12 +1108,12 @@ begin
 			-- so that it points to the next instruction after the call or software interrupt.
 			elsif (state = incr_pc) then
 				next_state := read_opcode;
-				next_pc := std_logic_vector(unsigned(prog_cntr)+1);	
+				next_pa := std_logic_vector(unsigned(prog_addr)+1);	
 			end if;
 			
 			-- Assert the new state, program counter, and register values for the next clock 
 			-- cycle.
-			prog_cntr <= next_pc; 
+			prog_addr <= next_pa; 
 			state := next_state;					
 			reg_A <= next_A;
 			reg_B <= next_B;
