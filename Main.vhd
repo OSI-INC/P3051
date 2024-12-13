@@ -6,8 +6,9 @@
 -- Version 2.2 [04-DEC-24] I2C interface consisting of six write-only
 -- control registers and a read-only data byte.
 
--- Version 2.3 [12-NOV-24] Assign power-up states to Power-Up Process 
--- signals, and switch to using falling edge of RCK.
+-- Version 2.3 [13-DEC-24] Assign power-up states to Power-Up Process 
+-- signals, and switch to using falling edge of RCK. Fixes power-up
+-- reset problem.
 
 library ieee;  
 use ieee.std_logic_1164.all;
