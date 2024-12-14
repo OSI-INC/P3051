@@ -12,7 +12,7 @@
         <Source name="Entities.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../../OSR8/OSR8V3.vhd" type="VHDL" type_short="VHDL">
+        <Source name="OSR8V3.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="Main.vhd" type="VHDL" type_short="VHDL">

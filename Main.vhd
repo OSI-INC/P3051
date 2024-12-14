@@ -7,8 +7,9 @@
 -- control registers and a read-only data byte.
 
 -- Version 2.3 [13-DEC-24] Assign power-up states to Power-Up Process 
--- signals, and switch to using falling edge of RCK. Fixes power-up
--- reset problem.
+-- signals, and switch to using falling edge of RCK. Disable the RAM
+-- and ROM reset inputs. This last change fixes the erratic behavior of 
+-- prog_addr on power-up.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -85,15 +86,23 @@ architecture behavior of main is
 	signal SFLAG, STDBY : std_logic;
 	signal SWRST : boolean := false;
 	
--- Clock Generation
-	signal TCK, FCK, CK : std_logic;
+-- Clock Generation, Calibration, and Control
+	signal TCK, -- Transmit Clock
+		FCK, -- Fast Clock
+		CK -- CPU Clock
+		: std_logic;
 	attribute syn_keep of TCK, FCK, CK : signal is true;
 	attribute nomerge of TCK, FCK, CK : signal is "";  
-
+	signal ENTCK : boolean := false; -- Enable Transmit Clock
+	signal tck_frequency : integer range 0 to 255; -- Transmit Clock Counter
+	constant default_tck_divisor : integer := 11;
+	signal tck_divisor : integer range 0 to 15 := default_tck_divisor;
+	signal BOOST : boolean := false; -- Boost CPU Clock Frequency
+	
 -- Sensor Readout
 	signal i2c_in : std_logic_vector(7 downto 0); -- I2C Serial Byte
 	
--- Message Transmission.
+-- Message Transmission
 	signal TXI, -- Transmit Initiate
 		TXA, -- Transmit Active
 		TXB, -- Transmit Bit
@@ -107,15 +116,6 @@ architecture behavior of main is
 	signal frequency_low : integer range 0 to 31 := 6; -- Low frequency for transmission
 	constant frequency_step : integer := 1; -- High minus low frequency
 		
--- Clock Calibrator
-	signal ENTCK : boolean; -- Enable the Transmit Clock
-	signal tck_frequency : integer range 0 to 255; -- Transmit Clock Counter
-	constant default_tck_divisor : integer := 11;
-	signal tck_divisor : integer range 0 to 15 := default_tck_divisor;
-	
--- Boost Controller
-	signal BOOST : boolean;
-	
 -- CPU-Writeable Diagnostic Flags
 	signal df_reg : std_logic_vector(7 downto 0) := (others => '0');
 	
@@ -174,17 +174,17 @@ begin
 -- Unit (PCU).
 	PowerUp: process (RCK) is
 		constant end_state : integer := 7;
+		constant clr_state : integer := 3;
+		constant stdby_state : integer := clr_state + 2;
 		variable state : integer range 0 to end_state := 0;
 	begin
-		if rising_edge(RCK) then
-			CLRFLAG <= to_std_logic(state = 1);
-			USERSTDBY <= to_std_logic(state >= 3);
+		if falling_edge(RCK) then
+			CLRFLAG <= to_std_logic(state = clr_state);
+			USERSTDBY <= to_std_logic(state >= stdby_state);
 			RESET <= to_std_logic((state < end_state) or SWRST);
 
-			if (state = 0) then state := 1;
-			elsif (state = 1) then state := 2;
-			elsif (state = 2) then state := 3;
-			elsif (SFLAG = '0') then state := 3;
+			if (state < stdby_state) then state := state + 1;
+			elsif (SFLAG = '0') then state := stdby_state;
 			elsif (state < end_state) then state := state + 1; 
 			else state := end_state; end if;
 		end if;
@@ -216,7 +216,7 @@ begin
 	Process_Memory : entity RAM port map (
 		Clock => not CK,
 		ClockEn => '1',
-        Reset => RESET,
+        Reset => '0',
 		WE => RAMWR,
 		Address => ram_addr, 
 		Data => ram_in,
@@ -230,7 +230,7 @@ begin
 		Address => prog_addr,
         OutClock => not CK,
         OutClockEn => '1',
-        Reset => RESET,	
+        Reset => '0',	
         Q => prog_data);
 	
 -- The processor itself. We instantiate the OSR8 microprocessor entity.
@@ -306,6 +306,8 @@ begin
 				when others => cpu_data_in <= (others => '0');
 				end case;
 			end if;
+		when others =>
+			cpu_data_in <= (others => '0');
 		end case;
 		
 		-- We use RESET to clear some registers and signals, but not all. We do not clear the
@@ -638,10 +640,12 @@ begin
 	end process;
 		
 -- Sensor Address Zero we hold LO to indicate that the sensor address is 1011100b.
-	SA0 <= '0';
+-- So as to add information to SA0, we drive it with RESET, which will be LO except
+-- during RESET.
+	SA0 <= RESET;
 		
 -- Test Point One appears on P3-1 after the programming connector has been removed. 
-	TP1 <= to_std_logic(unsigned(prog_addr) = 0);
+	TP1 <= to_std_logic(FHI);
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
 	TP2 <= df_reg(1);

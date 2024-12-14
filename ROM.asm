@@ -5,7 +5,7 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        70  ; Will be used as the first channel number.
+const device_id        71  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Boundary Constants
@@ -44,7 +44,7 @@ const max_tcd       31  ; Maximum possible value of transmit clock divisor.
 
 ; Timing Constants.
 const tx_delay      50  ; Wait time for sample transmission, TCK periods.
-const boot_delay    10  ; Boot delay, multiples of 7.8 ms.
+const boot_delay     3  ; Boot delay, multiples of 7.8 ms.
 
 ; Sensor Addresses
 const ps_SAD      0x5C  ; Pressure sensor I2C address (SAD).
