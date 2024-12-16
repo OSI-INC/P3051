@@ -9,7 +9,8 @@
 -- Version 2.3 [13-DEC-24] Assign power-up states to Power-Up Process 
 -- signals, and switch to using falling edge of RCK. Disable the RAM
 -- and ROM reset inputs. This last change fixes the erratic behavior of 
--- prog_addr on power-up.
+-- prog_addr on power-up. Others clauses in MMU case statements reduce
+-- code size.
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -301,8 +302,6 @@ begin
 					cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
 				when mmu_dfr => cpu_data_in <= df_reg;
 				when mmu_i2cMR => cpu_data_in <= i2c_in;
-				-- This others statement stabilizes the code. It also has the
-				-- effect of making the non-existent register read return a zero.
 				when others => cpu_data_in <= (others => '0');
 				end case;
 			end if;
@@ -376,7 +375,6 @@ begin
 					when mmu_tcd => tck_divisor <= to_integer(unsigned(cpu_data_out));
 					when mmu_bcc => BOOST <= (cpu_data_out(0) = '1');
 					when mmu_dfr => df_reg <= cpu_data_out;
-					-- The following others statement stabilizes code.
 					when others => df_reg <= df_reg;
 					end case;
 				end if;

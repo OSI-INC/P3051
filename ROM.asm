@@ -5,7 +5,7 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        71  ; Will be used as the first channel number.
+const device_id        72  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Boundary Constants
@@ -51,12 +51,17 @@ const ps_SAD      0x5C  ; Pressure sensor I2C address (SAD).
 const ps_IF_CTRL  0x0E  ; Interface Control
 const ps_WHO_AM_I 0x0F  ; Fixed value 0xB4
 const ps_CTRL1    0x10  ; Control Register One
+const ps_CTRL2    0x11  ; Control Register Two
+const ps_CTRL3    0x12  ; Control Register Three
+const ps_CTRL4    0x13  ; Control Register Four
 const ps_P_XL     0x28  ; Pressure Extra LO byte.
 const ps_P_L      0x29  ; Pressure LO byte.
 const ps_P_H      0x2A  ; Pressure HI byte.
 const ps_TEMP_L   0x2B  ; Temperature LO byte.
 const ps_TEMP_H   0x2C  ; Temperature HI byte.
 
+; Math constants.
+const off_16bs    0x80  ; Convert sixteen bit signed to unsigned.
 
 ; ------------------------------------------------------------
 ; The CPU reserves two locations 0x0000 for the start of program
@@ -97,15 +102,21 @@ ld (mmu_dfr),A
 ; Sixteen-bit read from sensor. The first byte will be in B
 ; and the second in A.
 
-ld A,ps_WHO_AM_I
+ld A,ps_TEMP_L
 call i2c_rd16
 
-; Transfer the two bytes into the transmit data registers.
+; The HI byte is in A after the read. We add 0x80 to the HI byte,
+; which brings the most negative possible value of temperature 
+; to zero, a zero temperature to 32768, and the maximum possible
+; value to 65535. We then load the offset value into the transmit
+; HI byte register, followed by the LO byte from B, which we write
+; to the LO transmit register.
 
-ld (mmu_xlb),A
+add A,off_16bs 
+ld (mmu_xhb),A
 push B
 pop A
-ld (mmu_xhb),A
+ld (mmu_xlb),A
 
 ; Write the device identifier to the transmit channel number register.
 
@@ -122,6 +133,21 @@ ld (mmu_xcr),A
 
 ld A,tx_delay    
 dly A            
+
+; Read the LO and HI pressure bytes and transmit on the next channel number.
+
+ld A,ps_P_L
+call i2c_rd16
+ld (mmu_xhb),A
+push B
+pop A
+ld (mmu_xlb),A
+ld A,device_id
+inc A
+ld (mmu_xcn),A
+ld (mmu_xcr),A
+ld A,tx_delay
+dly A
 
 ; Reset all interrupts.
 
@@ -232,10 +258,10 @@ push C
 ld A,0x02
 ld (mmu_dfr),A
 
-ld A,0x00
+ld A,0x38
 push A
 pop C
-ld A,ps_IF_CTRL
+ld A,ps_CTRL1
 call i2c_wr8
 
 ld A,0x00
