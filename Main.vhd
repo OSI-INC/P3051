@@ -646,6 +646,6 @@ begin
 	TP1 <= to_std_logic(FHI);
 	
 -- Test Point Two appears on P3-2 after the programming connector has been removed.
-	TP2 <= df_reg(1);
+	TP2 <= df_reg(0);
 
 end behavior;

@@ -5,8 +5,9 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        49  ; Will be used as the first channel number.
-const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
+const device_id        51  ; Will be used as the first channel number.
+const P_sample_period   0  ; P sample period, use 0 for 256.
+const T_sub_sample      2  ; The number of P samples per T sample.
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -39,29 +40,40 @@ const mmu_bcc   0x0636 ; Boost CPU Clock
 const mmu_dfr   0x0638 ; Diagnostic Flag Resister
 
 ; Configuration Constants
-const min_tcf       75  ; Minimum TCK periods per half RCK period.
-const max_tcd       31  ; Maximum possible value of transmit clock divisor.
+const min_tcf       75 ; Minimum TCK periods per half RCK period.
+const max_tcd       31 ; Maximum possible value of transmit clock divisor.
 
 ; Timing Constants.
-const tx_delay      50  ; Wait time for sample transmission, TCK periods.
-const boot_delay     3  ; Boot delay, multiples of 7.8 ms.
+const tx_delay      50 ; Wait time for sample transmission, TCK periods.
+const boot_delay     3 ; Boot delay, multiples of 7.8 ms.
+const main_delay    21 ; Delay in main loop.
 
 ; Sensor Addresses
-const ps_SAD      0x5C  ; Pressure sensor I2C address (SAD).
-const ps_IF_CTRL  0x0E  ; Interface Control
-const ps_WHO_AM_I 0x0F  ; Fixed value 0xB4
-const ps_CTRL1    0x10  ; Control Register One
-const ps_CTRL2    0x11  ; Control Register Two
-const ps_CTRL3    0x12  ; Control Register Three
-const ps_CTRL4    0x13  ; Control Register Four
-const ps_P_XL     0x28  ; Pressure Extra LO byte.
-const ps_P_L      0x29  ; Pressure LO byte.
-const ps_P_H      0x2A  ; Pressure HI byte.
-const ps_TEMP_L   0x2B  ; Temperature LO byte.
-const ps_TEMP_H   0x2C  ; Temperature HI byte.
+const ps_SAD      0x5C ; Pressure sensor I2C address (SAD).
+const ps_IF_CTRL  0x0E ; Interface Control
+const ps_WHO_AM_I 0x0F ; Fixed value 0xB4
+const ps_CTRL1    0x10 ; Control Register One
+const ps_CTRL2    0x11 ; Control Register Two
+const ps_CTRL3    0x12 ; Control Register Three
+const ps_CTRL4    0x13 ; Control Register Four
+const ps_P_XL     0x28 ; Pressure Extra LO byte.
+const ps_P_L      0x29 ; Pressure LO byte.
+const ps_P_H      0x2A ; Pressure HI byte.
+const ps_TEMP_L   0x2B ; Temperature LO byte.
+const ps_TEMP_H   0x2C ; Temperature HI byte.
+
+; Sensor Constants
+const ps_1s_config 0x00 ; Configure sensor for one-shot.
+const ps_meas_req  0x41 ; Request a new measurement.
 
 ; Math constants.
 const off_16bs    0x80  ; Convert sixteen bit signed to unsigned.
+const rand_taps   0xB4  ; Determines which taps to XOR.
+
+; Process variables.
+const counter_T   0x00  ; A sub-sample counter for temperature.
+const rand_1      0x01  ; Random number hight byte.
+const rand_0      0x02  ; Random number low byte.
 
 ; ------------------------------------------------------------
 ; The CPU reserves two locations 0x0000 for the start of program
@@ -73,32 +85,38 @@ jp initialize
 jp interrupt
 
 ; ------------------------------------------------------------
-; The interrupt routine. Reads the sensor and transmits the
-; measurement with the sample transmitter.
+; The interrupt routine. Reads the sensor, transmits measurements,
+; and initiates new measurements.
 
 interrupt:
 
-; Save A on the stack, set bit zero to one, use to enable
-; the transmit clock and then boost the CPU to TCK. Push
-; F, B, and C onto stack.
+; Save A on the stack. Set the zero bit of the diagnostic flag 
+; register. We can direct this bit to a test pin to see if the 
+; interrupt is happening.
 
-push A       
+push A 
+ld A,(mmu_dfr)     
+or A,0x01          
+ld (mmu_dfr),A 
+
+; Delay a random number of clock cycles. 
+
+ld A,(rand_0)
+and A,0x0F
+dly A
+
+; Enable the transmit clock and boost the CPU to TCK. 
+      
 ld A,0x01          
 ld (mmu_etc),A    
 ld (mmu_bcc),A
+
+; Push the flags as well as registers B, C, and D onto the stack.
+
 push F  
 push B  
 push C
 push D
-
-; Set the zero bit of the diagnostic flag register. We can
-; direct this bit to a test pin to see if the interrupt is
-; happening. We read the register and OR with 0x01 to set
-; the zero bit.
-
-ld A,(mmu_dfr)     
-or A,0x01          
-ld (mmu_dfr),A 
 
 ; Read the XL, L, and H pressure bytes with a three-byte i2c
 ; read. They will be returned in C, B, and A respectively.
@@ -107,7 +125,8 @@ ld A,ps_P_XL
 call i2c_rd24
 
 ; Shift the entire twenty-four bit measurement one bit to
-; the left and prepare the top two bytes for transmission.
+; the left and write the top two bytes of the shifted data
+; into the transmit data registers.
 
 push A
 pop D
@@ -123,18 +142,58 @@ pop A
 rl A
 ld (mmu_xhb),A
 
-; Transmit.
+; Initiate the transmission of the pressure measurement. The transmit
+; clock must continue to run for tx_delay clock cycles in order for
+; the transmit to complete. Because we are going to access the sensor
+; immediately after initiating the transmission, we do not need to 
+; include an explicit delay as in, "ld A,tx_delay; dly A".
 
 ld A,device_id
 ld (mmu_xcn),A
 ld (mmu_xcr),A
-ld A,tx_delay
-dly A
+
+; If it's time to report temperature, proceed to do so.
+
+ld A,(counter_T)
+dec A
+ld (counter_T),A
+jp nz,int_measure
+ld A,T_sub_sample
+ld (counter_T),A
+
+; Read the sixteen-bit temperature measurement. We will read two bytes, 
+; T_L and T_H. These bytes will be returned C and B respectively.
+
+ld A,ps_TEMP_L
+call i2c_rd16
+
+; Add an offset to the two's compliment temperature measurement so that it
+; is now centered at 32678. Write the two bytes to the transmit registers.
+
+push B
+pop A
+add A,off_16bs
+ld (mmu_xhb),A
+push C
+pop A
+ld (mmu_xlb),A
+
+; Initiate the transmission on a new channel number. We do not need an
+; explicit transmission delay because we are going to write to the 
+; sensor, which takes enough time for the transmission to complete.
+
+ld A,device_id
+inc A
+ld (mmu_xcn),A
+ld (mmu_xcr),A
 
 ; Tell the sensor to measure temperature and pressure again. We'll read
-; out the values on our next interrupt.
+; out the values on our next interrupt. We pass the eight-bit I2C write
+; routine the value to be written in register C and the address to be 
+; written in A.
 
-ld A,0x41
+int_measure:
+ld A,ps_meas_req
 push A
 pop C
 ld A,ps_CTRL2
@@ -250,13 +309,13 @@ push C
 ld A,0x02
 ld (mmu_dfr),A
 
-ld A,0x00
+ld A,ps_1s_config
 push A
 pop C
 ld A,ps_CTRL1
 call i2c_wr8
 
-ld A,0x41
+ld A,ps_meas_req
 push A
 pop C
 ld A,ps_CTRL2
@@ -320,6 +379,14 @@ call calibrate_tck
 ld A,tx_frequency
 ld (mmu_xfc),A
 
+; Initialize variables.
+
+ld A,T_sub_sample
+ld (counter_T),A
+ld A,0xFF
+ld (rand_0),A
+ld (rand_1),A
+
 ; Initialize the pressure sensor.
 
 call sensor_init
@@ -332,7 +399,7 @@ call sensor_init
 
 ld A,0xFF           
 ld (mmu_irst),A  
-ld A,sample_period 
+ld A,P_sample_period 
 dec A 
 ld (mmu_itp),A 
 ld A,0x01 
@@ -347,17 +414,43 @@ jp main
 ; The main program loop. The interrupts will be running 
 ; in the background, and they do all the work. The main
 ; routine generates a pulse on bit one of the diagnostic
-; flag register, and it implements a delay so these 
-; pulses are rare.
+; flag register. It's only task is to update the random 
+; number, and implement a delay.
 
 main:
 
 ld A,(mmu_dfr) 
 or A,0x02
 ld (mmu_dfr),A
+
+; Rotate rand_1 to the right, filling the top bit with
+; zero and placing the bottom bit in carry. 
+
+ld A,(rand_1)    
+srl A       
+ld (rand_1),A 
+
+; Rotate rand_0 to the right, filling top bit with carry 
+; and placing the bottom bit in carry.
+
+ld A,(rand_0)
+rr A
+ld (rand_0),A
+
+; If carry is set, XOR rand_1 with tap bits. We have now
+; updated our random number.
+
+jp nc,rand_tz 
+ld A,(rand_1)  
+xor A,rand_taps
+ld (rand_1),A
+rand_tz:
+
+ld A,(mmu_dfr)
 and A,0xFD
 ld (mmu_dfr),A
-ld A,255  
+
+ld A,main_delay
 dly A      
 jp main
 
@@ -524,6 +617,283 @@ ld (mmu_i2cA1),A  ; 3
 ld (mmu_i2cA0),A  ; 3
 
 ; I2C: Accept slave acknowledgement (SAK).
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+; I2C: Stop code (SP).
+
+ld (mmu_i2c00),A  ; 3
+ld (mmu_i2c01),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+     
+ret
+
+
+; ------------------------------------------------------------
+; I2C Sixteen-Bit Read. Read two consecutive bytes from the sensor
+; address map. The address of the first byte should be passed into
+; the routine in the accumulator. The first byte read will be returned
+; in C, the second in B.
+
+i2c_rd16:
+
+; Store the sub-address address in B.
+
+push A            ; 1
+pop B             ; 2
+
+; I2C: Start code (ST)
+
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2c01),A  ; 3
+ld (mmu_i2c00),A  ; 3
+
+; I2C: Write seven-bit device address and !WRITE flag (SAD+W).
+
+ld A,ps_SAD       ; 2
+sla A             ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+; I2C: Accept slave acknowledgement (SAK).
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+; I2C: Write eight-bit sub address (SUB), which is
+; stored in B.
+
+push B            ; 1
+pop A             ; 2
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+; I2C: Accept slave acknowledgement (SAK).
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+; I2C: Repeat start code (RS)
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2c01),A  ; 3
+ld (mmu_i2c00),A  ; 3
+
+; I2C: Write seven-bit device address again, this time with
+; a READ flag (SAD+R).
+
+ld A,ps_SAD       ; 2
+sla A             ; 1
+or A,0x01         ; 2
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+rl A              ; 1
+ld (mmu_i2cA0),A  ; 3
+ld (mmu_i2cA1),A  ; 3
+ld (mmu_i2cA0),A  ; 3
+
+; I2C: Accept slave acknowledgement (SAK).
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+; I2C: Read eight data bits from slave (DATA).
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+; Transfer the first data byte to C.
+
+ld A,(mmu_i2cMR)  ; 4
+push A            ; 1
+pop C             ; 2
+
+; I2C: Transmit master acknowledgement (MAK).
+
+ld (mmu_i2c00),A  ; 3
+ld (mmu_i2c01),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+; I2C: Read eight data bits from slave (DATA).
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+; Transfer the second data byte to B.
+
+ld A,(mmu_i2cMR)  ; 4
+push A            ; 1
+pop B             ; 2
+
+; I2C: Transmit not master acknowledgement (NMAK).
 
 ld (mmu_i2cZ0),A  ; 3
 ld (mmu_i2cZ1),A  ; 3
@@ -857,6 +1227,4 @@ ld (mmu_i2c01),A  ; 3
 ld (mmu_i2cZ1),A  ; 3
      
 ret
-
-; ------------------------------------------------------------
 
