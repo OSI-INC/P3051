@@ -5,7 +5,7 @@
 
 ; Calibration Constants
 const tx_frequency      5  ; Transmit frequency calibration
-const device_id        72  ; Will be used as the first channel number.
+const device_id        49  ; Will be used as the first channel number.
 const sample_period     0  ; Sample period in units of RCK periods, use 0 for 256.
 
 ; Address Map Boundary Constants
@@ -89,6 +89,7 @@ ld (mmu_bcc),A
 push F  
 push B  
 push C
+push D
 
 ; Set the zero bit of the diagnostic flag register. We can
 ; direct this bit to a test pin to see if the interrupt is
@@ -97,57 +98,47 @@ push C
 
 ld A,(mmu_dfr)     
 or A,0x01          
-ld (mmu_dfr),A  
+ld (mmu_dfr),A 
 
-; Sixteen-bit read from sensor. The first byte will be in B
-; and the second in A.
+; Read the XL, L, and H pressure bytes with a three-byte i2c
+; read. They will be returned in C, B, and A respectively.
 
-ld A,ps_TEMP_L
-call i2c_rd16
+ld A,ps_P_XL
+call i2c_rd24
 
-; The HI byte is in A after the read. We add 0x80 to the HI byte,
-; which brings the most negative possible value of temperature 
-; to zero, a zero temperature to 32768, and the maximum possible
-; value to 65535. We then load the offset value into the transmit
-; HI byte register, followed by the LO byte from B, which we write
-; to the LO transmit register.
+; Shift the entire twenty-four bit measurement one bit to
+; the left and prepare the top two bytes for transmission.
 
-add A,off_16bs 
-ld (mmu_xhb),A
+push A
+pop D
+push C
+pop A
+rl A
 push B
 pop A
+rl A
 ld (mmu_xlb),A
-
-; Write the device identifier to the transmit channel number register.
-
-ld A,device_id   
-ld (mmu_xcn),A 
-
-; Initiate transmission with any write to the transmission control
-; register.
-
-ld (mmu_xcr),A 
-
-; Wait for transmission to complete. We must keep the transmit clock going
-; so the state machine will finish its transmission.
-
-ld A,tx_delay    
-dly A            
-
-; Read the LO and HI pressure bytes and transmit on the next channel number.
-
-ld A,ps_P_L
-call i2c_rd16
-ld (mmu_xhb),A
-push B
+push D
 pop A
-ld (mmu_xlb),A
+rl A
+ld (mmu_xhb),A
+
+; Transmit.
+
 ld A,device_id
-inc A
 ld (mmu_xcn),A
 ld (mmu_xcr),A
 ld A,tx_delay
 dly A
+
+; Tell the sensor to measure temperature and pressure again. We'll read
+; out the values on our next interrupt.
+
+ld A,0x41
+push A
+pop C
+ld A,ps_CTRL2
+call i2c_wr8 
 
 ; Reset all interrupts.
 
@@ -161,8 +152,9 @@ ld A,(mmu_dfr)
 and A,0xFE   
 ld (mmu_dfr),A 
 
-; Restore C, B, and F.
+; Restore D, C, B, and F.
 
+pop D
 pop C
 pop B
 pop F 
@@ -258,10 +250,16 @@ push C
 ld A,0x02
 ld (mmu_dfr),A
 
-ld A,0x38
+ld A,0x00
 push A
 pop C
 ld A,ps_CTRL1
+call i2c_wr8
+
+ld A,0x41
+push A
+pop C
+ld A,ps_CTRL2
 call i2c_wr8
 
 ld A,0x00
@@ -541,18 +539,18 @@ ret
 
 
 ; ------------------------------------------------------------
-; I2C Sixteen-Bit Read. Read two consecutive bytes from the sensor
+; I2C Twenty-Four-Bit Read. Read three consecutive bytes from the sensor
 ; address map. The address of the first byte should be passed into
 ; the routine in the accumulator. The first byte read will be returned
-; in B, the second in A.
+; in C, the second in B, the third in A.
 
-i2c_rd16:
+i2c_rd24:
 
 ; Store the sub-address address in B.
 
 push A            ; 1
 pop B             ; 2
-       
+
 ; I2C: Start code (ST)
 
 ld (mmu_i2cZ1),A  ; 3
@@ -750,7 +748,53 @@ ld (mmu_i2cZ0),A  ; 3
 ld (mmu_i2cZ1),A  ; 3
 ld (mmu_i2cZ0),A  ; 3
 
-; Transfer the data byte to B.
+; Transfer the first data byte to C.
+
+ld A,(mmu_i2cMR)  ; 4
+push A            ; 1
+pop C             ; 2
+
+; I2C: Transmit master acknowledgement (MAK).
+
+ld (mmu_i2c00),A  ; 3
+ld (mmu_i2c01),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+; I2C: Read eight data bits from slave (DATA).
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+ld (mmu_i2cZ0),A  ; 3
+ld (mmu_i2cZ1),A  ; 3
+ld (mmu_i2cZ0),A  ; 3
+
+; Transfer the second data byte to B.
 
 ld A,(mmu_i2cMR)  ; 4
 push A            ; 1
@@ -796,7 +840,7 @@ ld (mmu_i2cZ0),A  ; 3
 ld (mmu_i2cZ1),A  ; 3
 ld (mmu_i2cZ0),A  ; 3
 
-; Transfer the data byte to A.
+; Transfer the third data byte to A.
 
 ld A,(mmu_i2cMR)  ; 4
 
