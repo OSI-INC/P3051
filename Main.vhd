@@ -25,8 +25,11 @@ entity main is
 		SDA -- Serial Data Access	
 		: inout std_logic;
 		XEN, -- Transmit Enable, for data transmission
-		TP1, -- Test Point One, available on P3-1
-		TP2, -- Test Point Two, available on P3-2
+		PWM, -- Pulse Width Modulated Power
+		TP1, -- Test Point One, available on P1-2
+		TP2, -- Test Point Two, available on P1-3
+		TP3, -- Test Point Three, available on P1-6
+		TP4, -- Test Point Four, available on P1-8
 		SA0  -- LSB of sensor address
 		: out std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
@@ -636,16 +639,28 @@ begin
 			FHI <= false;
 		end if;
 	end process;
+	
+-- We drive the two buck converters into Pulse Width Modulation mode, in which 
+-- they can deliver more current with only a few millivolts of ripple, whenever
+-- we turn on the transmit clock. The stability of the power supply voltage 
+-- ensures the stability of the ring oscillator frequency.
+	PWM <= to_std_logic(ENTCK);
 		
 -- Sensor Address Zero we hold LO to indicate that the sensor address is 1011100b.
--- So as to add information to SA0, we drive it with RESET, which will be LO except
--- during RESET.
-	SA0 <= RESET;
+	SA0 <= '0';
 		
--- Test Point One appears on P3-1 after the programming connector has been removed. 
+-- Test Point One appears on P1-2 after the programming connector has been removed. 
 	TP1 <= to_std_logic(FHI);
 	
--- Test Point Two appears on P3-2 after the programming connector has been removed.
+-- Test Point Two appears on P1-3 after the programming connector has been removed.
 	TP2 <= df_reg(0);
+
+-- Test Point Two appears on P1-6 after the programming connector has been removed.
+	TP3 <= df_reg(1);
+
+-- Test Point Two appears on P1-8 after the programming connector has been removed.
+-- This test point should be LO almost all the time because it is held LO with a
+-- resistor that draws over a hundred microamps.
+	TP4 <= df_reg(2);
 
 end behavior;
