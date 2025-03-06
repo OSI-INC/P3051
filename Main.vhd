@@ -644,7 +644,9 @@ begin
 -- they can deliver more current with only a few millivolts of ripple, whenever
 -- we turn on the transmit clock. The stability of the power supply voltage 
 -- ensures the stability of the ring oscillator frequency.
-	PWM <= to_std_logic(ENTCK);
+--	PWM <= to_std_logic(ENTCK);
+--	PWM <= to_std_logic(TXA);
+	PWM <= '0';
 		
 -- Sensor Address Zero we hold LO to indicate that the sensor address is 1011100b.
 	SA0 <= '0';
@@ -661,6 +663,7 @@ begin
 -- Test Point Two appears on P1-8 after the programming connector has been removed.
 -- This test point should be LO almost all the time because it is held LO with a
 -- resistor that draws over a hundred microamps.
-	TP4 <= df_reg(2);
+--	TP4 <= df_reg(2);
+	TP4 <= PWM;
 
 end behavior;
