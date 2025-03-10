@@ -117,8 +117,8 @@ architecture behavior of main is
 	signal xmit_bits -- Sixteen bits to be transmitted as a message.
 		: std_logic_vector(15 downto 0) := (others => '0');
 	signal tx_channel : integer range 0 to 255 := 1; -- Transmit channel number
-	signal frequency_low : integer range 0 to 31 := 6; -- Low frequency for transmission
-	constant frequency_step : integer := 1; -- High minus low frequency
+	signal frequency_low : integer range 0 to 31 := 7; -- Low frequency for transmission
+	constant frequency_step : integer := 2; -- High minus low frequency
 		
 -- CPU-Writeable Diagnostic Flags
 	signal df_reg : std_logic_vector(7 downto 0) := (others => '0');
@@ -257,6 +257,7 @@ begin
 			SIG => CPUSIG,
 			RESET => RESET,
 			CK => CK
+--          CK => '0'
 		);
 		
 -- The Memory Manager maps eight-bit read and write access to the 
@@ -640,12 +641,10 @@ begin
 		end if;
 	end process;
 	
--- We drive the two buck converters into Pulse Width Modulation mode, in which 
--- they can deliver more current with only a few millivolts of ripple, whenever
--- we turn on the transmit clock. The stability of the power supply voltage 
--- ensures the stability of the ring oscillator frequency.
---	PWM <= to_std_logic(ENTCK);
---	PWM <= to_std_logic(TXA);
+-- We can drive the two buck converters into Pulse Width Modulation mode with this
+-- output, but we have not found this to be useful. The response of the converter
+-- is not fast enough to provide stable bursts of current during transmission. We
+-- disable PWM permanently.
 	PWM <= '0';
 		
 -- Sensor Address Zero we hold LO to indicate that the sensor address is 1011100b.
@@ -662,8 +661,8 @@ begin
 
 -- Test Point Two appears on P1-8 after the programming connector has been removed.
 -- This test point should be LO almost all the time because it is held LO with a
--- resistor that draws over a hundred microamps.
---	TP4 <= df_reg(2);
-	TP4 <= PWM;
+-- resistor that draws over a hundred microamps. So we use it to indicate that the
+-- logic chip has not yet entered its standby state.
+	TP4 <= not SFLAG;
 
 end behavior;

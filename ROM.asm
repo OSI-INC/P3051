@@ -4,10 +4,11 @@
 ; This code runs in the OSR8 microprocessor of the A3051A.
 
 ; Calibration Constants
-const tx_frequency      5  ; Transmit frequency calibration
+const tx_frequency     23  ; Transmit frequency calibration
 const device_id        51  ; Will be used as the first channel number.
 const P_sample_period   0  ; P sample period, use 0 for 256.
-const T_sub_sample      2  ; The number of P samples per T sample.
+const T_sub_sample      0  ; P samples per T sample, zero to disable T.
+const tcd_forced       27  ; Set to non-zero to force transmit clock calib.
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -41,7 +42,7 @@ const mmu_dfr   0x0638 ; Diagnostic Flag Resister
 
 ; Configuration Constants
 const min_tcf       75 ; Minimum TCK periods per half RCK period.
-const max_tcd       31 ; Maximum possible value of transmit clock divisor.
+const max_tcd       40 ; Maximum possible value of transmit clock divisor.
 
 ; Timing Constants.
 const tx_delay      50 ; Wait time for sample transmission, TCK periods.
@@ -154,6 +155,9 @@ ld (mmu_xcr),A
 
 ; If it's time to report temperature, proceed to do so.
 
+ld A,T_sub_sample
+add A,0
+jp z,int_measure
 ld A,(counter_T)
 dec A
 ld (counter_T),A
@@ -288,6 +292,14 @@ sub A,min_tcf
 ld A,0x00       
 ld (mmu_etc),A   
 jp np,cal_tck_1 
+
+; If tcd_forced is non-zero, we use it to set the transmit
+; clock divisor no matter what our calibration.
+ld A,tcd_forced
+sub A,0x00
+jp z,cal_tck_unforced
+ld (mmu_tcd),A
+cal_tck_unforced:
 
 ; Pop and return.
 
