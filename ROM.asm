@@ -5,9 +5,9 @@
 
 ; Calibration Constants
 const tx_frequency     23  ; Transmit frequency calibration
-const device_id        51  ; Will be used as the first channel number.
+const device_id        53  ; Will be used as the first channel number.
 const P_sample_period   0  ; P sample period, use 0 for 256.
-const T_sub_sample      0  ; P samples per T sample, zero to disable T.
+const T_sub_sample      1  ; P samples per T sample, zero to disable T.
 const tcd_forced       27  ; Set to non-zero to force transmit clock calib.
 
 ; Address Map Boundary Constants
@@ -125,9 +125,9 @@ push D
 ld A,ps_P_XL
 call i2c_rd24
 
-; Shift the entire twenty-four bit measurement one bit to
-; the left and write the top two bytes of the shifted data
-; into the transmit data registers.
+; Shift the entire twenty-four bit measurement to the left 
+; and write the top two bytes of the shifted data into the 
+; transmit data registers.
 
 push A
 pop D
