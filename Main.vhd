@@ -43,6 +43,7 @@ entity main is
 
 -- Configuration of peripherals.
 	constant ram_addr_len : integer := 10;
+	constant tcd_range : integer := 15;
 	
 -- Memory map sizes and base addresses in units of 512 bytes.
 	constant ram_base : integer := 0;
@@ -99,8 +100,8 @@ architecture behavior of main is
 	attribute nomerge of TCK, FCK, CK : signal is "";  
 	signal ENTCK : boolean := false; -- Enable Transmit Clock
 	signal tck_frequency : integer range 0 to 255; -- Transmit Clock Counter
-	constant default_tck_divisor : integer := 11;
-	signal tck_divisor : integer range 0 to 15 := default_tck_divisor;
+	constant tcd_default : integer := 21;
+	signal tck_divisor : integer range 0 to tcd_range := tcd_default;
 	signal BOOST : boolean := false; -- Boost CPU Clock Frequency
 	
 -- Sensor Readout
@@ -201,10 +202,13 @@ begin
 -- The transmit clock should be turned on during a sensor access as well, so that
 -- the sensor access will be quick and the sensor can power down again sooner. The
 -- ring oscillator will produce FCK at 10 MHz.
-	Fast_CK : entity ring_oscillator port map (
-		ENABLE => to_std_logic(ENTCK), 
-		calib => tck_divisor,
-		CK => FCK);
+	Fast_CK : entity ring_oscillator 
+		generic map (
+			calib_range => tcd_range)	
+		port map (
+			ENABLE => to_std_logic(ENTCK), 
+			calib => tck_divisor,
+			CK => FCK);
 	
 -- The Transmit Clock process divides FCK in two so as to produce a clock with
 -- exactly 50% duty cycle and frequency close to 5 MHz, which we call the 
@@ -323,7 +327,7 @@ begin
 			TXI <= false;
 			ENTCK <= false;
 			BOOST <= false;
-			tck_divisor <= default_tck_divisor;
+			tck_divisor <= tcd_default;
 			int_period <= (others => '0');
 			int_mask <= (others => '0');
 			i2c_in <= (others => '0');

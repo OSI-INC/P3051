@@ -4,9 +4,11 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity ring_oscillator is 
+	generic (
+		calib_range : integer := 15);
 	port (
 		ENABLE : in std_logic;
-		calib : in integer range 0 to 15;
+		calib : in integer range 0 to calib_range;
 		CK : out std_logic);
 end;
 
@@ -58,7 +60,7 @@ begin
 	RIN <= to_std_logic((ENABLE = '1') and (R4 = '0'));
 	
 	divider : process (RIN) is
-		variable count, next_count : integer range 0 to 15;
+		variable count, next_count : integer range 0 to calib_range;
 	begin	
 		
 		-- Act on the rising edge of RIN.
