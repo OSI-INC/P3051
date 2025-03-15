@@ -12,6 +12,9 @@
 -- prog_addr on power-up. Others clauses in MMU case statements reduce
 -- code size.
 
+-- Version 3.1 [13-MAR-25] Add tcd_range to ring oscillator. Code runs
+-- on A3051BV1, tested.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;

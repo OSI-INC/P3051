@@ -6,9 +6,9 @@
 ; Calibration Constants
 const tx_frequency     21  ; Transmit frequency calibration
 const device_id        55  ; Will be used as the first channel number.
-const P_sample_period   0  ; P sample period, use 0 for 256.
-const T_sub_sample      1  ; P samples per T sample, zero to disable T.
-const tcd_forced        8  ; Set to non-zero to force transmit clock calib.
+const P_sample_period 128  ; P sample period, use 0 for 256.
+const T_sub_sample      4  ; P samples per T sample, zero to disable T.
+const tcd_forced        0  ; Set to non-zero to force transmit clock calib.
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -42,7 +42,7 @@ const mmu_dfr   0x0638 ; Diagnostic Flag Resister
 
 ; Configuration Constants
 const min_tcf       75 ; Minimum TCK periods per half RCK period.
-const max_tcd       40 ; Maximum possible value of transmit clock divisor.
+const max_tcd       15 ; Maximum possible value of transmit clock divisor.
 
 ; Timing Constants.
 const tx_delay      50 ; Wait time for sample transmission, TCK periods.
@@ -65,7 +65,7 @@ const ps_TEMP_H   0x2C ; Temperature HI byte.
 
 ; Sensor Constants
 const ps_1s_config 0x00 ; Configure sensor for one-shot.
-const ps_meas_req  0x41 ; Request a new measurement.
+const ps_meas_req  0x49 ; Request a new measurement.
 
 ; Math constants.
 const off_16bs    0x80  ; Convert sixteen bit signed to unsigned.
