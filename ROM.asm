@@ -5,10 +5,20 @@
 
 ; Calibration Constants
 const tx_frequency     21  ; Transmit frequency calibration
-const device_id        55  ; Will be used as the first channel number.
-const P_sample_period 128  ; P sample period, use 0 for 256.
-const T_sub_sample      4  ; P samples per T sample, zero to disable T.
+const device_id        53  ; Will be used as the first channel number.
 const tcd_forced        0  ; Set to non-zero to force transmit clock calib.
+const sample_period   128  ; For the sample state machine.
+
+; Sampling Process. We use bit zero for pressure enable, bit one for
+; tempearture enable, and we have five sets of flags.
+const state_0         0x03 ; Sample pressure and temperature.
+const state_1         0x01 ; Sample pressure.
+const state_2         0x01 ; Sample pressure. 
+const state_3         0x01 ; Sample pressure.
+const state_4         0x03 ; Sample pressure and temperature. 
+const state_5         0x01 ; Sample pressure.
+const state_6         0x01 ; Sample pressure. 
+const state_7         0x01 ; Sample pressure.
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
@@ -72,9 +82,11 @@ const off_16bs    0x80  ; Convert sixteen bit signed to unsigned.
 const rand_taps   0xB4  ; Determines which taps to XOR.
 
 ; Process variables.
-const counter_T   0x00  ; A sub-sample counter for temperature.
-const rand_1      0x01  ; Random number hight byte.
-const rand_0      0x02  ; Random number low byte.
+const s_state   0x0000  ; State of the sample machine.
+const rand_1    0x0001  ; Random number high byte.
+const rand_0    0x0002  ; Random number low byte.
+const s_flags   0x0010  ; Sample flags.
+
 
 ; ------------------------------------------------------------
 ; The CPU reserves two locations 0x0000 for the start of program
@@ -91,11 +103,14 @@ jp interrupt
 
 interrupt:
 
-; Save A on the stack. Set the zero bit of the diagnostic flag 
-; register. We can direct this bit to a test pin to see if the 
-; interrupt is happening.
+; Save A and flags on the stack. 
 
 push A 
+push F  
+
+; Set the zero bit of the diagnostic flag register. We can direct this 
+; bit to a test pin to see when the interrupt is happening.
+
 ld A,(mmu_dfr)     
 or A,0x01          
 ld (mmu_dfr),A 
@@ -112,16 +127,46 @@ ld A,0x01
 ld (mmu_etc),A    
 ld (mmu_bcc),A
 
-; Push the flags as well as registers B, C, and D onto the stack.
+; Push registers B, C, D, and IX onto the stack.
 
-push F  
 push B  
 push C
 push D
+push IX
+
+; Read the state, increment, modulo eight, and store.
+
+ld A,(s_state)
+inc A
+and A,0x07
+ld (s_state),A
+
+; Get the sample control flags from the flag array.
+
+ld IX,s_flags
+push IX
+pop B
+pop C
+add A,B
+push A
+pop B
+push C
+pop A
+adc A,0
+push A
+push B
+pop IX
+
+; If bit zero of state flags is set, we sample pressure.
+
+ld A,(IX)
+and A,0x01
+jp z,xmit_temp
 
 ; Read the XL, L, and H pressure bytes with a three-byte i2c
 ; read. They will be returned in C, B, and A respectively.
 
+xmit_pressure:
 ld A,ps_P_XL
 call i2c_rd24
 
@@ -146,8 +191,7 @@ ld (mmu_xhb),A
 ; Initiate the transmission of the pressure measurement. The transmit
 ; clock must continue to run for tx_delay clock cycles in order for
 ; the transmit to complete. Because we are going to access the sensor
-; immediately after initiating the transmission, we do not need to 
-; include an explicit delay as in, "ld A,tx_delay; dly A".
+; before we transmit again, we do not need to  include an explicit delay.
 
 ld A,device_id
 ld (mmu_xcn),A
@@ -155,15 +199,10 @@ ld (mmu_xcr),A
 
 ; If it's time to report temperature, proceed to do so.
 
-ld A,T_sub_sample
-add A,0
+xmit_temp:
+ld A,(IX)
+and A,0x02
 jp z,int_measure
-ld A,(counter_T)
-dec A
-ld (counter_T),A
-jp nz,int_measure
-ld A,T_sub_sample
-ld (counter_T),A
 
 ; Read the sixteen-bit temperature measurement. We will read two bytes, 
 ; T_L and T_H. These bytes will be returned C and B respectively.
@@ -191,12 +230,15 @@ inc A
 ld (mmu_xcn),A
 ld (mmu_xcr),A
 
-; Tell the sensor to measure temperature and pressure again. We'll read
-; out the values on our next interrupt. We pass the eight-bit I2C write
-; routine the value to be written in register C and the address to be 
-; written in A.
+; Provided we just transmitted pressure, tell the sensor to measure 
+; temperature and pressure again. We'll read out the values later.
+; We pass the eight-bit I2C write routine the value to be written in 
+; register C and the address to be written in A.
 
 int_measure:
+ld A,(IX)
+and A,0x01
+jp z,int_done
 ld A,ps_meas_req
 push A
 pop C
@@ -205,6 +247,7 @@ call i2c_wr8
 
 ; Reset all interrupts.
 
+int_done:
 ld A,0xFF   
 ld (mmu_irst),A   
 
@@ -215,8 +258,9 @@ ld A,(mmu_dfr)
 and A,0xFE   
 ld (mmu_dfr),A 
 
-; Restore D, C, B, and F.
+; Restore IX, D, C, B, and F.
 
+pop IX
 pop D
 pop C
 pop B
@@ -393,8 +437,34 @@ ld (mmu_xfc),A
 
 ; Initialize variables.
 
-ld A,T_sub_sample
-ld (counter_T),A
+ld A,0
+ld (s_state),A
+
+ld IX,s_flags
+ld A,state_0
+ld (IX),A
+inc IX
+ld A,state_1
+ld (IX),A
+inc IX
+ld A,state_2
+ld (IX),A
+inc IX
+ld A,state_3
+ld (IX),A
+inc IX
+ld A,state_4
+ld (IX),A
+inc IX
+ld A,state_5
+ld (IX),A
+inc IX
+ld A,state_6
+ld (IX),A
+inc IX
+ld A,state_7
+ld (IX),A
+
 ld A,0xFF
 ld (rand_0),A
 ld (rand_1),A
@@ -411,7 +481,7 @@ call sensor_init
 
 ld A,0xFF           
 ld (mmu_irst),A  
-ld A,P_sample_period 
+ld A,sample_period 
 dec A 
 ld (mmu_itp),A 
 ld A,0x01 
@@ -427,7 +497,7 @@ jp main
 ; in the background, and they do all the work. The main
 ; routine generates a pulse on bit one of the diagnostic
 ; flag register. It's only task is to update the random 
-; number, and implement a delay.
+; number, which we use to generate transmission scatter.
 
 main:
 

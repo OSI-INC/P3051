@@ -14,7 +14,7 @@ end;
 
 architecture behavior of ring_oscillator is 
 
--- WARNING: The ring oscillator is a precarious, in that it is hard to predict what
+-- WARNING: The ring oscillator is precarious, in that it is hard to predict what
 -- small changes in the code will do to its behavior.
 
 -- When compiling and routing this oscillator, we have to convince the VHDL compiler
@@ -37,28 +37,30 @@ architecture behavior of ring_oscillator is
 
 -- Ring Oscillator and Transmit Clock
 	component BUFBA is port (A : in std_logic; Z : out std_logic); end component;
-	signal RIN, R1, R2, R3, R4 : std_logic;
-	attribute syn_keep of RIN, R1, R2, R3, R4 : signal is true;
-	attribute nomerge of RIN, R1, R2, R3, R4 : signal is ""; 
-
--- At times we try a Gray Code counter in the divider, but it never works out.
--- We keep the 0-31 Gray Code values here to save us time in the future, when
--- we once again decide that a Gray Code divider will be faster and better. One
--- problem with the Gray Code counter is that if we set it to count down from
--- our calib signal, the transition from zero to calib will require more than one
--- bit change.
-	type gray_code_type is array (0 to 31) of integer range 0 to 31;
-	constant gray_code : gray_code_type :=
-		(0,1,3,2,6,7,5,4,12,13,15,14,10,11,9,8,24,25,
-		 27,26,30,31,29,28,20,21,23,22,18,19,17,16);
+	signal RIN, R1, R2, R3, R4, R5, R6 : std_logic;
+	attribute syn_keep of RIN, R1, R2, R3, R4, R5, R6 : signal is true;
+	attribute nomerge of RIN, R1, R2, R3, R4, R5, R6 : signal is ""; 
 
 begin
+
+-- Declare the ring oscillator gate entities.
 	ring1 : BUFBA port map (RIN,R1);
 	ring2 : BUFBA port map (R1,R2);
 	ring3 : BUFBA port map (R2,R3);
 	ring4 : BUFBA port map (R3,R4);
-	RIN <= to_std_logic((ENABLE = '1') and (R4 = '0'));
+	ring5 : BUFBA port map (R4,R5);
+	ring6 : BUFBA port map (R5,R6);
+
+-- When ENABLE, feed back the output of one of the gates to the first gate 
+-- in the ring. The ring needs to oscillate fast enough that integer fractions
+-- of the frequency will get us close to our ideal output frequency. It must
+-- run slow enough that our dividor can function.
+	RIN <= to_std_logic((ENABLE = '1') and (R3 = '0'));
 	
+-- The divider process takes the ring osillator output and divides it down to
+-- a slower frequency. When the divisor is even, the output clock will have 
+-- exactly 50% duty cycle. When odd, the duty cycle will be as close to 50% as
+-- we can get.
 	divider : process (RIN) is
 		variable count, next_count : integer range 0 to calib_range;
 	begin	
@@ -66,19 +68,17 @@ begin
 		-- Act on the rising edge of RIN.
 		if rising_edge(RIN) then
 		
-			-- Count down from calib to zero, a total of calib+1 RIN periods will
-			-- make up the CK period.
+			-- Count down from calib to zero, a total of calib+1 RIN periods
+			-- will make up the output clock period.
 			if (count = 0) then 
 				next_count := calib;
 			else 
 				next_count := count - 1;
 			end if;
 			
-			-- We try to get close to 50% duty cycle. With calib = 7, we have CK=1
-			-- for states 0, 1, 2, 3 and CK=0 for 4, 5. 6, 7. With calib = 6, we have
-			-- CK=1 for 0, 1, 2, 3 and CK=0 for 4, 5, 6. We don't use feedback here,
-			-- but instead specify fully the values of CK in terms of calib for all
-			-- values of count so as to speed up the logic behind CK. 
+			-- We try to get close to 50% duty cycle. We don't use feedback,
+			-- but instead specify fully the values of CK in terms of calib 
+			-- for all values of count so as to speed up the logic behind CK. 
 			if (count <= calib/2) then
 				CK <= '1';
 			else

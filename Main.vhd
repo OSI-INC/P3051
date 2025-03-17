@@ -218,7 +218,7 @@ begin
 -- Transmit Clock (TCK). We clock TCK on the falling edge of FCK.
 	Tx_CK : process (FCK) is 
 	begin
-		if falling_edge(FCK) then TCK <= to_std_logic(TCK = '0'); end if;
+		if falling_edge(FCK) then TCK <= not TCK; end if;
 	end process;
 
 -- User memory and configuration code for the CPU. This RAM will be initialized at
