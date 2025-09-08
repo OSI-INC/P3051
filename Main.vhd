@@ -15,6 +15,9 @@
 -- Version 3.1 [13-MAR-25] Add tcd_range to ring oscillator. Code runs
 -- on A3051BV1, tested.
 
+-- Version 3.2 [08-SEP-25] Move device ID and frequency LO out of software
+-- and back into firmware, now that we have fixed the firmware instability.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -37,6 +40,10 @@ entity main is
 		: out std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
+		
+-- Configuration and Calibration of Transmitter.
+	constant device_id : integer := 81;
+	constant frequency_low : integer := 22;
 		
 -- Configuration of OSR8 CPU.
 	constant prog_addr_len : integer := 12;
@@ -62,6 +69,8 @@ entity main is
 	constant mmu_i2cZ0 : integer := 16#04#; -- i2c SDA=Z SCL=0 (Write)
 	constant mmu_i2cZ1 : integer := 16#05#; -- i2c SDA=Z SCL=1 (Write)
 	constant mmu_i2cMR : integer := 16#06#; -- i2C Most Recent Eight Bits (Read)
+	constant mmu_did   : integer := 16#07#; -- Device ID (Read)
+	constant mmu_flo   : integer := 16#08#; -- Frequency Low (Read)
 	constant mmu_sr    : integer := 16#0F#; -- Status Register (Read)
 	constant mmu_irqb  : integer := 16#10#; -- Interrupt Request Bits (Read)
 	constant mmu_imsk  : integer := 16#12#; -- Interrupt Mask Bits (Read/Write)
@@ -103,8 +112,7 @@ architecture behavior of main is
 	attribute nomerge of TCK, FCK, CK : signal is "";  
 	signal ENTCK : boolean := false; -- Enable Transmit Clock
 	signal tck_frequency : integer range 0 to 255; -- Transmit Clock Counter
-	constant tcd_default : integer := 21;
-	signal tck_divisor : integer range 0 to tcd_range := tcd_default;
+	signal tck_divisor : integer range 0 to tcd_range := tcd_range;
 	signal BOOST : boolean := false; -- Boost CPU Clock Frequency
 	
 -- Sensor Readout
@@ -121,8 +129,8 @@ architecture behavior of main is
 	signal xmit_bits -- Sixteen bits to be transmitted as a message.
 		: std_logic_vector(15 downto 0) := (others => '0');
 	signal tx_channel : integer range 0 to 255 := 1; -- Transmit channel number
-	signal frequency_low : integer range 0 to 31 := 7; -- Low frequency for transmission
-	constant frequency_step : integer := 2; -- High minus low frequency
+	signal frequency_ctrl : integer range 0 to 31 := frequency_low; -- Frequency Control
+	constant frequency_step : integer := 2; -- Frequency Step
 		
 -- CPU-Writeable Diagnostic Flags
 	signal df_reg : std_logic_vector(7 downto 0) := (others => '0');
@@ -313,6 +321,10 @@ begin
 					cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
 				when mmu_dfr => cpu_data_in <= df_reg;
 				when mmu_i2cMR => cpu_data_in <= i2c_in;
+				when mmu_did =>
+					cpu_data_in <= std_logic_vector(to_unsigned(device_id,8));
+				when mmu_flo =>
+					cpu_data_in <= std_logic_vector(to_unsigned(frequency_low,8));
 				when others => cpu_data_in <= (others => '0');
 				end case;
 			end if;
@@ -330,7 +342,7 @@ begin
 			TXI <= false;
 			ENTCK <= false;
 			BOOST <= false;
-			tck_divisor <= tcd_default;
+			tck_divisor <= tcd_range;
 			int_period <= (others => '0');
 			int_mask <= (others => '0');
 			i2c_in <= (others => '0');
@@ -377,7 +389,7 @@ begin
 					when mmu_xhb => xmit_bits(15 downto 8) <= cpu_data_out;
 					when mmu_xcn => tx_channel <= to_integer(unsigned(cpu_data_out));
 					when mmu_xcr => TXI <= true;
-					when mmu_xfc => frequency_low <= to_integer(unsigned(cpu_data_out));
+					when mmu_xfc => frequency_ctrl <= to_integer(unsigned(cpu_data_out));
 					when mmu_imsk => int_mask <= cpu_data_out;
 					when mmu_itp => int_period <= cpu_data_out;
 					when mmu_irst => int_rst <= cpu_data_out;
@@ -640,10 +652,10 @@ begin
 		-- the modulation frequency to go from high to low on the falling edge of
 		-- TCK.
 		elsif (TXB xor (TCK = '1')) then
-			xdac <= std_logic_vector(to_unsigned(frequency_low + frequency_step,5));
+			xdac <= std_logic_vector(to_unsigned(frequency_ctrl + frequency_step,5));
 			FHI <= true;
 		else
-			xdac <= std_logic_vector(to_unsigned(frequency_low,5));
+			xdac <= std_logic_vector(to_unsigned(frequency_ctrl,5));
 			FHI <= false;
 		end if;
 	end process;

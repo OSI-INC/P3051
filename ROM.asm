@@ -3,9 +3,7 @@
 
 ; This code runs in the OSR8 microprocessor of the A3051A.
 
-; Calibration Constants
-const tx_frequency     21  ; Transmit frequency calibration
-const device_id        53  ; Will be used as the first channel number.
+; Configuration Constants
 const tcd_forced        0  ; Set to non-zero to force transmit clock calib.
 const sample_period   128  ; For the sample state machine.
 
@@ -33,6 +31,8 @@ const mmu_i2cA1 0x0603 ; i2c SDA=A SCL=1
 const mmu_i2cZ0 0x0604 ; i2c SDA=Z SCL=0
 const mmu_i2cZ1 0x0605 ; i2c SDA=Z SCL=1 
 const mmu_i2cMR 0x0606 ; i2c Most Recent Eight Bits
+const mmu_did   0x0607 ; Device Identifier, used for first channel
+const mmu_flo   0x0608 ; Frequency Low, obtained by calibration
 const mmu_sr    0x060F ; Status Register
 const mmu_irqb  0x0610 ; Interrupt Request Bits
 const mmu_imsk  0x0612 ; Interrupt Mask Bits
@@ -193,7 +193,7 @@ ld (mmu_xhb),A
 ; the transmit to complete. Because we are going to access the sensor
 ; before we transmit again, we do not need to  include an explicit delay.
 
-ld A,device_id
+ld A,(mmu_did)
 ld (mmu_xcn),A
 ld (mmu_xcr),A
 
@@ -225,7 +225,7 @@ ld (mmu_xlb),A
 ; explicit transmission delay because we are going to write to the 
 ; sensor, which takes enough time for the transmission to complete.
 
-ld A,device_id
+ld A,(mmu_did)
 inc A
 ld (mmu_xcn),A
 ld (mmu_xcr),A
@@ -432,7 +432,7 @@ call calibrate_tck
 
 ; Set the low radio frequency for sample transmission
 
-ld A,tx_frequency
+ld A,(mmu_flo)
 ld (mmu_xfc),A
 
 ; Initialize variables.
