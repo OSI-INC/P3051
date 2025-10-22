@@ -18,25 +18,26 @@
 -- Version 3.2 [08-SEP-25] Move device ID and frequency LO out of software
 -- and back into firmware, now that we have fixed the firmware instability.
 
+-- Version 4.1 [21-OCT-25] Adapt for A3051D, in which we have the VC output
+-- to control the core logic voltage. We remove the IDY and SA0 signals.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity main is 
 	port (
-		RCK, -- Reference Clock
-		IDY -- Interrupt/Data Ready
+		RCK -- Reference Clock
 		: in std_logic; 
 		SCL, -- Serial Clock Output
 		SDA -- Serial Data Access	
 		: inout std_logic;
 		XEN, -- Transmit Enable, for data transmission
-		PWM, -- Pulse Width Modulated Power
+		VC, -- Pulse Width Modulated Power
 		TP1, -- Test Point One, available on P1-2
 		TP2, -- Test Point Two, available on P1-3
 		TP3, -- Test Point Three, available on P1-6
-		TP4, -- Test Point Four, available on P1-8
-		SA0  -- LSB of sensor address
+		TP4 -- Test Point Four, available on P1-8
 		: out std_logic;
 		xdac -- Transmit DAC Output, to set data transmit frequency
 		: out std_logic_vector(4 downto 0));
@@ -310,7 +311,6 @@ begin
 				case bottom_bits is
 				when mmu_sr => 
 					cpu_data_in(0) <= SDA; -- Sensor Data Access
-					cpu_data_in(1) <= IDY; -- Sensor Interrupt Data Reacy
 					cpu_data_in(2) <= SCL; -- Sensor Clock
 					cpu_data_in(3) <= to_std_logic(ENTCK);  -- Transmit Clock Enabled
 					cpu_data_in(4) <= to_std_logic(BOOST); -- CPU Boost Enabled
@@ -660,14 +660,9 @@ begin
 		end if;
 	end process;
 	
--- We can drive the two buck converters into Pulse Width Modulation mode with this
--- output, but we have not found this to be useful. The response of the converter
--- is not fast enough to provide stable bursts of current during transmission. We
--- disable PWM permanently.
-	PWM <= '0';
-		
--- Sensor Address Zero we hold LO to indicate that the sensor address is 1011100b.
-	SA0 <= '0';
+-- We can drop the logic core voltage to 1.0 V from 1.2 V by driving VC HI. For now
+-- we leave it LO.
+	VC <= '0';
 		
 -- Test Point One appears on P1-2 after the programming connector has been removed. 
 	TP1 <= to_std_logic(FHI);
