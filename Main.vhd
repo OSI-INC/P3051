@@ -18,8 +18,9 @@
 -- Version 3.2 [08-SEP-25] Move device ID and frequency LO out of software
 -- and back into firmware, now that we have fixed the firmware instability.
 
--- Version 4.1 [21-OCT-25] Adapt for A3051D, in which we have the VC output
--- to control the core logic voltage. We remove the IDY and SA0 signals.
+-- Version 4.1 [21-OCT-25] Adapt for A3051D. Replace PWM with VC, which-- controls 1V2. Remove IDY and SA0. Remove CPU registers that read the
+-- and write the RF low frequency. Calibration of the RF center resides 
+-- soley in VHDL. 
 
 library ieee;  
 use ieee.std_logic_1164.all;
@@ -654,7 +655,7 @@ begin
 	
 -- We can drop the logic core voltage from 1.2 V to 1.0 V by driving VC HI. For now
 -- we leave it LO.
-	VC <= '0';
+	VC <= to_std_logic(not TXA);
 		
 -- Test Point One appears on P1-2 after the programming connector has been removed. 
 	TP1 <= to_std_logic(FHI);
@@ -663,7 +664,7 @@ begin
 	TP2 <= df_reg(0);
 
 -- Test Point Two appears on P1-6 after the programming connector has been removed.
-	TP3 <= df_reg(1);
+	TP3 <= VC;
 
 -- Test Point Two appears on P1-8 after the programming connector has been removed.
 -- This test point should be LO almost all the time because it is held LO with a

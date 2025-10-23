@@ -8,15 +8,15 @@ const tcd_forced        0  ; Set to non-zero to force transmit clock calib.
 const sample_period   128  ; For the sample state machine.
 
 ; Sampling Process. We use bit zero for pressure enable, bit one for
-; tempearture enable, and we have five sets of flags.
-const state_0         0x03 ; Sample pressure and temperature.
-const state_1         0x01 ; Sample pressure.
-const state_2         0x01 ; Sample pressure. 
-const state_3         0x01 ; Sample pressure.
-const state_4         0x03 ; Sample pressure and temperature. 
-const state_5         0x01 ; Sample pressure.
-const state_6         0x01 ; Sample pressure. 
-const state_7         0x01 ; Sample pressure.
+; tempearture enable.
+const state_0         0x01 ; Sample pressure.
+const state_1         0x00 ; Do nothing.
+const state_2         0x00 ; Do nothing.
+const state_3         0x00 ; Do nothing.
+const state_4         0x01 ; Sample pressure. 
+const state_5         0x00 ; Do nothing.
+const state_6         0x00 ; Do nothing.
+const state_7         0x00 ; Do nothing.
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
