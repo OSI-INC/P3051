@@ -43,8 +43,8 @@ entity main is
 		: out std_logic_vector(4 downto 0));
 		
 -- Configuration and Calibration of Transmitter.
-	constant device_id : integer := 19;
-	constant frequency_low : integer := 22;
+	constant device_id : integer := 17;
+	constant frequency_low : integer := 23;
 		
 -- Configuration of OSR8 CPU.
 	constant prog_addr_len : integer := 12;
