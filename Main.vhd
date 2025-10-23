@@ -1,4 +1,4 @@
--- <pre> Blood Pressure Monitor (A3051B) Firmware, Toplevel Unit
+-- <pre> Blood Pressure Monitor (A3051) Firmware, Toplevel Unit
 
 -- Version 2.1 [21-NOV-24] Transmission, reading zero byte from sensor 
 -- interface. Start converting sensor interface to I2C.
@@ -43,7 +43,7 @@ entity main is
 		: out std_logic_vector(4 downto 0));
 		
 -- Configuration and Calibration of Transmitter.
-	constant device_id : integer := 81;
+	constant device_id : integer := 19;
 	constant frequency_low : integer := 22;
 		
 -- Configuration of OSR8 CPU.
@@ -71,7 +71,6 @@ entity main is
 	constant mmu_i2cZ1 : integer := 16#05#; -- i2c SDA=Z SCL=1 (Write)
 	constant mmu_i2cMR : integer := 16#06#; -- i2C Most Recent Eight Bits (Read)
 	constant mmu_did   : integer := 16#07#; -- Device ID (Read)
-	constant mmu_flo   : integer := 16#08#; -- Frequency Low (Read)
 	constant mmu_sr    : integer := 16#0F#; -- Status Register (Read)
 	constant mmu_irqb  : integer := 16#10#; -- Interrupt Request Bits (Read)
 	constant mmu_imsk  : integer := 16#12#; -- Interrupt Mask Bits (Read/Write)
@@ -82,7 +81,6 @@ entity main is
 	constant mmu_xlb   : integer := 16#21#; -- Transmit LO Byte (Write)
 	constant mmu_xcn   : integer := 16#22#; -- Transmit Channel Number (Write)
 	constant mmu_xcr   : integer := 16#24#; -- Transmit Control Register (Write)
-	constant mmu_xfc   : integer := 16#26#; -- Transmit Frequency Calibration (Write)
 	constant mmu_etc   : integer := 16#30#; -- Enable Transmit Clock (Write)
 	constant mmu_tcf   : integer := 16#32#; -- Transmit Clock Frequency (Read)
 	constant mmu_tcd   : integer := 16#34#; -- Transmit Clock Divider (Write)
@@ -130,7 +128,6 @@ architecture behavior of main is
 	signal xmit_bits -- Sixteen bits to be transmitted as a message.
 		: std_logic_vector(15 downto 0) := (others => '0');
 	signal tx_channel : integer range 0 to 255 := 1; -- Transmit channel number
-	signal frequency_ctrl : integer range 0 to 31 := frequency_low; -- Frequency Control
 	constant frequency_step : integer := 2; -- Frequency Step
 		
 -- CPU-Writeable Diagnostic Flags
@@ -230,9 +227,7 @@ begin
 		if falling_edge(FCK) then TCK <= not TCK; end if;
 	end process;
 
--- User memory and configuration code for the CPU. This RAM will be initialized at
--- start-up with a configuration file, and so may be read after power up to configure
--- sensor. The configuration data will begin at address zero.
+-- User memory for the CPU.
 	Process_Memory : entity RAM port map (
 		Clock => not CK,
 		ClockEn => '1',
@@ -323,8 +318,6 @@ begin
 				when mmu_i2cMR => cpu_data_in <= i2c_in;
 				when mmu_did =>
 					cpu_data_in <= std_logic_vector(to_unsigned(device_id,8));
-				when mmu_flo =>
-					cpu_data_in <= std_logic_vector(to_unsigned(frequency_low,8));
 				when others => cpu_data_in <= (others => '0');
 				end case;
 			end if;
@@ -389,7 +382,6 @@ begin
 					when mmu_xhb => xmit_bits(15 downto 8) <= cpu_data_out;
 					when mmu_xcn => tx_channel <= to_integer(unsigned(cpu_data_out));
 					when mmu_xcr => TXI <= true;
-					when mmu_xfc => frequency_ctrl <= to_integer(unsigned(cpu_data_out));
 					when mmu_imsk => int_mask <= cpu_data_out;
 					when mmu_itp => int_period <= cpu_data_out;
 					when mmu_irst => int_rst <= cpu_data_out;
@@ -652,15 +644,15 @@ begin
 		-- the modulation frequency to go from high to low on the falling edge of
 		-- TCK.
 		elsif (TXB xor (TCK = '1')) then
-			xdac <= std_logic_vector(to_unsigned(frequency_ctrl + frequency_step,5));
+			xdac <= std_logic_vector(to_unsigned(frequency_low + frequency_step,5));
 			FHI <= true;
 		else
-			xdac <= std_logic_vector(to_unsigned(frequency_ctrl,5));
+			xdac <= std_logic_vector(to_unsigned(frequency_low,5));
 			FHI <= false;
 		end if;
 	end process;
 	
--- We can drop the logic core voltage to 1.0 V from 1.2 V by driving VC HI. For now
+-- We can drop the logic core voltage from 1.2 V to 1.0 V by driving VC HI. For now
 -- we leave it LO.
 	VC <= '0';
 		

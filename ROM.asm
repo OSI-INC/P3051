@@ -32,7 +32,6 @@ const mmu_i2cZ0 0x0604 ; i2c SDA=Z SCL=0
 const mmu_i2cZ1 0x0605 ; i2c SDA=Z SCL=1 
 const mmu_i2cMR 0x0606 ; i2c Most Recent Eight Bits
 const mmu_did   0x0607 ; Device Identifier, used for first channel
-const mmu_flo   0x0608 ; Frequency Low, obtained by calibration
 const mmu_sr    0x060F ; Status Register
 const mmu_irqb  0x0610 ; Interrupt Request Bits
 const mmu_imsk  0x0612 ; Interrupt Mask Bits
@@ -43,7 +42,6 @@ const mmu_xhb   0x0620 ; Transmit HI Byte
 const mmu_xlb   0x0621 ; Transmit LO Byte
 const mmu_xcn   0x0622 ; Transmit Channel Number
 const mmu_xcr   0x0624 ; Transmit Control Register
-const mmu_xfc   0x0626 ; Transmit Frequency Calibration
 const mmu_etc   0x0630 ; Enable Transmit Clock
 const mmu_tcf   0x0632 ; Transmit Clock Frequency
 const mmu_tcd   0x0634 ; Transmit Clock Divider
@@ -429,11 +427,6 @@ ld (mmu_dfr),A
 ; Calibrate the transmit clock.
 
 call calibrate_tck
-
-; Set the low radio frequency for sample transmission
-
-ld A,(mmu_flo)
-ld (mmu_xfc),A
 
 ; Initialize variables.
 
