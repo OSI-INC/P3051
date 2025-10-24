@@ -1,22 +1,32 @@
-; Blood Pressure Monitor (BPM) Program (C3051A-V2)
-; ------------------------------------------------------
+; Blood Pressure Monitor (BPM) OSR8 Program
+; -----------------------------------------
 
-; This code runs in the OSR8 microprocessor of the A3051A.
+; This code runs in the OSR8 microprocessor of the A3051DV1. It reads
+; out the on-boards pressure sensor, securing pressure and temperature
+; measurements as instructed by the sampling process flags, see below.
+; We configure the pressure sensor for one-shot pressure measurements,
+; which means we get a new measurement taken after every measuremewnt 
+; we read out.
 
 ; Configuration Constants
 const tcd_forced        0  ; Set to non-zero to force transmit clock calib.
 const sample_period   128  ; For the sample state machine.
 
-; Sampling Process. We use bit zero for pressure enable, bit one for
-; tempearture enable, and we have five sets of flags.
-const state_0         0x03 ; Sample pressure and temperature.
-const state_1         0x01 ; Sample pressure.
-const state_2         0x01 ; Sample pressure. 
-const state_3         0x01 ; Sample pressure.
-const state_4         0x03 ; Sample pressure and temperature. 
-const state_5         0x01 ; Sample pressure.
-const state_6         0x01 ; Sample pressure. 
-const state_7         0x01 ; Sample pressure.
+; Sampling Process. We use bit zero for pressure enable and bit one for
+; tempearture enable, so 0x01 is pressure only, 0x02 is temperature only
+; and 0x03 is pressure and temperature. We have eight sets of flags for
+; the eight states of the sampling process. These flags will be read into
+; an array during initialization, so they can be looked up efficiently
+; using one of the index registers during the sample and transmit
+; interrupt.
+const state_0         0x03
+const state_1         0x00
+const state_2         0x01
+const state_3         0x01
+const state_4         0x03
+const state_5         0x01
+const state_6         0x01
+const state_7         0x01
 
 ; Address Map Boundary Constants
 const mmu_vmem 0x0000 ; Base of Variable Memory
