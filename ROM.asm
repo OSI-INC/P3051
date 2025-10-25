@@ -20,7 +20,7 @@ const sample_period   128  ; For the sample state machine.
 ; using one of the index registers during the sample and transmit
 ; interrupt.
 const state_0         0x03
-const state_1         0x00
+const state_1         0x01
 const state_2         0x01
 const state_3         0x01
 const state_4         0x03
