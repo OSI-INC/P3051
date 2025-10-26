@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<userSetting name="C:/Kevan/A3051/P3051/promote.xml" version="Diamond (64-bit) 3.12.1.454" date="Thu Oct 23 19:27:11 2025" vendor="Lattice Semiconductor Corporation" >
+<userSetting name="C:/Kevan/A3051/P3051/promote.xml" version="Diamond (64-bit) 3.12.1.454" date="Sat Oct 25 22:24:30 2025" vendor="Lattice Semiconductor Corporation" >
+  <msg mid="35921504" type="Info" />
+  <msg mid="35921205" type="Warning" />
+  <msg mid="35921251" type="Warning" />
+  <msg mid="35921613" type="Warning" />
 </userSetting>

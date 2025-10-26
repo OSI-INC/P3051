@@ -5,27 +5,28 @@ use ieee.numeric_std.all;
 
 entity ring_oscillator is 
 	generic (
-		calib_range : integer := 15);
+		ring_len : integer := 15);
 	port (
 		ENABLE : in std_logic;
-		calib : in integer range 0 to calib_range;
 		CK : out std_logic);
 end;
 
 architecture behavior of ring_oscillator is 
 
--- WARNING: The ring oscillator is precarious, in that it is hard to predict what
--- small changes in the code will do to its behavior.
+-- Unlike previous versions of our ring oscillator, this one operates on a 
+-- a simple principle: keep adding gates to the ring until you get the correct
+-- period. The trick is to avoid consuming power with gates that we don't 
+-- use. So long as we use all the gates in the ring, the current consumpiont
+-- of the ring is independent of the number of gates, but as soon as we start
+-- running unused gates off the ring, these will consume power.
 
--- When compiling and routing this oscillator, we have to convince the VHDL compiler
--- to retain four buffers to make the ring, despite its great desire to elimnate them
--- all, and its complaints that we have timing loops. On the LCMXO2-1200ZE-1U, our 
--- four-gate ring runs at about 140 MHz, implying an individual gate delay of 0.8 ns. 
--- The compiler calculates there is no way the chip can count a 140-MHz clock in a 
--- 5-bit counter, so we don't tell it the true speed of the ring when we perform timing 
--- analysis. If we were to increase the ring to five gates, we would no longer have the 
--- resolution in CK period adjustment to guarantee that the period is within the 
--- 195-215 ns interval acceptable for SCT messages.
+-- When compiling and routing this oscillator, we have to convince the VHDL 
+-- compiler to retain the ring buffers, despite its great desire to elimnate 
+-- them all, and its complaints that we have timing loops. In a LCMXO2-1200ZE 
+-- with core power supply dropped to 1.0 V, the gate delay is around 3.5 ns. 
+-- For each gate we add to the ring oscillator, we increase the period by 
+-- roughly 7.0 ns, which is ample resolution for the generation of a period 
+-- in the range 195-215 ns. 
 
 -- Functions and Procedures	
 	function to_std_logic (v: boolean) return std_ulogic is
@@ -37,58 +38,26 @@ architecture behavior of ring_oscillator is
 
 -- Ring Oscillator and Transmit Clock
 	component BUFBA is port (A : in std_logic; Z : out std_logic); end component;
-	signal RIN, R1, R2, R3, R4, R5, R6 : std_logic;
-	attribute syn_keep of RIN, R1, R2, R3, R4, R5, R6 : signal is true;
-	attribute nomerge of RIN, R1, R2, R3, R4, R5, R6 : signal is ""; 
+	signal R : std_logic_vector(ring_len downto 0);
+	attribute syn_keep of R : signal is true;
+	attribute nomerge of R : signal is ""; 
 
 begin
 
 -- Declare the ring oscillator gate entities.
-	ring1 : BUFBA port map (RIN,R1);
-	ring2 : BUFBA port map (R1,R2);
-	ring3 : BUFBA port map (R2,R3);
-	ring4 : BUFBA port map (R3,R4);
-	ring5 : BUFBA port map (R4,R5);
-	ring6 : BUFBA port map (R5,R6);
+	gen_ring : for i in 0 to ring_len-1 generate
+        stage : BUFBA
+            port map (
+                A => R(i),
+                Z => R(i+1)
+            );
+    end generate;
 
--- When ENABLE, feed back the output of one of the gates to the first gate 
--- in the ring. The ring needs to oscillate fast enough that integer fractions
--- of the frequency will get us close to our ideal output frequency. It must
--- run slow enough that our dividor can function.
-	RIN <= to_std_logic((ENABLE = '1') and (R3 = '0'));
+-- When ENABLE, feed back the output of the final gate to the first gate.
+	R(0) <= to_std_logic((ENABLE = '1') and (R(ring_len) = '0'));
 	
--- The divider process takes the ring osillator output and divides it down to
--- a slower frequency. When the divisor is even, the output clock will have 
--- exactly 50% duty cycle. When odd, the duty cycle will be as close to 50% as
--- we can get.
-	divider : process (RIN) is
-		variable count, next_count : integer range 0 to calib_range;
-	begin	
-		
-		-- Act on the rising edge of RIN.
-		if rising_edge(RIN) then
-		
-			-- Count down from calib to zero, a total of calib+1 RIN periods
-			-- will make up the output clock period.
-			if (count = 0) then 
-				next_count := calib;
-			else 
-				next_count := count - 1;
-			end if;
-			
-			-- We try to get close to 50% duty cycle. We don't use feedback,
-			-- but instead specify fully the values of CK in terms of calib 
-			-- for all values of count so as to speed up the logic behind CK. 
-			if (count <= calib/2) then
-				CK <= '1';
-			else
-				CK <= '0';
-			end if;
-			
-			-- Se the next count.
-			count := next_count;
-		end if;
-	end process;
+-- The clock output.
+	CK <= R(0);
 end behavior;
 ------------ END RING OSCILLATOR DECLARATION -----------
 

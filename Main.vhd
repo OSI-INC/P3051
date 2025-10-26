@@ -45,6 +45,7 @@ entity main is
 -- Configuration and Calibration of Transmitter.
 	constant device_id : integer := 19;
 	constant frequency_low : integer := 23;
+	constant fck_divisor : integer := 23;
 		
 -- Configuration of OSR8 CPU.
 	constant prog_addr_len : integer := 12;
@@ -54,7 +55,7 @@ entity main is
 
 -- Configuration of peripherals.
 	constant ram_addr_len : integer := 10;
-	constant tcd_range : integer := 15;
+	constant tcd_range : integer := 12;
 	
 -- Memory map sizes and base addresses in units of 512 bytes.
 	constant ram_base : integer := 0;
@@ -82,8 +83,6 @@ entity main is
 	constant mmu_xcn   : integer := 16#22#; -- Transmit Channel Number (Write)
 	constant mmu_xcr   : integer := 16#24#; -- Transmit Control Register (Write)
 	constant mmu_etc   : integer := 16#30#; -- Enable Transmit Clock (Write)
-	constant mmu_tcf   : integer := 16#32#; -- Transmit Clock Frequency (Read)
-	constant mmu_tcd   : integer := 16#34#; -- Transmit Clock Divider (Write)
 	constant mmu_bcc   : integer := 16#36#; -- Boost CPU Clock (Write)
 	constant mmu_dfr   : integer := 16#38#; -- Diagnostic Flag Register (Read/Write)
 end;
@@ -111,7 +110,6 @@ architecture behavior of main is
 	attribute nomerge of TCK, FCK, CK : signal is "";  
 	signal ENTCK : boolean := false; -- Enable Transmit Clock
 	signal tck_frequency : integer range 0 to 255; -- Transmit Clock Counter
-	signal tck_divisor : integer range 0 to tcd_range := tcd_range;
 	signal BOOST : boolean := false; -- Boost CPU Clock Frequency
 	
 -- Sensor Readout
@@ -213,10 +211,9 @@ begin
 -- ring oscillator will produce FCK at 10 MHz.
 	Fast_CK : entity ring_oscillator 
 		generic map (
-			calib_range => tcd_range)	
+			ring_len => fck_divisor)	
 		port map (
 			ENABLE => to_std_logic(ENTCK), 
-			calib => tck_divisor,
 			CK => FCK);
 	
 -- The Transmit Clock process divides FCK in two so as to produce a clock with
@@ -312,8 +309,6 @@ begin
 				when mmu_irqb => cpu_data_in <= int_bits;
 				when mmu_imsk => cpu_data_in <= int_mask;
 				when mmu_itp => cpu_data_in <= int_period;
-				when mmu_tcf =>
-					cpu_data_in <= std_logic_vector(to_unsigned(tck_frequency,8));
 				when mmu_dfr => cpu_data_in <= df_reg;
 				when mmu_i2cMR => cpu_data_in <= i2c_in;
 				when mmu_did =>
@@ -335,7 +330,6 @@ begin
 			TXI <= false;
 			ENTCK <= false;
 			BOOST <= false;
-			tck_divisor <= tcd_range;
 			int_period <= (others => '0');
 			int_mask <= (others => '0');
 			i2c_in <= (others => '0');
@@ -387,7 +381,6 @@ begin
 					when mmu_irst => int_rst <= cpu_data_out;
 					when mmu_rst => SWRST <= (cpu_data_out(0) = '1');
 					when mmu_etc => ENTCK <= (cpu_data_out(0) = '1');
-					when mmu_tcd => tck_divisor <= to_integer(unsigned(cpu_data_out));
 					when mmu_bcc => BOOST <= (cpu_data_out(0) = '1');
 					when mmu_dfr => df_reg <= cpu_data_out;
 					when others => df_reg <= df_reg;
