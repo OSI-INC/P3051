@@ -5,20 +5,21 @@ use ieee.numeric_std.all;
 
 entity ring_oscillator is 
 	generic (
-		ring_len : integer := 15);
+		ring_len : integer
+	);
 	port (
 		ENABLE : in std_logic;
-		CK : out std_logic);
+		CK : out std_logic
+	);
 end;
 
 architecture behavior of ring_oscillator is 
 
--- Unlike previous versions of our ring oscillator, this one operates on a 
--- a simple principle: keep adding gates to the ring until you get the correct
--- period. The trick is to avoid consuming power with gates that we don't 
--- use. So long as we use all the gates in the ring, the current consumpiont
--- of the ring is independent of the number of gates, but as soon as we start
--- running unused gates off the ring, these will consume power.
+-- We add gates to the ring until we get the correct period. The ring_len 
+-- constant sets the number of gates, and these we form into a ring. The 
+-- ring is built during generation. It cannot be reconfigured at run-time.
+-- It cannot be calibrated automatically with respect to a reference clock. 
+-- It must be calibrated prior to final firmware programming.
 
 -- When compiling and routing this oscillator, we have to convince the VHDL 
 -- compiler to retain the ring buffers, despite its great desire to elimnate 

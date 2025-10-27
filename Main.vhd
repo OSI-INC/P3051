@@ -21,6 +21,10 @@
 -- Version 4.1 [21-OCT-25] Adapt for A3051D, in which we have the VC output
 -- to control the core logic voltage. We remove the IDY and SA0 signals.
 
+-- Version 4.2 [27-OCT-25] Change ring oscillator to one giant ring, so as
+-- to provide better resolution. Move calibration of ring oscillator out
+-- of CPU and into VHDL, hard-coded.
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -45,7 +49,7 @@ entity main is
 -- Configuration and Calibration of Transmitter.
 	constant device_id : integer := 19;
 	constant frequency_low : integer := 23;
-	constant fck_divisor : integer := 23;
+	constant fck_divisor : integer := 25;
 		
 -- Configuration of OSR8 CPU.
 	constant prog_addr_len : integer := 12;
@@ -645,9 +649,8 @@ begin
 		end if;
 	end process;
 	
--- We can drop the logic core voltage from 1.2 V to 1.0 V by driving VC HI. For now
--- we leave it LO.
-	VC <= '0';
+-- We can drop the logic core voltage from 1.2 V to 1.0 V by driving VC HI.
+	VC <= '1';
 		
 -- Test Point One appears on P1-2 after the programming connector has been removed. 
 	TP1 <= to_std_logic(FHI);

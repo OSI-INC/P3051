@@ -8,10 +8,6 @@
 ; which means we get a new measurement taken after every measuremewnt 
 ; we read out.
 
-; Configuration Constants
-const tcd_forced        0  ; Set to non-zero to force transmit clock calib.
-const sample_period   128  ; For the sample state machine.
-
 ; Sampling Process. We use bit zero for pressure enable and bit one for
 ; tempearture enable, so 0x01 is pressure only, 0x02 is temperature only
 ; and 0x03 is pressure and temperature. We have eight sets of flags for
@@ -19,11 +15,12 @@ const sample_period   128  ; For the sample state machine.
 ; an array during initialization, so they can be looked up efficiently
 ; using one of the index registers during the sample and transmit
 ; interrupt.
-const state_0         0x03
+const sample_period    128
+const state_0         0x01
 const state_1         0x01
 const state_2         0x01
 const state_3         0x01
-const state_4         0x03
+const state_4         0x01
 const state_5         0x01
 const state_6         0x01
 const state_7         0x01
@@ -53,14 +50,8 @@ const mmu_xlb   0x0621 ; Transmit LO Byte
 const mmu_xcn   0x0622 ; Transmit Channel Number
 const mmu_xcr   0x0624 ; Transmit Control Register
 const mmu_etc   0x0630 ; Enable Transmit Clock
-const mmu_tcf   0x0632 ; Transmit Clock Frequency
-const mmu_tcd   0x0634 ; Transmit Clock Divider
 const mmu_bcc   0x0636 ; Boost CPU Clock
 const mmu_dfr   0x0638 ; Diagnostic Flag Resister
-
-; Configuration Constants
-const min_tcf       75 ; Minimum TCK periods per half RCK period.
-const max_tcd       15 ; Maximum possible value of transmit clock divisor.
 
 ; Timing Constants.
 const tx_delay      50 ; Wait time for sample transmission, TCK periods.
@@ -283,82 +274,6 @@ ld (mmu_etc),A
 pop A
 rti  
 
-; ------------------------------------------------------------
-; Calibrate the transmit clock frequency. Will leave the
-; transmit clock disabled and cpu boost turned off. The 
-; transmit clock should run at 5 MHz. We are going to determine
-; which value of transmit clock divisor, when applied to the
-; ring oscillator frequency, gives us a frequency close to
-; 5 MHz. We will write that value to the transmit clock divisor
-; register, and so calibrate the ring oscillator.
-
-calibrate_tck:
-
-; Push the registers we are going to use.
-
-push F
-push A           
-push B   
-
-; Disable the CPU boost clock, to enter non-boost, where we are
-; running off 32.768 kHz.
-
-ld A,0x00    
-ld (mmu_bcc),A   
-
-; Turn off the transmit clock (TCK) by writing a zero to the
-; enable transmit clock location in our control space. 
-
-ld (mmu_etc),A
-
-; Pick an initial value for the divisor that we know will be 
-; too high, so the transmit clock frequency will certainly
-; be too low. Store this value in both A and B registers. There
-; is no instruction to move A directly into B. Instead, we push
-; A onto the stack, then pop it off into B.
-
-ld A,max_tcd 
-push A  
-pop B
-
-; We enter a loop in which we decrement the divisor stored in
-; B, then try it out and see if the resulting frequency is 
-; above the minimum frequency we are prepared to accept. We
-; measure the frequency using the transmit clock frequency
-; register, which counts the number of TCK cycles in one
-; half of an RCK cycle immediately after we enable the 
-; transmit clock. When we have this number of cycles, we 
-; subtract a minimum, and if the result is negative, we know
-; we have to decrease the divisor further. If the result is
-; positive, we are done.
-
-cal_tck_1:
-dec B           
-push B           
-pop A            
-ld (mmu_tcd),A   
-ld A,0x01        
-ld (mmu_etc),A   
-ld A,(mmu_tcf)  
-sub A,min_tcf   
-ld A,0x00       
-ld (mmu_etc),A   
-jp np,cal_tck_1 
-
-; If tcd_forced is non-zero, we use it to set the transmit
-; clock divisor no matter what our calibration.
-ld A,tcd_forced
-sub A,0x00
-jp z,cal_tck_unforced
-ld (mmu_tcd),A
-cal_tck_unforced:
-
-; Pop and return.
-
-pop B            
-pop A          
-pop F
-ret              
 
 ; ------------------------------------------------------------
 ; Initialize the sensor by writing to its configuration registers.
@@ -433,10 +348,6 @@ jp nz,pwr_up_lp
 
 ld A,0x00
 ld (mmu_dfr),A
-
-; Calibrate the transmit clock.
-
-call calibrate_tck
 
 ; Initialize variables.
 
