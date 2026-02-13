@@ -27,7 +27,8 @@
 
 -- [12-FEB-26] The interrupt manager in this code is flawed: it is vulnerable 
 -- to conflicts between RCK and TCK when we reset an interrupt bit. We 
--- resolved these conflicts in P3041, and when we next work on this P3051 code-- we must implement the same resolution to avoide future instability.
+-- resolved these conflicts in P3041, and when we next work on this P3051 code
+-- we must implement the same resolution to avoide future instability.
 
 
 library ieee;  
