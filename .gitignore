@@ -1,6 +1,11 @@
 P3051_tcr.dir/
 impl1/
 .recovery/
-Untitled.tpf
-.spreadsheet_view.ini
+Untitled.*
+.*
+_*
 *.log
+*.html
+*.edn
+*.srp
+*.xml

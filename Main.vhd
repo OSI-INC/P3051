@@ -25,6 +25,11 @@
 -- to provide better resolution. Move calibration of ring oscillator out
 -- of CPU and into VHDL, hard-coded.
 
+-- [12-FEB-26] The interrupt manager in this code is flawed: it is vulnerable 
+-- to conflicts between RCK and TCK when we reset an interrupt bit. We 
+-- resolved these conflicts in P3041, and when we next work on this P3051 code-- we must implement the same resolution to avoide future instability.
+
+
 library ieee;  
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -47,9 +52,9 @@ entity main is
 		: out std_logic_vector(4 downto 0));
 		
 -- Configuration and Calibration of Transmitter.
-	constant device_id : integer := 19;
+	constant device_id : integer := 37;
 	constant frequency_low : integer := 23;
-	constant fck_divisor : integer := 25;
+	constant fck_divisor : integer := 26;
 		
 -- Configuration of OSR8 CPU.
 	constant prog_addr_len : integer := 12;
@@ -469,7 +474,7 @@ begin
 	end process;
 
 	-- The Interrupt_Controller provides the interrupt signal to the CPU in response to
-	-- sensor and timer events. By default, at power-up, all interrupts are maske.
+	-- sensor and timer events. By default, at power-up, all interrupts are masked.
 	Interrupt_Controller : process (RCK,CK,RESET) is
 	variable counter : integer range 0 to 255;
 	begin
